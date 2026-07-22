@@ -64,6 +64,101 @@ print(f"Predicted word: '{predicted_word}'")
         with open(os.path.join(templates_dir, "activation_patching.py"), "w") as f:
             f.write(patching_template)
 
+        # Example template for Ablation Studies
+        ablation_template = """import torch
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+model = GPT2LMHeadModel.from_pretrained("gpt2")
+model.eval()
+
+text = "Mechanistic Interpretability is"
+inputs = tokenizer(text, return_tensors="pt")
+
+# Цель: занулить выход определенной головы внимания (Ablation)
+layer_idx = 0
+head_idx = 4
+num_heads = model.config.n_head
+head_dim = model.config.n_embd // num_heads
+
+def ablation_hook(module, input, output):
+    # output - это кортеж. Нам нужен первый элемент (hidden states)
+    hidden_states = output[0]
+
+    # hidden_states имеет форму [batch_size, seq_len, n_embd]
+    # Нам нужно занулить конкретную голову
+    batch_size, seq_len, n_embd = hidden_states.shape
+
+    # Разделяем эмбеддинг на головы
+    hidden_states_reshaped = hidden_states.view(batch_size, seq_len, num_heads, head_dim)
+
+    # Зануляем выбранную голову
+    hidden_states_reshaped[:, :, head_idx, :] = 0.0
+
+    # Собираем обратно
+    modified_hidden_states = hidden_states_reshaped.view(batch_size, seq_len, n_embd)
+
+    # Возвращаем модифицированный кортеж
+    return (modified_hidden_states,) + output[1:]
+
+layer_to_ablate = model.transformer.h[layer_idx].attn
+handle = layer_to_ablate.register_forward_hook(ablation_hook)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+
+handle.remove()
+
+next_token_logits = outputs.logits[0, -1, :]
+predicted_token_id = torch.argmax(next_token_logits).item()
+print(f"Predicted word after ablation: '{tokenizer.decode(predicted_token_id)}'")
+"""
+        with open(os.path.join(templates_dir, "ablation.py"), "w") as f:
+            f.write(ablation_template)
+
+        # Example template for Forward Hooks (Activation Extraction)
+        forward_hooks_template = """import torch
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+model = GPT2LMHeadModel.from_pretrained("gpt2")
+model.eval()
+
+text = "Extracting activations is fun"
+inputs = tokenizer(text, return_tensors="pt")
+
+activations = {}
+
+def get_activation(name):
+    def hook(module, input, output):
+        # Если output это кортеж, берем первый элемент (для многих слоев attention)
+        if isinstance(output, tuple):
+            activations[name] = output[0].detach().cpu()
+        else:
+            activations[name] = output.detach().cpu()
+    return hook
+
+# Регистрируем хуки на MLP слои первых трех блоков
+handles = []
+for i in range(3):
+    layer = model.transformer.h[i].mlp
+    handle = layer.register_forward_hook(get_activation(f'mlp_layer_{i}'))
+    handles.append(handle)
+
+with torch.no_grad():
+    outputs = model(**inputs)
+
+for handle in handles:
+    handle.remove()
+
+# Выводим информацию о сохраненных активациях
+for name, act in activations.items():
+    print(f"Layer: {name}, Activation shape: {act.shape}, Mean: {act.mean().item():.4f}")
+"""
+        with open(os.path.join(templates_dir, "forward_hooks.py"), "w") as f:
+            f.write(forward_hooks_template)
+
+
 if __name__ == "__main__":
     env = SandboxEnvironment()
     env.setup_templates()

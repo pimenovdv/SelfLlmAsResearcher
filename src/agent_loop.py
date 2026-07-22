@@ -3,10 +3,12 @@ import re
 import subprocess
 import os
 import sys
+import argparse
+from dotenv import load_dotenv
 
-# Инициализация клиента (замените на ваш API-ключ или локальный эндпоинт, например Ollama/vLLM)
-# Для работы примера необходимо установить переменную окружения OPENAI_API_KEY
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY", "dummy_key"))
+# Загружаем переменные окружения из файла .env, если он существует
+load_dotenv()
+
 MODEL_NAME = "gpt-4o"
 
 SYSTEM_PROMPT = """
@@ -120,10 +122,31 @@ class ReActAgent:
                 print(f"Ошибка при работе с API LLM: {str(e)}")
                 break
 
-def run_agent_loop(user_goal, max_steps=10):
-    agent = ReActAgent(client=client)
+def run_agent_loop(user_goal, client, model_name=MODEL_NAME, max_steps=10):
+    agent = ReActAgent(client=client, model_name=model_name)
     agent.run(user_goal, max_steps)
 
 if __name__ == "__main__":
-    goal = "Загрузи модель GPT-2 из transformers. Выведи структуру её слоев и найди, какой размер имеет матрица весов в первом слое Feed Forward Network (MLP)."
-    run_agent_loop(goal)
+    parser = argparse.ArgumentParser(description="Запуск Mechanistic Interpretability Агента")
+    parser.add_argument("--goal", type=str, default="Загрузи модель GPT-2 из transformers. Выведи структуру её слоев и найди, какой размер имеет матрица весов в первом слое Feed Forward Network (MLP).", help="Цель для агента")
+    parser.add_argument("--api-key", type=str, help="OpenAI API ключ (или другой поддерживаемый). Также можно задать через OPENAI_API_KEY в .env")
+    parser.add_argument("--base-url", type=str, help="Базовый URL API (для локальных моделей, например vLLM/Ollama). Также можно задать через OPENAI_BASE_URL в .env")
+    parser.add_argument("--model", type=str, default=MODEL_NAME, help=f"Имя модели (по умолчанию: {MODEL_NAME})")
+    parser.add_argument("--max-steps", type=int, default=10, help="Максимальное количество шагов агента")
+
+    args = parser.parse_args()
+
+    api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
+    base_url = args.base_url or os.environ.get("OPENAI_BASE_URL")
+
+    if not api_key:
+        print("Внимание: API ключ не задан. Используется фиктивный 'dummy_key'. Установите переменную OPENAI_API_KEY в .env файле или передайте через --api-key.")
+        api_key = "dummy_key"
+
+    client_kwargs = {"api_key": api_key}
+    if base_url:
+        client_kwargs["base_url"] = base_url
+
+    client = openai.OpenAI(**client_kwargs)
+
+    run_agent_loop(args.goal, client, model_name=args.model, max_steps=args.max_steps)

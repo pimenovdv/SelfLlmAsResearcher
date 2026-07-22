@@ -42,8 +42,15 @@ class ReActAgent:
         return match.group(1) if match else None
 
     @staticmethod
+    def set_memory_limit():
+        import resource
+        # Ограничиваем память до 4 ГБ (4 * 1024 * 1024 * 1024 байт)
+        max_mem_bytes = 4 * 1024 * 1024 * 1024
+        resource.setrlimit(resource.RLIMIT_AS, (max_mem_bytes, max_mem_bytes))
+
+    @staticmethod
     def execute_script(code, filename="agent_workspace/experiment.py"):
-        """Сохраняет код в файл и безопасно запускает его в подпроцессе."""
+        """Сохраняет код в файл и безопасно запускает его в подпроцессе с ограничением памяти."""
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
         with open(filename, "w", encoding="utf-8") as f:
@@ -55,7 +62,8 @@ class ReActAgent:
                 [sys.executable, filename],
                 capture_output=True,
                 text=True,
-                timeout=120 # Ограничение времени выполнения (защита от бесконечных циклов)
+                timeout=120, # Ограничение времени выполнения (защита от бесконечных циклов)
+                preexec_fn=ReActAgent.set_memory_limit # Ограничение памяти
             )
             output = result.stdout
             if result.stderr:

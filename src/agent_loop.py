@@ -31,6 +31,22 @@ SYSTEM_PROMPT = """
 За один раз ты можешь написать только один блок кода.
 """
 
+PLANNER_SYSTEM_PROMPT = """
+Ты — AI Planner и Архитектор сложных задач в области Mechanistic Interpretability.
+Твоя цель: принять глобальную задачу пользователя и разбить её на логические, последовательные шаги (подзадачи), которые будут выполнены агентом-исследователем (Researcher).
+
+ПРАВИЛА ПЛАНИРОВАНИЯ:
+1. Задачи должны быть конкретными и выполнимыми за 1-2 запуска скрипта.
+2. В каждой задаче указывай, что именно нужно сделать и какие результаты получить.
+3. Формат вывода: ТОЛЬКО валидный JSON массив строк-задач. Никакого дополнительного текста до или после JSON.
+
+Пример вывода:
+[
+  "Загрузить модель gpt2 и вывести её архитектуру, проверив форму первой матрицы весов MLP.",
+  "Написать скрипт для извлечения активаций из MLP слоя при подаче на вход текста 'Hello world'."
+]
+"""
+
 REVIEWER_SYSTEM_PROMPT = """
 Ты — AI Reviewer и эксперт по Mechanistic Interpretability.
 Твоя цель: оценивать скрипты и результаты экспериментов, выполненные Researcher агентом.
@@ -39,9 +55,10 @@ REVIEWER_SYSTEM_PROMPT = """
 1. Оценивай корректность Python кода.
 2. Оценивай достижение исходной цели пользователя.
 3. Проверяй, не выводит ли скрипт сырые веса (контекст должен быть агрегированным).
+4. Ты можешь написать Python скрипт (в блоке ```python ... ```), чтобы запустить дополнительные проверки и ассерты. Если ты напишешь код, он будет выполнен в изолированной песочнице, и ты получишь результаты, прежде чем выносить финальный вердикт.
 
 ФОРМАТ ОТВЕТА:
-Если результаты эксперимента полностью отвечают на задачу пользователя и код написан корректно,
+Если результаты эксперимента полностью отвечают на задачу пользователя и код написан корректно (в том числе после твоих проверок),
 твой ответ должен обязательно содержать фразу "ОДОБРЕНО".
 В противном случае укажи на ошибки или предложи улучшения, чтобы Researcher их исправил. Не пиши код за него, только давай комментарии.
 """
@@ -174,6 +191,40 @@ def run_agent_loop(user_goal, client, model_name=MODEL_NAME, max_steps=10, resum
         agent.load_state(resume_path)
     agent.run(user_goal, max_steps, save_path)
 
+def run_planner_agent_loop(user_goal, client, model_name=MODEL_NAME, max_steps=10, max_reviews=3):
+    print(">> ПЛАНИРОВЩИК ЗАДАЧ РАБОТАЕТ <<")
+    planner = ReActAgent(client=client, model_name=model_name, system_prompt=PLANNER_SYSTEM_PROMPT)
+    planner.messages.append({"role": "user", "content": user_goal})
+
+    try:
+        response = planner.client.chat.completions.create(
+            model=planner.model_name,
+            messages=planner.messages,
+            temperature=0.2
+        )
+        planner_reply = response.choices[0].message.content
+        print(f"PLANNER:\n{planner_reply}\n")
+
+        # Попытка найти JSON массив в ответе планировщика
+        match = re.search(r"\[.*\]", planner_reply, re.DOTALL)
+        if match:
+            tasks = json.loads(match.group(0))
+        else:
+            print("Ошибка: Планировщик не вернул JSON массив. Запуск без планировщика.")
+            run_multi_agent_loop(user_goal, client, model_name, max_steps, max_reviews)
+            return
+
+        print(f"Задач в плане: {len(tasks)}")
+        for i, task in enumerate(tasks):
+            print(f"\n==========================================")
+            print(f"=== ВЫПОЛНЕНИЕ ПОДЗАДАЧИ {i+1} ИЗ {len(tasks)} ===")
+            print(f"==========================================\n")
+            print(f"Подзадача: {task}\n")
+            run_multi_agent_loop(task, client, model_name, max_steps, max_reviews)
+
+    except Exception as e:
+        print(f"Ошибка при работе Planner API: {str(e)}")
+
 def run_multi_agent_loop(user_goal, client, model_name=MODEL_NAME, max_steps=10, max_reviews=3):
     researcher = ReActAgent(client=client, model_name=model_name, system_prompt=SYSTEM_PROMPT)
     reviewer = ReActAgent(client=client, model_name=model_name, system_prompt=REVIEWER_SYSTEM_PROMPT)
@@ -212,23 +263,43 @@ def run_multi_agent_loop(user_goal, client, model_name=MODEL_NAME, max_steps=10,
 
         print(">> REVIEWER ОЦЕНИВАЕТ <<")
         reviewer.messages.append({"role": "user", "content": reviewer_prompt})
-        try:
-            response = reviewer.client.chat.completions.create(
-                model=reviewer.model_name,
-                messages=reviewer.messages,
-                temperature=0.2
-            )
-            reviewer_reply = response.choices[0].message.content
-            reviewer.messages.append({"role": "assistant", "content": reviewer_reply})
-            print(f"REVIEWER:\n{reviewer_reply}\n")
 
-            if "ОДОБРЕНО" in reviewer_reply.upper():
-                print(">> REVIEWER ОДОБРИЛ РЕЗУЛЬТАТ. ЗАВЕРШЕНИЕ <<")
+        reviewer_approved = False
+        try:
+            # Даем Reviewer'у до 3 попыток на запуск проверочных скриптов
+            for _ in range(3):
+                response = reviewer.client.chat.completions.create(
+                    model=reviewer.model_name,
+                    messages=reviewer.messages,
+                    temperature=0.2
+                )
+                reviewer_reply = response.choices[0].message.content
+                reviewer.messages.append({"role": "assistant", "content": reviewer_reply})
+                print(f"REVIEWER:\n{reviewer_reply}\n")
+
+                reviewer_code = reviewer.extract_code(reviewer_reply)
+                if reviewer_code:
+                    print(">> Выполняю проверочный код Reviewer'а...")
+                    execution_result = reviewer.execute_script(reviewer_code, filename="agent_workspace/reviewer_check.py")
+                    if len(execution_result) > 2000:
+                        execution_result = execution_result[:2000] + "\n...[ВЫВОД ОБРЕЗАН ИЗ-ЗА ДЛИНЫ]..."
+                    print(f"<< РЕЗУЛЬТАТ ПРОВЕРКИ:\n{execution_result}")
+                    reviewer.messages.append({
+                        "role": "user",
+                        "content": f"Результат выполнения твоего проверочного скрипта:\n```text\n{execution_result}\n```\nВынеси вердикт ('ОДОБРЕНО' или комментарии для исправления)."
+                    })
+                else:
+                    if "ОДОБРЕНО" in reviewer_reply.upper():
+                        reviewer_approved = True
+                        print(">> REVIEWER ОДОБРИЛ РЕЗУЛЬТАТ. ЗАВЕРШЕНИЕ <<")
+                    else:
+                        print(">> ОТПРАВКА КОММЕНТАРИЕВ REVIEWER К RESEARCHER <<")
+                        current_goal = f"Reviewer оставил комментарии к твоей работе. Пожалуйста, исправь ошибки:\n{reviewer_reply}"
+                    break
+
+            if reviewer_approved:
                 break
-            else:
-                # Отправляем комментарии Reviewer обратно Researcher
-                print(">> ОТПРАВКА КОММЕНТАРИЕВ REVIEWER К RESEARCHER <<")
-                current_goal = f"Reviewer оставил комментарии к твоей работе. Пожалуйста, исправь ошибки:\n{reviewer_reply}"
+
         except Exception as e:
             print(f"Ошибка при работе Reviewer API: {str(e)}")
             break
@@ -244,6 +315,7 @@ if __name__ == "__main__":
     parser.add_argument("--resume", type=str, help="Путь к JSON файлу для восстановления сессии")
     parser.add_argument("--save", type=str, help="Путь к JSON файлу для сохранения сессии")
     parser.add_argument("--multi-agent", action="store_true", help="Запустить в режиме Multi-Agent (Researcher + Reviewer)")
+    parser.add_argument("--planner", action="store_true", help="Запустить в режиме Planner -> Multi-Agent")
 
     args = parser.parse_args()
 
@@ -260,7 +332,9 @@ if __name__ == "__main__":
 
     client = openai.OpenAI(**client_kwargs)
 
-    if args.multi_agent:
+    if args.planner:
+        run_planner_agent_loop(args.goal, client, model_name=args.model, max_steps=args.max_steps)
+    elif args.multi_agent:
         run_multi_agent_loop(args.goal, client, model_name=args.model, max_steps=args.max_steps)
     else:
         run_agent_loop(args.goal, client, model_name=args.model, max_steps=args.max_steps, resume_path=args.resume, save_path=args.save)

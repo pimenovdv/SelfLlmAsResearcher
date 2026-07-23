@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import argparse
+import json
 from dotenv import load_dotenv
 
 # Загружаем переменные окружения из файла .env, если он существует
@@ -36,6 +37,27 @@ class ReActAgent:
         self.model_name = model_name
         self.system_prompt = system_prompt
         self.messages = []
+
+    def save_state(self, filepath):
+        """Сохраняет текущую историю сообщений в JSON файл."""
+        try:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(self.messages, f, ensure_ascii=False, indent=2)
+            print(f"Состояние успешно сохранено в {filepath}")
+        except Exception as e:
+            print(f"Ошибка при сохранении состояния: {e}")
+
+    def load_state(self, filepath):
+        """Загружает историю сообщений из JSON файла."""
+        try:
+            if os.path.exists(filepath):
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    self.messages = json.load(f)
+                print(f"Состояние успешно загружено из {filepath}")
+            else:
+                print(f"Файл {filepath} не найден. Начинаем новую сессию.")
+        except Exception as e:
+            print(f"Ошибка при загрузке состояния: {e}")
 
     @staticmethod
     def extract_code(text):
@@ -76,11 +98,17 @@ class ReActAgent:
         except Exception as e:
             return f"Системная ошибка при запуске: {str(e)}"
 
-    def run(self, user_goal, max_steps=10):
-        self.messages = [
-            {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": user_goal}
-        ]
+    def run(self, user_goal, max_steps=10, save_path=None):
+        if not self.messages:
+            self.messages = [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": user_goal}
+            ]
+        elif user_goal:
+             # Если загрузили состояние, но есть новая цель, и последняя цель отличается, добавляем её
+             has_recent_matching_goal = any(m["role"] == "user" and m["content"] == user_goal for m in self.messages[-3:])
+             if not has_recent_matching_goal:
+                 self.messages.append({"role": "user", "content": user_goal})
 
         for step in range(max_steps):
             print(f"\n--- ШАГ {step + 1} ---")
@@ -118,13 +146,18 @@ class ReActAgent:
                     # Если кода нет, агент считает, что задача выполнена, или задает вопрос
                     print(">> Агент не предоставил код. Остановка цикла или ожидание ответа.")
                     break
+
+                if save_path:
+                    self.save_state(save_path)
             except Exception as e:
                 print(f"Ошибка при работе с API LLM: {str(e)}")
                 break
 
-def run_agent_loop(user_goal, client, model_name=MODEL_NAME, max_steps=10):
+def run_agent_loop(user_goal, client, model_name=MODEL_NAME, max_steps=10, resume_path=None, save_path=None):
     agent = ReActAgent(client=client, model_name=model_name)
-    agent.run(user_goal, max_steps)
+    if resume_path:
+        agent.load_state(resume_path)
+    agent.run(user_goal, max_steps, save_path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Запуск Mechanistic Interpretability Агента")
@@ -133,6 +166,8 @@ if __name__ == "__main__":
     parser.add_argument("--base-url", type=str, help="Базовый URL API (для локальных моделей, например vLLM/Ollama). Также можно задать через OPENAI_BASE_URL в .env")
     parser.add_argument("--model", type=str, default=MODEL_NAME, help=f"Имя модели (по умолчанию: {MODEL_NAME})")
     parser.add_argument("--max-steps", type=int, default=10, help="Максимальное количество шагов агента")
+    parser.add_argument("--resume", type=str, help="Путь к JSON файлу для восстановления сессии")
+    parser.add_argument("--save", type=str, help="Путь к JSON файлу для сохранения сессии")
 
     args = parser.parse_args()
 
@@ -149,4 +184,4 @@ if __name__ == "__main__":
 
     client = openai.OpenAI(**client_kwargs)
 
-    run_agent_loop(args.goal, client, model_name=args.model, max_steps=args.max_steps)
+    run_agent_loop(args.goal, client, model_name=args.model, max_steps=args.max_steps, resume_path=args.resume, save_path=args.save)

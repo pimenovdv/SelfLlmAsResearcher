@@ -31,6 +31,21 @@ SYSTEM_PROMPT = """
 За один раз ты можешь написать только один блок кода.
 """
 
+REVIEWER_SYSTEM_PROMPT = """
+Ты — AI Reviewer и эксперт по Mechanistic Interpretability.
+Твоя цель: оценивать скрипты и результаты экспериментов, выполненные Researcher агентом.
+
+ПРАВИЛА ОЦЕНКИ:
+1. Оценивай корректность Python кода.
+2. Оценивай достижение исходной цели пользователя.
+3. Проверяй, не выводит ли скрипт сырые веса (контекст должен быть агрегированным).
+
+ФОРМАТ ОТВЕТА:
+Если результаты эксперимента полностью отвечают на задачу пользователя и код написан корректно,
+твой ответ должен обязательно содержать фразу "ОДОБРЕНО".
+В противном случае укажи на ошибки или предложи улучшения, чтобы Researcher их исправил. Не пиши код за него, только давай комментарии.
+"""
+
 class ReActAgent:
     def __init__(self, client, model_name=MODEL_NAME, system_prompt=SYSTEM_PROMPT):
         self.client = client
@@ -159,6 +174,66 @@ def run_agent_loop(user_goal, client, model_name=MODEL_NAME, max_steps=10, resum
         agent.load_state(resume_path)
     agent.run(user_goal, max_steps, save_path)
 
+def run_multi_agent_loop(user_goal, client, model_name=MODEL_NAME, max_steps=10, max_reviews=3):
+    researcher = ReActAgent(client=client, model_name=model_name, system_prompt=SYSTEM_PROMPT)
+    reviewer = ReActAgent(client=client, model_name=model_name, system_prompt=REVIEWER_SYSTEM_PROMPT)
+
+    current_goal = user_goal
+
+    for review_step in range(max_reviews):
+        print(f"\n==========================================")
+        print(f"--- ИТЕРАЦИЯ MULTI-AGENT {review_step + 1} ---")
+        print(f"==========================================\n")
+
+        print(">> RESEARCHER РАБОТАЕТ <<")
+        # Выполняем цикл Researcher
+        researcher.run(current_goal, max_steps=max_steps)
+
+        if not researcher.messages:
+            print("Ошибка: Researcher не дал ответа.")
+            break
+
+        last_researcher_reply = researcher.messages[-1]["content"]
+        if researcher.messages[-1]["role"] == "user":
+            # Если последним был ответ среды, найдем последний ответ ассистента
+            for msg in reversed(researcher.messages):
+                if msg["role"] == "assistant":
+                    last_researcher_reply = msg["content"]
+                    break
+
+        # Передаем контекст Reviewer
+        reviewer_prompt = (
+            f"Оригинальная цель: {user_goal}\n"
+            f"Последние действия и результаты Researcher:\n"
+            f"```\n{last_researcher_reply}\n```\n"
+            f"Если в Researcher были ошибки (Traceback), учти их. "
+            f"Если всё выполнено верно, напиши 'ОДОБРЕНО'."
+        )
+
+        print(">> REVIEWER ОЦЕНИВАЕТ <<")
+        reviewer.messages.append({"role": "user", "content": reviewer_prompt})
+        try:
+            response = reviewer.client.chat.completions.create(
+                model=reviewer.model_name,
+                messages=reviewer.messages,
+                temperature=0.2
+            )
+            reviewer_reply = response.choices[0].message.content
+            reviewer.messages.append({"role": "assistant", "content": reviewer_reply})
+            print(f"REVIEWER:\n{reviewer_reply}\n")
+
+            if "ОДОБРЕНО" in reviewer_reply.upper():
+                print(">> REVIEWER ОДОБРИЛ РЕЗУЛЬТАТ. ЗАВЕРШЕНИЕ <<")
+                break
+            else:
+                # Отправляем комментарии Reviewer обратно Researcher
+                print(">> ОТПРАВКА КОММЕНТАРИЕВ REVIEWER К RESEARCHER <<")
+                current_goal = f"Reviewer оставил комментарии к твоей работе. Пожалуйста, исправь ошибки:\n{reviewer_reply}"
+        except Exception as e:
+            print(f"Ошибка при работе Reviewer API: {str(e)}")
+            break
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Запуск Mechanistic Interpretability Агента")
     parser.add_argument("--goal", type=str, default="Загрузи модель GPT-2 из transformers. Выведи структуру её слоев и найди, какой размер имеет матрица весов в первом слое Feed Forward Network (MLP).", help="Цель для агента")
@@ -168,6 +243,7 @@ if __name__ == "__main__":
     parser.add_argument("--max-steps", type=int, default=10, help="Максимальное количество шагов агента")
     parser.add_argument("--resume", type=str, help="Путь к JSON файлу для восстановления сессии")
     parser.add_argument("--save", type=str, help="Путь к JSON файлу для сохранения сессии")
+    parser.add_argument("--multi-agent", action="store_true", help="Запустить в режиме Multi-Agent (Researcher + Reviewer)")
 
     args = parser.parse_args()
 
@@ -184,4 +260,7 @@ if __name__ == "__main__":
 
     client = openai.OpenAI(**client_kwargs)
 
-    run_agent_loop(args.goal, client, model_name=args.model, max_steps=args.max_steps, resume_path=args.resume, save_path=args.save)
+    if args.multi_agent:
+        run_multi_agent_loop(args.goal, client, model_name=args.model, max_steps=args.max_steps)
+    else:
+        run_agent_loop(args.goal, client, model_name=args.model, max_steps=args.max_steps, resume_path=args.resume, save_path=args.save)

@@ -1,1 +1,1 @@
-print("A" * 3000)
+print('Test')

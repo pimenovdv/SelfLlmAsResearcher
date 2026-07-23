@@ -61,7 +61,7 @@ class ReActAgent:
         # Запуск в изолированном процессе
         try:
             result = subprocess.run(
-                [sys.executable, filename],
+                ["unshare", "-r", "-n", sys.executable, filename],
                 capture_output=True,
                 text=True,
                 timeout=120, # Ограничение времени выполнения (защита от бесконечных циклов)

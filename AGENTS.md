@@ -17,6 +17,7 @@
 * `execute_python(code)`: Запуск скрипта в `agent_workspace/` и возврат консольного вывода (stdout/stderr).
 * `read_file(path)` и `write_file(path, content)`: Чтение и модификация скриптов, сохранение результатов.
 * `bash_command(cmd)`: Управление окружением (например, установка дополнительных пакетов, проверка состояния GPU).
+* `src.mcp_tools`: Встроенные функции для получения документации (`resolve_library_id` и `get_library_docs`). Импортируй их в свои скрипты, если тебе нужно узнать актуальный API библиотек вроде `transformer_lens`.
 
 ## Шаблоны работы
 * **PyTorch Forward Hooks:** Для анализа активаций используй `register_forward_hook`. Обязательно удаляй хуки (`handle.remove()`) после использования.

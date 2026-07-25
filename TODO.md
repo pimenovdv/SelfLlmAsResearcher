@@ -29,6 +29,7 @@
 - [x] Проверка работоспособности метрик на тестовой задаче (задача IOI).
 - [x] Использование Activation Patching для поиска слоев/голов, ответственных за IOI (Indirect Object Identification).
 - [x] Гранулярный Activation Patching на уровне отдельных attention heads для выявления "Name Mover Heads".
+- [x] Оценка эффекта множественного ablation для Name Mover Heads.
 
 ## Тестирование
 - [x] Написать тесты на переполнение контекста агента.

@@ -158,6 +158,58 @@ for name, act in activations.items():
         with open(os.path.join(templates_dir, "forward_hooks.py"), "w") as f:
             f.write(forward_hooks_template)
 
+        # Example template for Metrics Calculation
+        metrics_template = """import torch
+import torch.nn.functional as F
+
+def logit_difference(logits, target_id_1, target_id_2):
+    '''
+    Вычисляет разницу логитов между двумя целевыми токенами.
+    Полезно для оценки того, насколько модель предпочитает один ответ другому.
+    '''
+    # Предполагается, что logits имеют форму [..., seq_len, vocab_size]
+    # Берем логиты последнего токена
+    last_token_logits = logits[0, -1, :]
+    return (last_token_logits[target_id_1] - last_token_logits[target_id_2]).item()
+
+def kl_divergence(logits_base, logits_patched):
+    '''
+    Вычисляет KL-дивергенцию между распределениями оригинальной и модифицированной модели.
+    Полезно для оценки общего изменения поведения модели.
+    '''
+    # Берем логиты последнего токена
+    p = F.softmax(logits_base[0, -1, :], dim=-1)
+    log_q = F.log_softmax(logits_patched[0, -1, :], dim=-1)
+
+    # KL(P || Q) = sum(p * log(p/q)) = sum(p * (log(p) - log(q)))
+    kl = F.kl_div(log_q, p, reduction='batchmean')
+    return kl.item()
+
+def loss_degradation(logits_base, logits_patched, target_ids):
+    '''
+    Вычисляет изменение потерь (Loss) для целевой последовательности.
+    '''
+    pass # Реализуйте по необходимости
+
+# Пример использования
+if __name__ == '__main__':
+    # Fake data
+    vocab_size = 50257
+    logits_base = torch.randn(1, 1, vocab_size)
+    logits_patched = logits_base + torch.randn(1, 1, vocab_size) * 0.1
+
+    target_1 = 1234
+    target_2 = 5678
+
+    diff = logit_difference(logits_patched, target_1, target_2)
+    kl = kl_divergence(logits_base, logits_patched)
+
+    print(f"Logit Diff: {diff:.4f}")
+    print(f"KL Divergence: {kl:.4f}")
+"""
+        with open(os.path.join(templates_dir, "metrics.py"), "w") as f:
+            f.write(metrics_template)
+
 
 if __name__ == "__main__":
     env = SandboxEnvironment()

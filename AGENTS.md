@@ -20,6 +20,7 @@
 * `src.mcp_tools`: Встроенные функции для получения документации (`resolve_library_id` и `get_library_docs`). Импортируй их в свои скрипты, если тебе нужно узнать актуальный API библиотек вроде `transformer_lens`.
 
 ## Шаблоны работы
+* **Метрики для оценки:** Для оценки результатов Ablation Studies и Activation Patching используй стандартные метрики. Образец кода для их вычисления (Logit Difference, KL Divergence) доступен в шаблоне `agent_workspace/templates/metrics.py`.
 * **PyTorch Forward Hooks:** Для анализа активаций используй `register_forward_hook`. Обязательно удаляй хуки (`handle.remove()`) после использования.
 * **TransformerLens:** При возможности используй `transformer_lens.HookedTransformer` и метод `run_with_cache()`, так как это стандарт индустрии и снижает вероятность ошибок размерности.
 * **Управление памятью:** В экспериментах с большими моделями или длинными контекстами может возникать ошибка `CUDA out of memory`. Регулярно вызывай `torch.cuda.empty_cache()` и явно удаляй ненужные тензоры.

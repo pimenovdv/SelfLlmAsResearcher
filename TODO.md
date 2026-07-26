@@ -30,6 +30,8 @@
 - [x] Использование Activation Patching для поиска слоев/голов, ответственных за IOI (Indirect Object Identification).
 - [x] Гранулярный Activation Patching на уровне отдельных attention heads для выявления "Name Mover Heads".
 - [x] Оценка эффекта множественного ablation для Name Mover Heads.
+- [x] Поиск S-Inhibition Heads или Previous Token Heads с использованием Activation Patching на ранних слоях.
+- [x] Документирование выявленной подсети (Circuit) в задаче IOI для `gpt2`.
 
 ## Тестирование
 - [x] Написать тесты на переполнение контекста агента.

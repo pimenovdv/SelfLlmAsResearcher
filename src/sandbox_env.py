@@ -19,11 +19,11 @@ class SandboxEnvironment:
 
         # Example template for Activation Patching
         patching_template = """import torch
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # Загружаем модель и токенизатор
-tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-model = GPT2LMHeadModel.from_pretrained("gpt2")
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+model = AutoModelForCausalLM.from_pretrained("gpt2")
 model.eval()
 
 source_text = "The capital of Italy is"
@@ -66,10 +66,10 @@ print(f"Predicted word: '{predicted_word}'")
 
         # Example template for Ablation Studies
         ablation_template = """import torch
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-model = GPT2LMHeadModel.from_pretrained("gpt2")
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+model = AutoModelForCausalLM.from_pretrained("gpt2")
 model.eval()
 
 text = "Mechanistic Interpretability is"
@@ -118,10 +118,10 @@ print(f"Predicted word after ablation: '{tokenizer.decode(predicted_token_id)}'"
 
         # Example template for Forward Hooks (Activation Extraction)
         forward_hooks_template = """import torch
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-model = GPT2LMHeadModel.from_pretrained("gpt2")
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+model = AutoModelForCausalLM.from_pretrained("gpt2")
 model.eval()
 
 text = "Extracting activations is fun"

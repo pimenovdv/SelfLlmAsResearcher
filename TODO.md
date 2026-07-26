@@ -32,6 +32,7 @@
 - [x] Оценка эффекта множественного ablation для Name Mover Heads.
 - [x] Поиск S-Inhibition Heads или Previous Token Heads с использованием Activation Patching на ранних слоях.
 - [x] Документирование выявленной подсети (Circuit) в задаче IOI для `gpt2`.
+- [x] Точечный Activation Patching полносвязных слоев (MLP) с учетом позиций токенов для задачи IOI.
 
 ## Тестирование
 - [x] Написать тесты на переполнение контекста агента.

@@ -1,13 +1,15 @@
 # Следующий шаг (Next Step)
 
-**Задача:** Интеграция LLaMA и масштабирование экспериментов.
+**Задача:** Детальный анализ S-Inhibition Heads и MLP patching для архитектуры LLaMA.
 
 **Описание:**
-Мы успешно завершили глубокий анализ Circuit (S-Inhibition Heads, MLP patching) для архитектуры `EleutherAI/gpt-neo-125m` на задаче IOI, убедившись, что фреймворк и песочница легко адаптируются к новым моделям через `AutoModelForCausalLM`.
-Следующим большим шагом является тестирование масштабируемости системы на более современных и крупных архитектурах, в частности, на моделях семейства LLaMA. Это потребует настройки маппинга слоев (например, работы с `model.model.layers[layer_idx].self_attn.o_proj`).
+Мы успешно интегрировали архитектуру LLaMA, адаптировали маппинг слоев (использование `o_proj` вместо `c_proj`/`out_proj`) и провели первый Activation Patching эксперимент на задаче IOI (найдены потенциальные Name Mover Heads, например, Layer 9 Head 5).
+Следующий шаг — углубить исследование для моделей LLaMA:
+1. Выполнить поиск S-Inhibition Heads или Previous Token Heads на ранних слоях (до Layer 9).
+2. Провести гранулярный Activation Patching для полносвязных слоев (MLP) с учетом позиций токенов, как мы это делали для GPT-Neo.
+3. Оценить влияние множественного Ablation на найденные Name Mover Heads.
 
 **План действий на следующий этап:**
-1. Настроить загрузку модели `llama` (или легкой альтернативы, такой как `TinyLlama` для тестов).
-2. Адаптировать маппинг слоев для `LLaMA` в скриптах экспериментов (Ablation, Activation Patching).
-3. Провести базовый Ablation Study или Activation Patching на задаче IOI для LLaMA.
-4. Задокументировать результаты и обновить `TODO.md`.
+1. Создать скрипт для поиска S-Inhibition Heads в LLaMA (`experiments/llama_s_inhibition.py`).
+2. Написать скрипт для точечного патчинга MLP для LLaMA (`experiments/llama_mlp_pos_patching.py`), учитывая структуру `gate_proj`, `up_proj`, `down_proj`.
+3. Задокументировать выявленную подсеть (Circuit) для LLaMA-160m.

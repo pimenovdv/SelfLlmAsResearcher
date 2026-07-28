@@ -210,6 +210,40 @@ if __name__ == '__main__':
         with open(os.path.join(templates_dir, "metrics.py"), "w") as f:
             f.write(metrics_template)
 
+        # Example template for Factual Recall Task
+        factual_recall_template = """import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+model = AutoModelForCausalLM.from_pretrained("gpt2")
+model.eval()
+
+# Промпт для извлечения факта
+# Например, отношения 'The capital of X is Y'
+prompt = "The capital of France is"
+target_word = " Paris"
+
+inputs = tokenizer(prompt, return_tensors="pt")
+target_id = tokenizer.encode(target_word)[0]
+
+with torch.no_grad():
+    outputs = model(**inputs)
+
+next_token_logits = outputs.logits[0, -1, :]
+predicted_token_id = torch.argmax(next_token_logits).item()
+predicted_word = tokenizer.decode(predicted_token_id)
+
+print(f"Prompt: '{prompt}'")
+print(f"Predicted word: '{predicted_word}'")
+print(f"Target word: '{target_word}' (id: {target_id})")
+
+# Logit целевого слова
+target_logit = next_token_logits[target_id].item()
+print(f"Target logit: {target_logit:.4f}")
+"""
+        with open(os.path.join(templates_dir, "factual_recall.py"), "w") as f:
+            f.write(factual_recall_template)
+
 
 if __name__ == "__main__":
     env = SandboxEnvironment()

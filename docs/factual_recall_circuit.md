@@ -32,5 +32,13 @@ Based on these findings and previous MLP patching experiments (which localized t
 2.  **Retrieval:** The factual knowledge is retrieved or strongly associated within the mid-to-late MLPs.
 3.  **Transmission (The Factual Recall Heads):** Attention heads, predominantly **L9H8** and **L10H0**, attend to the subject token position and move the retrieved factual information (the concept of "Paris") to the final token position (`is`), preparing it for the final unembedding step.
 
+## Ablation Studies
+To confirm the causal role of these heads, a multiple ablation experiment was conducted on the most prominent factual recall heads: **L9H8** and **L10H0**.
+
+*   **Clean Logit Diff (Paris - Moscow):** 4.7550
+*   **Ablated Logit Diff (Paris - Moscow) for L9H8 and L10H0:** 2.4547
+
+Simultaneously ablating (zeroing out) these two specific heads causes the logit difference to drop by approximately ~2.3, confirming that these heads are actively responsible for pulling the correct factual answer into the final representation.
+
 ## Conclusion
-The Factual Recall circuit in GPT-2 is highly localized in the later layers. **Layer 9 Head 8** stands out as the primary mechanism for transmitting factual knowledge to the output in this specific task setup.
+The Factual Recall circuit in GPT-2 is highly localized in the later layers. **Layer 9 Head 8** and **Layer 10 Head 0** stand out as the primary mechanisms for transmitting factual knowledge to the output in this specific task setup.

@@ -56,6 +56,7 @@
 - [x] Гранулярный Activation Patching на уровне отдельных Attention Heads для локализации Factual Recall Heads.
 - [x] Проведение множественного Ablation для подтверждения роли Factual Recall Heads (L9H8, L10H0).
 - [x] Анализ ранних слоев (Subject Processing) для Factual Recall, выявление роли Layer 0 и Layer 7 MLP.
+- [x] Создание End-to-End схемы (End-to-End Circuit Diagram) для Factual Recall на базе gpt2, gpt-neo и llama.
 
 ## Тестирование
 - [x] Написать тесты на переполнение контекста агента.

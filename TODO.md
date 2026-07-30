@@ -61,6 +61,9 @@
 ## Продвинутые исследования (In-Context Learning)
 - [x] Реализовать базовый эксперимент (Baseline) для задачи In-Context Learning (предсказание следующего слова по аналогии).
 - [x] Использование Activation Patching (слои и головы) для локализации Induction Heads, ответственных за In-Context Learning.
+- [x] Визуализация паттернов внимания (Attention Patterns) для Induction Heads.
+- [x] Позиционный Activation Patching (Positional Patching) для определения позиций, из которых извлекается информация.
+- [x] Документирование In-Context Learning Circuit.
 
 ## Тестирование
 - [x] Написать тесты на переполнение контекста агента.

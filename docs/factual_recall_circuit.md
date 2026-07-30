@@ -14,6 +14,13 @@ By patching the activations from the corrupted run into the clean run at specifi
 *   **Clean Logit Diff (Paris - Moscow):** 4.7550
 *   **Corrupted Logit Diff (Paris - Moscow):** -5.2923
 
+## Key Findings: Early Layers (Subject Processing)
+By performing position-specific activation patching at the Subject token position ("France") in the early layers (Layers 0-7), we found that the initial representation of the subject is constructed heavily by the early MLPs.
+
+1.  **Layer 0 MLP:** Patching the Layer 0 MLP at the subject position caused a massive drop in logit difference (from `4.7550` to `-4.4838`, a drop of `9.2388`), completely flipping the model's prediction. This indicates Layer 0 MLP is highly sensitive and essential for embedding the foundational meaning of the subject.
+2.  **Layer 7 MLP:** Also shows a significant drop (`0.9808`), indicating its role in enriching the subject representation right before the main factual retrieval layers.
+3.  **Early Attention Heads:** Certain heads like L0H4 showed minor drops (around `0.4`), contributing slightly to early processing, but the MLPs dominate this stage.
+
 ## Key Findings: Factual Recall Heads
 Through granular attention head patching, we identified several heads that are critical for factual recall in this context. The most significant drops occurred in the later layers (Layers 8-11).
 
@@ -28,7 +35,7 @@ The most impactful heads are:
 ## Information Transmission Pathway
 Based on these findings and previous MLP patching experiments (which localized the factual processing primarily at the Subject token position in the mid-to-late MLP layers), we can hypothesize the following pathway:
 
-1.  **Subject Processing:** Early and mid-layer MLPs process the subject ("France").
+1.  **Subject Processing:** Early and mid-layer MLPs process the subject ("France"). Layer 0 MLP acts as the primary foundation, with mid-layer MLPs (like Layer 7) further enriching the representation.
 2.  **Retrieval:** The factual knowledge is retrieved or strongly associated within the mid-to-late MLPs.
 3.  **Transmission (The Factual Recall Heads):** Attention heads, predominantly **L9H8** and **L10H0**, attend to the subject token position and move the retrieved factual information (the concept of "Paris") to the final token position (`is`), preparing it for the final unembedding step.
 

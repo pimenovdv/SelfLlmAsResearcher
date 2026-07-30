@@ -55,6 +55,7 @@
 - [x] Точечный патчинг MLP-слоев для выявления путей передачи информации.
 - [x] Гранулярный Activation Patching на уровне отдельных Attention Heads для локализации Factual Recall Heads.
 - [x] Проведение множественного Ablation для подтверждения роли Factual Recall Heads (L9H8, L10H0).
+- [x] Анализ ранних слоев (Subject Processing) для Factual Recall, выявление роли Layer 0 и Layer 7 MLP.
 
 ## Тестирование
 - [x] Написать тесты на переполнение контекста агента.

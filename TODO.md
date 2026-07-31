@@ -64,6 +64,7 @@
 - [x] Визуализация паттернов внимания (Attention Patterns) для Induction Heads.
 - [x] Позиционный Activation Patching (Positional Patching) для определения позиций, из которых извлекается информация.
 - [x] Документирование In-Context Learning Circuit.
+- [x] Масштабирование In-Context Learning на архитектуры GPT-Neo и LLaMA.
 
 ## Тестирование
 - [x] Написать тесты на переполнение контекста агента.

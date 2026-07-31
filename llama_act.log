@@ -1,0 +1,22 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading JackFram/llama-160m...
+Loading weights:   0%|          | 0/111 [00:00<?, ?it/s]Loading weights: 100%|██████████| 111/111 [00:00<00:00, 1862.18it/s]
+Clean Logit Diff: 5.1742
+Corr Logit Diff: -3.1171
+
+Starting Activation Patching (Attn & MLP layers)...
+Goal is to see which layer's patch recovers the prediction of 'blue' when run on corrupted input
+
+Layer	Attn Patch	MLP Patch
+0	-2.8598		5.3829
+1	-2.8612		-2.0141
+2	-2.7025		-2.4217
+3	-2.6140		-0.6878
+4	-0.3100		-2.4839
+5	-3.5757		-1.8554
+6	-2.1354		-1.3056
+7	-1.0516		-1.3779
+8	-0.9729		-1.8252
+9	-1.9533		-2.1134
+10	-0.1645		-2.0005
+11	-1.1894		-1.8061

@@ -53,7 +53,8 @@ class TestSandboxEnvironment(unittest.TestCase):
             "ablation.py",
             "forward_hooks.py",
             "metrics.py",
-            "factual_recall.py"
+            "factual_recall.py",
+            "icl.py"
         ]
         for template in expected_templates:
             template_path = os.path.join(templates_dir, template)

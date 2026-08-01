@@ -54,7 +54,8 @@ class TestSandboxEnvironment(unittest.TestCase):
             "forward_hooks.py",
             "metrics.py",
             "factual_recall.py",
-            "icl.py"
+            "icl.py",
+            "dla.py"
         ]
         for template in expected_templates:
             template_path = os.path.join(templates_dir, template)

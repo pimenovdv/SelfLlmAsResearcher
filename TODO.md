@@ -11,6 +11,7 @@
 - [x] Создать шаблон для извлечения активаций (Forward Hooks).
 - [x] Разработать и задокументировать стандартные метрики для оценки экспериментов (Logit Difference, KL Divergence).
 - [x] Создать шаблон для In-Context Learning (ICL).
+- [x] Добавить шаблон для Direct Logit Attribution (DLA) в SandboxEnvironment.
 
 ## Агентный фреймворк
 - [x] Обернуть инструменты агента в LangChain / AutoGen или самописный ReAct класс.

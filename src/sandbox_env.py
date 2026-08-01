@@ -276,6 +276,52 @@ print(f"Target logit: {target_logit:.4f}")
         with open(os.path.join(templates_dir, "icl.py"), "w") as f:
             f.write(icl_template)
 
+        # Example template for Direct Logit Attribution (DLA)
+        dla_template = """import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+model = AutoModelForCausalLM.from_pretrained("gpt2")
+model.eval()
+
+prompt = "The capital of France is"
+target_word = " Paris"
+
+inputs = tokenizer(prompt, return_tensors="pt")
+target_id = tokenizer.encode(target_word)[0]
+
+# Получаем эмбеддинги для целевого токена (unembedding weight)
+unembed_weight = model.lm_head.weight[target_id]
+
+activations = {}
+def get_activation(name):
+    def hook(module, input, output):
+        if isinstance(output, tuple):
+            activations[name] = output[0].detach().cpu()
+        else:
+            activations[name] = output.detach().cpu()
+    return hook
+
+# Регистрируем хуки на выходы слоев внимания (или MLP)
+layer_idx = 8
+handle = model.transformer.h[layer_idx].attn.register_forward_hook(get_activation(f'attn_out_l{layer_idx}'))
+
+with torch.no_grad():
+    outputs = model(**inputs)
+
+handle.remove()
+
+# Активация на последнем токене [batch, seq_len, n_embd]
+attn_out = activations[f'attn_out_l{layer_idx}'][0, -1, :]
+
+# Вычисляем DLA (Direct Logit Attribution) = dot product (attn_out, unembed_weight)
+dla_score = torch.dot(attn_out, unembed_weight).item()
+
+print(f"Direct Logit Attribution (DLA) for Layer {layer_idx} Attention: {dla_score:.4f}")
+"""
+        with open(os.path.join(templates_dir, "dla.py"), "w") as f:
+            f.write(dla_template)
+
 
 if __name__ == "__main__":
     env = SandboxEnvironment()

@@ -37,3 +37,18 @@ def entropy(logits: torch.Tensor) -> float:
     probs = F.softmax(logits[0, -1, :], dim=-1)
     log_probs = F.log_softmax(logits[0, -1, :], dim=-1)
     return -(probs * log_probs).sum().item()
+
+
+def js_divergence(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет Jensen-Shannon Divergence.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+    m = 0.5 * (probs_p + probs_q)
+    log_m = torch.log(m + 1e-8)
+
+    kl_p = F.kl_div(log_m, probs_p, reduction='sum').item()
+    kl_q = F.kl_div(log_m, probs_q, reduction='sum').item()
+
+    return 0.5 * (kl_p + kl_q)

@@ -36,3 +36,18 @@ def test_entropy():
     logits = torch.tensor([[[0.0, 0.0, 0.0, 0.0]]])
     ent = entropy(logits)
     assert abs(ent - math.log(4)) < 1e-4
+
+
+def test_js_divergence():
+    from src.metrics import js_divergence
+    import torch
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+
+    js = js_divergence(logits_p, logits_q)
+    assert js > 0.0
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    js_zero = js_divergence(same_logits, same_logits)
+    assert abs(js_zero) < 1e-4

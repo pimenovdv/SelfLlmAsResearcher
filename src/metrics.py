@@ -19,3 +19,12 @@ def logit_difference(logits: torch.Tensor, target_id: int, corrupted_id: int) ->
     corrupted_logit = next_token_logits[corrupted_id].item()
 
     return target_logit - corrupted_logit
+
+def kl_divergence(clean_logits: torch.Tensor, corrupted_logits: torch.Tensor) -> float:
+    """
+    Вычисляет KL Divergence.
+    """
+    import torch.nn.functional as F
+    clean_log_probs = F.log_softmax(clean_logits[0, -1, :], dim=-1)
+    corrupted_probs = F.softmax(corrupted_logits[0, -1, :], dim=-1)
+    return F.kl_div(clean_log_probs, corrupted_probs, reduction='sum').item()

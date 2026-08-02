@@ -52,3 +52,13 @@ def js_divergence(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
     kl_q = F.kl_div(log_m, probs_q, reduction='sum').item()
 
     return 0.5 * (kl_p + kl_q)
+
+
+def perplexity(logits: torch.Tensor) -> float:
+    """
+    Вычисляет перплексию (Perplexity) распределения вероятностей.
+    """
+    probs = F.softmax(logits[0, -1, :], dim=-1)
+    log_probs = F.log_softmax(logits[0, -1, :], dim=-1)
+    entropy_val = -(probs * log_probs).sum().item()
+    return torch.exp(torch.tensor(entropy_val)).item()

@@ -51,3 +51,11 @@ def test_js_divergence():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     js_zero = js_divergence(same_logits, same_logits)
     assert abs(js_zero) < 1e-4
+
+
+def test_perplexity():
+    from src.metrics import perplexity
+    import torch
+    logits = torch.tensor([[[0.0, 0.0, 0.0, 0.0]]])
+    perp = perplexity(logits)
+    assert abs(perp - 4.0) < 1e-4

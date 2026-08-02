@@ -83,3 +83,4 @@
 - [x] Написать тесты для SandboxEnvironment.
 - [x] Написать тесты для mcp_tools.py.
 - [x] Написать тесты для tools.py.
+- [x] Добавить метрику entropy в src/metrics.py и написать тесты.

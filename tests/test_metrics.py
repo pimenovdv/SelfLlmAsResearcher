@@ -27,3 +27,12 @@ def test_kl_divergence():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     kl_zero = kl_divergence(same_logits, same_logits)
     assert abs(kl_zero) < 1e-4
+
+
+def test_entropy():
+    from src.metrics import entropy
+    import torch
+    import math
+    logits = torch.tensor([[[0.0, 0.0, 0.0, 0.0]]])
+    ent = entropy(logits)
+    assert abs(ent - math.log(4)) < 1e-4

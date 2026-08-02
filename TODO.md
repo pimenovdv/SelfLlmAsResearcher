@@ -78,7 +78,7 @@
 ## Утилиты и тестирование
 - [x] Создать файл src/metrics.py с утилитами для расчета метрик (например, logit_difference).
 - [x] Написать тесты для src/metrics.py.
-- [ ] Реализовать функцию kl_divergence в src/metrics.py и написать тесты.
+- [x] Реализовать функцию kl_divergence в src/metrics.py и написать тесты.
 - [x] Написать тесты для утилит класса ReActAgent (например, extract_code).
 - [x] Написать тесты для SandboxEnvironment.
 - [x] Написать тесты для mcp_tools.py.

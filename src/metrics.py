@@ -25,6 +25,6 @@ def kl_divergence(clean_logits: torch.Tensor, corrupted_logits: torch.Tensor) ->
     Вычисляет KL Divergence.
     """
     import torch.nn.functional as F
-    clean_log_probs = F.log_softmax(clean_logits[0, -1, :], dim=-1)
-    corrupted_probs = F.softmax(corrupted_logits[0, -1, :], dim=-1)
-    return F.kl_div(clean_log_probs, corrupted_probs, reduction='sum').item()
+    clean_probs = F.softmax(clean_logits[0, -1, :], dim=-1)
+    corrupted_log_probs = F.log_softmax(corrupted_logits[0, -1, :], dim=-1)
+    return F.kl_div(corrupted_log_probs, clean_probs, reduction='sum').item()

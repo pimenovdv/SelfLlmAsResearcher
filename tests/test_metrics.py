@@ -11,7 +11,19 @@ def test_logit_difference():
 def test_kl_divergence():
     from src.metrics import kl_divergence
     import torch
-    clean_logits = torch.tensor([[[0.0, 1.0, 0.0]]])
-    corrupted_logits = torch.tensor([[[0.0, 0.0, 1.0]]])
+    import torch.nn.functional as F
+
+    clean_logits = torch.tensor([[[10.0, 0.0, 0.0]]])
+    corrupted_logits = torch.tensor([[[0.0, 10.0, 0.0]]])
     kl = kl_divergence(clean_logits, corrupted_logits)
     assert kl > 0.0
+
+    clean_probs = F.softmax(clean_logits[0, -1, :], dim=-1)
+    corrupted_log_probs = F.log_softmax(corrupted_logits[0, -1, :], dim=-1)
+    expected_kl = F.kl_div(corrupted_log_probs, clean_probs, reduction='sum').item()
+
+    assert abs(kl - expected_kl) < 1e-4
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    kl_zero = kl_divergence(same_logits, same_logits)
+    assert abs(kl_zero) < 1e-4

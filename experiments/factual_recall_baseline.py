@@ -1,6 +1,10 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import logging
+from src.metrics import brier_score
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
@@ -27,10 +31,14 @@ def test_model_factual_recall(model_name, prompts_targets):
 
         target_logit = next_token_logits[target_id].item()
 
+        # Calculate Brier Score
+        brier = brier_score(outputs.logits, target_id)
+
         logging.info(f"Prompt: '{prompt}'")
         logging.info(f"Predicted word: '{predicted_word}' (id: {predicted_token_id})")
         logging.info(f"Target word: '{target_word}' (id: {target_id})")
-        logging.info(f"Target logit: {target_logit:.4f}\n")
+        logging.info(f"Target logit: {target_logit:.4f}")
+        logging.info(f"Brier Score: {brier:.4f}\n")
 
 
 if __name__ == "__main__":

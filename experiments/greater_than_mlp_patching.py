@@ -13,6 +13,8 @@ try:
 except ImportError:
     print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
 
+from src.metrics import brier_score, cross_entropy
+
 def get_greater_than_probs(probs, tokenizer, target_year):
     """
     Evaluates the probability of years greater than the target year vs smaller/equal years.
@@ -61,6 +63,15 @@ def run_experiment():
     corrupt_probs = F.softmax(corrupt_outputs.logits[0, -1, :], dim=-1)
     corrupt_greater, _ = get_greater_than_probs(corrupt_probs, tokenizer, target_year)
 
+    target_token_id = tokenizer.encode(f"{(target_year % 100) + 1:02d}")[0]
+    clean_ce = cross_entropy(clean_outputs.logits, target_token_id)
+    clean_bs = brier_score(clean_outputs.logits, target_token_id)
+    corrupt_ce = cross_entropy(corrupt_outputs.logits, target_token_id)
+    corrupt_bs = brier_score(corrupt_outputs.logits, target_token_id)
+
+    print(f"Baseline clean CE: {clean_ce:.4f} | BS: {clean_bs:.4f}")
+    print(f"Baseline corrupt CE: {corrupt_ce:.4f} | BS: {corrupt_bs:.4f}")
+
     diff_max = clean_greater - corrupt_greater
     print(f"Max diff: {diff_max:.4f}\n")
 
@@ -96,10 +107,13 @@ def run_experiment():
         patched_probs = F.softmax(patched_outputs.logits[0, -1, :], dim=-1)
         patched_greater, _ = get_greater_than_probs(patched_probs, tokenizer, target_year)
 
+        patched_ce = cross_entropy(patched_outputs.logits, target_token_id)
+        patched_bs = brier_score(patched_outputs.logits, target_token_id)
+
         recovery = (patched_greater - corrupt_greater) / diff_max if diff_max > 0 else 0.0
 
         if recovery > 0.05 or recovery < -0.05:
-            print(f"Layer {layer_idx:02d} | Patched prob > 32: {patched_greater:.4f} | Recovery: {recovery:.2%}")
+            print(f"Layer {layer_idx:02d} | Patched prob > 32: {patched_greater:.4f} | Recovery: {recovery:.2%} | CE: {patched_ce:.4f} | BS: {patched_bs:.4f}")
 
 if __name__ == "__main__":
     run_experiment()

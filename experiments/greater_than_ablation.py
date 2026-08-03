@@ -13,6 +13,8 @@ try:
 except ImportError:
     print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
 
+from src.metrics import brier_score, cross_entropy
+
 def get_greater_than_probs(probs, tokenizer, target_year):
     """
     Evaluates the probability of years greater than the target year vs smaller/equal years.
@@ -55,16 +57,20 @@ def run_experiment():
     clean_probs = F.softmax(clean_outputs.logits[0, -1, :], dim=-1)
     clean_greater, clean_le = get_greater_than_probs(clean_probs, tokenizer, target_year_clean)
 
+    target_token_id = tokenizer.encode(f"{(target_year_clean % 100) + 1:02d}")[0]
+    clean_ce = cross_entropy(clean_outputs.logits, target_token_id)
+    clean_bs = brier_score(clean_outputs.logits, target_token_id)
+
     print(f"Clean prompt: '{clean_prompt}'")
     print(f"Target year threshold: > 32")
-    print(f"Baseline clean prob > 32: {clean_greater:.4f}\n")
+    print(f"Baseline clean prob > 32: {clean_greater:.4f} | CE: {clean_ce:.4f} | BS: {clean_bs:.4f}\n")
 
     num_layers = model.config.n_layer
     num_heads = model.config.n_head
 
     print("Ablating individual attention heads on layers 5-11")
-    print("Format: (Layer, Head) | Prob > 32 | Drop in Prob")
-    print("-" * 55)
+    print("Format: (Layer, Head) | Prob > 32 | Drop in Prob | CE | BS")
+    print("-" * 75)
 
     results = []
 
@@ -101,11 +107,16 @@ def run_experiment():
             greater_prob, _ = get_greater_than_probs(probs, tokenizer, target_year_clean)
             drop = clean_greater - greater_prob
 
+            ablated_ce = cross_entropy(outputs.logits, target_token_id)
+            ablated_bs = brier_score(outputs.logits, target_token_id)
+
             results.append({
                 'layer': layer_idx,
                 'head': head_idx,
                 'prob': greater_prob,
-                'drop': drop
+                'drop': drop,
+                'ce': ablated_ce,
+                'bs': ablated_bs
             })
 
     # Sort results by drop in probability
@@ -113,7 +124,7 @@ def run_experiment():
 
     print("Top 15 heads with highest drop when ablated:")
     for res in results[:15]:
-        print(f"L{res['layer']:02d}H{res['head']:02d} | Prob: {res['prob']:>6.4f} | Drop: {res['drop']:>6.4f}")
+        print(f"L{res['layer']:02d}H{res['head']:02d} | Prob: {res['prob']:>6.4f} | Drop: {res['drop']:>6.4f} | CE: {res['ce']:>6.4f} | BS: {res['bs']:>6.4f}")
 
 if __name__ == "__main__":
     run_experiment()

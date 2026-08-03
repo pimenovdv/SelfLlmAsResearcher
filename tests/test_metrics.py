@@ -53,6 +53,15 @@ def test_js_divergence():
     assert abs(js_zero) < 1e-4
 
 
+def test_cross_entropy():
+    from src.metrics import cross_entropy
+    import torch
+    import math
+    logits = torch.tensor([[[0.0, 0.0, 0.0, 0.0]]])
+    ce = cross_entropy(logits, 0)
+    assert abs(ce - math.log(4)) < 1e-4
+
+
 def test_perplexity():
     from src.metrics import perplexity
     import torch

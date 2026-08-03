@@ -54,6 +54,14 @@ def js_divergence(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
     return 0.5 * (kl_p + kl_q)
 
 
+def cross_entropy(logits: torch.Tensor, target_id: int) -> float:
+    """
+    Вычисляет кросс-энтропию (Cross Entropy) для заданного токена.
+    """
+    log_probs = F.log_softmax(logits[0, -1, :], dim=-1)
+    return -log_probs[target_id].item()
+
+
 def perplexity(logits: torch.Tensor) -> float:
     """
     Вычисляет перплексию (Perplexity) распределения вероятностей.

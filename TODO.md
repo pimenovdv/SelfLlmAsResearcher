@@ -86,3 +86,5 @@
 - [x] Добавить метрику entropy в src/metrics.py и написать тесты.
 - [x] Добавить метрику js_divergence в src/metrics.py и написать тесты.
 - [x] Добавить метрику perplexity в src/metrics.py и написать тесты.
+
+- [x] Добавить метрику cross_entropy в src/metrics.py и написать тесты.

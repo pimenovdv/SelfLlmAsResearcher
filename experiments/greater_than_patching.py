@@ -13,6 +13,8 @@ try:
 except ImportError:
     print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
 
+from src.metrics import brier_score, cross_entropy
+
 def get_greater_than_probs(probs, tokenizer, target_year):
     """
     Evaluates the probability of years greater than the target year vs smaller/equal years.
@@ -61,17 +63,23 @@ def run_experiment():
     clean_greater, clean_le = get_greater_than_probs(clean_probs, tokenizer, target_year_clean)
     corrupt_greater, corrupt_le = get_greater_than_probs(corrupt_probs, tokenizer, target_year_clean)
 
+    target_token_id = tokenizer.encode(f"{(target_year_clean % 100) + 1:02d}")[0]
+    clean_ce = cross_entropy(clean_outputs.logits, target_token_id)
+    clean_bs = brier_score(clean_outputs.logits, target_token_id)
+    corrupt_ce = cross_entropy(corrupt_outputs.logits, target_token_id)
+    corrupt_bs = brier_score(corrupt_outputs.logits, target_token_id)
+
     print(f"Clean prompt: '{clean_prompt}'")
     print(f"Corrupt prompt: '{corrupt_prompt}'")
     print(f"Target year threshold: > 32")
-    print(f"Baseline clean prob > 32: {clean_greater:.4f}")
-    print(f"Baseline corrupt prob > 32: {corrupt_greater:.4f}")
+    print(f"Baseline clean prob > 32: {clean_greater:.4f} | CE: {clean_ce:.4f} | BS: {clean_bs:.4f}")
+    print(f"Baseline corrupt prob > 32: {corrupt_greater:.4f} | CE: {corrupt_ce:.4f} | BS: {corrupt_bs:.4f}")
 
     num_layers = model.config.n_layer
 
     print("\nPatching residual stream (output of block) at the LAST token from clean -> corrupt")
-    print("Layer | Prob > 32 (Expect recovery from corrupt prob to clean prob)")
-    print("-" * 65)
+    print("Layer | Prob > 32 (Expect recovery from corrupt prob to clean prob) | CE | BS")
+    print("-" * 80)
 
     for layer_idx in range(num_layers):
         layer_to_patch = model.transformer.h[layer_idx]
@@ -107,10 +115,13 @@ def run_experiment():
         patched_probs = F.softmax(patched_outputs.logits[0, -1, :], dim=-1)
         patched_greater, _ = get_greater_than_probs(patched_probs, tokenizer, target_year_clean)
 
+        patched_ce = cross_entropy(patched_outputs.logits, target_token_id)
+        patched_bs = brier_score(patched_outputs.logits, target_token_id)
+
         # Calculate how much of the clean behavior was recovered
         recovery = (patched_greater - corrupt_greater) / (clean_greater - corrupt_greater) if (clean_greater - corrupt_greater) != 0 else 0
 
-        print(f"{layer_idx:5d} | {patched_greater:.4f} | Recovery: {recovery:.2%}")
+        print(f"{layer_idx:5d} | {patched_greater:.4f} | Recovery: {recovery:.2%} | CE: {patched_ce:.4f} | BS: {patched_bs:.4f}")
 
 if __name__ == "__main__":
     run_experiment()

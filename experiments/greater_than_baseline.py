@@ -13,6 +13,8 @@ try:
 except ImportError:
     print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
 
+from src.metrics import brier_score, cross_entropy
+
 def get_greater_than_probs(model, tokenizer, prompt, target_year):
     """
     Evaluates the probability of years greater than the target year vs smaller/equal years.
@@ -72,10 +74,24 @@ def run_experiment():
     print("\nEvaluating Greater-Than task...")
     for prompt, year in prompts:
         greater, less_equal = get_greater_than_probs(model, tokenizer, prompt, year)
+
+        inputs = tokenizer(prompt, return_tensors="pt")
+        with torch.no_grad():
+            outputs = model(**inputs)
+
+        target_decade_year = year % 100
+        # The correct next token for the greater-than task is usually the decade year + 1
+        target_token_id = tokenizer.encode(f"{target_decade_year + 1:02d}")[0]
+
+        ce = cross_entropy(outputs.logits, target_token_id)
+        bs = brier_score(outputs.logits, target_token_id)
+
         print(f"\nPrompt: '{prompt}' (Target > {year % 100})")
         print(f"Prob > {year % 100}: {greater:.4f}")
         print(f"Prob <= {year % 100}: {less_equal:.4f}")
         print(f"Ratio (> / <=): {greater / max(less_equal, 1e-10):.2f}")
+        print(f"Cross Entropy (Target {target_decade_year + 1:02d}): {ce:.4f}")
+        print(f"Brier Score (Target {target_decade_year + 1:02d}): {bs:.4f}")
 
 if __name__ == "__main__":
     run_experiment()

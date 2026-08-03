@@ -88,3 +88,4 @@
 - [x] Добавить метрику perplexity в src/metrics.py и написать тесты.
 
 - [x] Добавить метрику cross_entropy в src/metrics.py и написать тесты.
+- [x] Добавить метрику brier_score в src/metrics.py и написать тесты.

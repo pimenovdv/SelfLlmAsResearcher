@@ -68,3 +68,11 @@ def test_perplexity():
     logits = torch.tensor([[[0.0, 0.0, 0.0, 0.0]]])
     perp = perplexity(logits)
     assert abs(perp - 4.0) < 1e-4
+
+
+def test_brier_score():
+    from src.metrics import brier_score
+    import torch
+    logits = torch.tensor([[[0.0, 0.0, 0.0, 0.0]]])
+    bs = brier_score(logits, 0)
+    assert abs(bs - 0.75) < 1e-4

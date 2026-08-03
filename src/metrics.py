@@ -70,3 +70,13 @@ def perplexity(logits: torch.Tensor) -> float:
     log_probs = F.log_softmax(logits[0, -1, :], dim=-1)
     entropy_val = -(probs * log_probs).sum().item()
     return torch.exp(torch.tensor(entropy_val)).item()
+
+
+def brier_score(logits: torch.Tensor, target_id: int) -> float:
+    """
+    Вычисляет Brier Score для заданного токена.
+    """
+    probs = F.softmax(logits[0, -1, :], dim=-1)
+    target_probs = torch.zeros_like(probs)
+    target_probs[target_id] = 1.0
+    return F.mse_loss(probs, target_probs, reduction='sum').item()

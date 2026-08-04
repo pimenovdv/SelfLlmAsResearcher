@@ -94,7 +94,7 @@
 ## Дальнейшая интеграция
 - [x] Интегрировать brier_score и кросс-энтропию в эксперименты с Greater-Than Task.
 - [x] Интеграция метрик в патчинг-эксперименты Greater-Than.
-- [ ] Интеграция top_k_accuracy и mean_reciprocal_rank в Factual Recall.
+- [x] Интеграция top_k_accuracy и mean_reciprocal_rank в Factual Recall.
 
 ## Новые метрики
 - [x] Добавить метрику top_k_accuracy в src/metrics.py и написать тесты.

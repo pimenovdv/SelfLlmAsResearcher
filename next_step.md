@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Новые метрики (top_k_accuracy, MRR) интегрированы в эксперименты Greater-Than.
+Интеграция новых метрик (top_k_accuracy, MRR) в Factual Recall завершена.
 
 **План действий на следующий этап:**
-1. Интеграция новых метрик (top_k_accuracy, MRR) в Factual Recall эксперименты.
+1. Настроить тестовое покрытие (test coverage) для скриптов в директории `experiments/`.

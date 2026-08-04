@@ -13,7 +13,7 @@ try:
 except ImportError:
     print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
 
-from src.metrics import brier_score, cross_entropy
+from src.metrics import brier_score, cross_entropy, top_k_accuracy, mean_reciprocal_rank
 
 def get_greater_than_probs(model, tokenizer, prompt, target_year):
     """
@@ -85,6 +85,8 @@ def run_experiment():
 
         ce = cross_entropy(outputs.logits, target_token_id)
         bs = brier_score(outputs.logits, target_token_id)
+        top_k = top_k_accuracy(outputs.logits, target_token_id, k=5)
+        mrr = mean_reciprocal_rank(outputs.logits, target_token_id)
 
         print(f"\nPrompt: '{prompt}' (Target > {year % 100})")
         print(f"Prob > {year % 100}: {greater:.4f}")
@@ -92,6 +94,8 @@ def run_experiment():
         print(f"Ratio (> / <=): {greater / max(less_equal, 1e-10):.2f}")
         print(f"Cross Entropy (Target {target_decade_year + 1:02d}): {ce:.4f}")
         print(f"Brier Score (Target {target_decade_year + 1:02d}): {bs:.4f}")
+        print(f"Top-5 Acc (Target {target_decade_year + 1:02d}): {top_k:.4f}")
+        print(f"MRR (Target {target_decade_year + 1:02d}): {mrr:.4f}")
 
 if __name__ == "__main__":
     run_experiment()

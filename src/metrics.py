@@ -80,3 +80,20 @@ def brier_score(logits: torch.Tensor, target_id: int) -> float:
     target_probs = torch.zeros_like(probs)
     target_probs[target_id] = 1.0
     return F.mse_loss(probs, target_probs, reduction='sum').item()
+
+def top_k_accuracy(logits: torch.Tensor, target_id: int, k: int = 5) -> float:
+    """
+    Вычисляет Top-K Accuracy.
+    """
+    next_token_logits = logits[0, -1, :]
+    top_k_indices = torch.topk(next_token_logits, k).indices
+    return 1.0 if target_id in top_k_indices else 0.0
+
+def mean_reciprocal_rank(logits: torch.Tensor, target_id: int) -> float:
+    """
+    Вычисляет Mean Reciprocal Rank (MRR).
+    """
+    next_token_logits = logits[0, -1, :]
+    sorted_indices = torch.argsort(next_token_logits, descending=True)
+    rank = (sorted_indices == target_id).nonzero(as_tuple=True)[0].item() + 1
+    return 1.0 / rank

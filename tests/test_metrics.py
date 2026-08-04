@@ -76,3 +76,17 @@ def test_brier_score():
     logits = torch.tensor([[[0.0, 0.0, 0.0, 0.0]]])
     bs = brier_score(logits, 0)
     assert abs(bs - 0.75) < 1e-4
+
+def test_top_k_accuracy():
+    from src.metrics import top_k_accuracy
+    import torch
+    logits = torch.tensor([[[0.1, 0.5, 0.2, 0.9, 0.4]]])
+    assert top_k_accuracy(logits, 3, k=2) == 1.0
+    assert top_k_accuracy(logits, 1, k=1) == 0.0
+
+def test_mean_reciprocal_rank():
+    from src.metrics import mean_reciprocal_rank
+    import torch
+    logits = torch.tensor([[[0.1, 0.5, 0.2, 0.9, 0.4]]])
+    assert mean_reciprocal_rank(logits, 3) == 1.0
+    assert mean_reciprocal_rank(logits, 1) == 0.5

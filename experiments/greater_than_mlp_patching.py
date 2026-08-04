@@ -13,7 +13,7 @@ try:
 except ImportError:
     print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
 
-from src.metrics import brier_score, cross_entropy
+from src.metrics import brier_score, cross_entropy, top_k_accuracy, mean_reciprocal_rank
 
 def get_greater_than_probs(probs, tokenizer, target_year):
     """
@@ -66,11 +66,15 @@ def run_experiment():
     target_token_id = tokenizer.encode(f"{(target_year % 100) + 1:02d}")[0]
     clean_ce = cross_entropy(clean_outputs.logits, target_token_id)
     clean_bs = brier_score(clean_outputs.logits, target_token_id)
+    clean_topk = top_k_accuracy(clean_outputs.logits, target_token_id, k=5)
+    clean_mrr = mean_reciprocal_rank(clean_outputs.logits, target_token_id)
     corrupt_ce = cross_entropy(corrupt_outputs.logits, target_token_id)
     corrupt_bs = brier_score(corrupt_outputs.logits, target_token_id)
+    corrupt_topk = top_k_accuracy(corrupt_outputs.logits, target_token_id, k=5)
+    corrupt_mrr = mean_reciprocal_rank(corrupt_outputs.logits, target_token_id)
 
-    print(f"Baseline clean CE: {clean_ce:.4f} | BS: {clean_bs:.4f}")
-    print(f"Baseline corrupt CE: {corrupt_ce:.4f} | BS: {corrupt_bs:.4f}")
+    print(f"Baseline clean CE: {clean_ce:.4f} | BS: {clean_bs:.4f} | Top5: {clean_topk:.4f} | MRR: {clean_mrr:.4f}")
+    print(f"Baseline corrupt CE: {corrupt_ce:.4f} | BS: {corrupt_bs:.4f} | Top5: {corrupt_topk:.4f} | MRR: {corrupt_mrr:.4f}")
 
     diff_max = clean_greater - corrupt_greater
     print(f"Max diff: {diff_max:.4f}\n")
@@ -109,11 +113,13 @@ def run_experiment():
 
         patched_ce = cross_entropy(patched_outputs.logits, target_token_id)
         patched_bs = brier_score(patched_outputs.logits, target_token_id)
+        patched_topk = top_k_accuracy(patched_outputs.logits, target_token_id, k=5)
+        patched_mrr = mean_reciprocal_rank(patched_outputs.logits, target_token_id)
 
         recovery = (patched_greater - corrupt_greater) / diff_max if diff_max > 0 else 0.0
 
         if recovery > 0.05 or recovery < -0.05:
-            print(f"Layer {layer_idx:02d} | Patched prob > 32: {patched_greater:.4f} | Recovery: {recovery:.2%} | CE: {patched_ce:.4f} | BS: {patched_bs:.4f}")
+            print(f"Layer {layer_idx:02d} | Patched prob > 32: {patched_greater:.4f} | Recovery: {recovery:.2%} | CE: {patched_ce:.4f} | BS: {patched_bs:.4f} | Top5: {patched_topk:.4f} | MRR: {patched_mrr:.4f}")
 
 if __name__ == "__main__":
     run_experiment()

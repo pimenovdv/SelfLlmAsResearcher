@@ -13,7 +13,7 @@ try:
 except ImportError:
     print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
 
-from src.metrics import brier_score, cross_entropy
+from src.metrics import brier_score, cross_entropy, top_k_accuracy, mean_reciprocal_rank
 
 def get_greater_than_probs(probs, tokenizer, target_year):
     """
@@ -60,10 +60,12 @@ def run_experiment():
     target_token_id = tokenizer.encode(f"{(target_year_clean % 100) + 1:02d}")[0]
     clean_ce = cross_entropy(clean_outputs.logits, target_token_id)
     clean_bs = brier_score(clean_outputs.logits, target_token_id)
+    clean_topk = top_k_accuracy(clean_outputs.logits, target_token_id, k=5)
+    clean_mrr = mean_reciprocal_rank(clean_outputs.logits, target_token_id)
 
     print(f"Clean prompt: '{clean_prompt}'")
     print(f"Target year threshold: > 32")
-    print(f"Baseline clean prob > 32: {clean_greater:.4f} | CE: {clean_ce:.4f} | BS: {clean_bs:.4f}\n")
+    print(f"Baseline clean prob > 32: {clean_greater:.4f} | CE: {clean_ce:.4f} | BS: {clean_bs:.4f} | Top5: {clean_topk:.4f} | MRR: {clean_mrr:.4f}\n")
 
     num_layers = model.config.n_layer
     num_heads = model.config.n_head
@@ -109,6 +111,8 @@ def run_experiment():
 
             ablated_ce = cross_entropy(outputs.logits, target_token_id)
             ablated_bs = brier_score(outputs.logits, target_token_id)
+            ablated_topk = top_k_accuracy(outputs.logits, target_token_id, k=5)
+            ablated_mrr = mean_reciprocal_rank(outputs.logits, target_token_id)
 
             results.append({
                 'layer': layer_idx,
@@ -116,7 +120,9 @@ def run_experiment():
                 'prob': greater_prob,
                 'drop': drop,
                 'ce': ablated_ce,
-                'bs': ablated_bs
+                'bs': ablated_bs,
+                'topk': ablated_topk,
+                'mrr': ablated_mrr
             })
 
     # Sort results by drop in probability
@@ -124,7 +130,7 @@ def run_experiment():
 
     print("Top 15 heads with highest drop when ablated:")
     for res in results[:15]:
-        print(f"L{res['layer']:02d}H{res['head']:02d} | Prob: {res['prob']:>6.4f} | Drop: {res['drop']:>6.4f} | CE: {res['ce']:>6.4f} | BS: {res['bs']:>6.4f}")
+        print(f"L{res['layer']:02d}H{res['head']:02d} | Prob: {res['prob']:>6.4f} | Drop: {res['drop']:>6.4f} | CE: {res['ce']:>6.4f} | BS: {res['bs']:>6.4f} | Top5: {res['topk']:>6.4f} | MRR: {res['mrr']:>6.4f}")
 
 if __name__ == "__main__":
     run_experiment()

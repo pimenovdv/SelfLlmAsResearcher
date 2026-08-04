@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлены метрики top_k_accuracy и mean_reciprocal_rank в src/metrics.py.
+Новые метрики (top_k_accuracy, MRR) интегрированы в эксперименты Greater-Than.
 
 **План действий на следующий этап:**
-1. Интеграция новых метрик (top_k_accuracy, MRR) в текущие эксперименты.
+1. Интеграция новых метрик (top_k_accuracy, MRR) в Factual Recall эксперименты.

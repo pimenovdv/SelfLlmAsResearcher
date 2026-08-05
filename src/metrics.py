@@ -97,3 +97,11 @@ def mean_reciprocal_rank(logits: torch.Tensor, target_id: int) -> float:
     sorted_indices = torch.argsort(next_token_logits, descending=True)
     rank = (sorted_indices == target_id).nonzero(as_tuple=True)[0].item() + 1
     return 1.0 / rank
+
+def exact_match(logits: torch.Tensor, target_id: int) -> float:
+    """
+    Вычисляет Exact Match (EM) для заданного токена.
+    """
+    next_token_logits = logits[0, -1, :]
+    predicted_id = torch.argmax(next_token_logits).item()
+    return 1.0 if predicted_id == target_id else 0.0

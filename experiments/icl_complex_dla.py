@@ -1,7 +1,7 @@
 import os
 import sys
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from src.experiment_utils import load_model_and_tokenizer
 from einops import rearrange
 from src.sandbox_env import SandboxEnvironment
 
@@ -14,9 +14,7 @@ def logit_difference(logits, target_id, corrupted_id):
 def main():
     model_name = "gpt2"
     print(f"Loading {model_name}...")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    model.eval()
+    model, tokenizer = load_model_and_tokenizer(model_name)
 
     prompt = "Q: en - cat, fr - chat. Q: en - dog, fr - chien. Q: en - horse, fr -"
     corr_prompt = "Q: en - dog, fr - chien. Q: en - horse, fr - cheval. Q: en - cat, fr -"

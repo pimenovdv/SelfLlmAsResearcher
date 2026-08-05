@@ -2,7 +2,6 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import logging
 from src.metrics import brier_score, top_k_accuracy, mean_reciprocal_rank
 from src.experiment_utils import load_model_and_tokenizer

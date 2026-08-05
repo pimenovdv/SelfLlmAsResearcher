@@ -1,7 +1,7 @@
 import os
 import sys
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from src.experiment_utils import load_model_and_tokenizer
 from einops import rearrange
 
 if not os.path.exists("agent_workspace/templates/metrics.py"):
@@ -15,9 +15,7 @@ from templates.metrics import logit_difference
 def main():
     model_name = "gpt2"
     print(f"Loading {model_name}...")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    model.eval()
+    model, tokenizer = load_model_and_tokenizer(model_name)
 
     clean = "apple -> red, banana -> yellow, grass -> green, sky ->"
     corr = "apple -> dog, banana -> cat, grass -> bird, sky ->"

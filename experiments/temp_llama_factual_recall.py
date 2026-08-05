@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from src.experiment_utils import load_model_and_tokenizer
 import sys, os
 
 if not os.path.exists("agent_workspace/templates/metrics.py"):
@@ -12,9 +12,7 @@ sys.path.append(os.path.abspath("agent_workspace"))
 from templates.metrics import logit_difference
 
 def test_llama(model_name):
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    model.eval()
+    model, tokenizer = load_model_and_tokenizer(model_name)
 
     clean_text = "The capital of France is"
     corrupted_text = "The capital of Russia is"

@@ -1,7 +1,7 @@
 import sys
 import os
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from src.experiment_utils import load_model_and_tokenizer
 
 if not os.path.exists("agent_workspace/templates/metrics.py"):
     from src.sandbox_env import SandboxEnvironment
@@ -14,9 +14,7 @@ from templates.metrics import logit_difference
 def run_experiment():
     model_name = "JackFram/llama-160m"
     print(f"Loading model and tokenizer for {model_name}...")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    model.eval()
+    model, tokenizer = load_model_and_tokenizer(model_name)
 
     clean_text = "When John and Mary went to the store, John gave a drink to"
     corrupted_text = "When John and Mary went to the store, Mary gave a drink to"

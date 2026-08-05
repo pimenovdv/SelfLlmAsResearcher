@@ -1,7 +1,7 @@
 import sys
 import os
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from src.experiment_utils import load_model_and_tokenizer
 
 if not os.path.exists("agent_workspace/templates/metrics.py"):
     from src.sandbox_env import SandboxEnvironment
@@ -13,12 +13,7 @@ from templates.metrics import logit_difference
 
 def run_experiment(model_name="gpt2"):
     print(f"\n--- Running Early Layers Subject Patching for {model_name} ---")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    model.eval()
-
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+    model, tokenizer = load_model_and_tokenizer(model_name)
 
     clean_text = "The capital of France is"
     corrupted_text = "The capital of Russia is"

@@ -5,17 +5,13 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import logging
 from src.metrics import brier_score, top_k_accuracy, mean_reciprocal_rank
+from src.experiment_utils import load_model_and_tokenizer
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def test_model_factual_recall(model_name, prompts_targets):
     logging.info(f"Testing model: {model_name}")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    model.eval()
-
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+    model, tokenizer = load_model_and_tokenizer(model_name)
 
     for prompt, target_word in prompts_targets:
         inputs = tokenizer(prompt, return_tensors="pt")

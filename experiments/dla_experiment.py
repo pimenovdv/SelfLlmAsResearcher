@@ -1,6 +1,7 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from src.sandbox_env import SandboxEnvironment
+from src.experiment_utils import load_model_and_tokenizer
 
 def main():
     # Setup SandboxEnvironment to ensure templates are generated if they aren't
@@ -8,9 +9,7 @@ def main():
     env.setup_templates()
 
     print("Loading model and tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained("gpt2")
-    model = AutoModelForCausalLM.from_pretrained("gpt2")
-    model.eval()
+    model, tokenizer = load_model_and_tokenizer("gpt2")
 
     prompt = "John and Mary went to the store. John gave a bottle to"
     target_word = " Mary"

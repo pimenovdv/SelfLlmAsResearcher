@@ -1,0 +1,13 @@
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+def load_model_and_tokenizer(model_name: str, output_attentions: bool = False):
+    """
+    Загружает модель и токенизатор по имени.
+    """
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name, output_attentions=output_attentions)
+    model.eval()
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    return model, tokenizer

@@ -1,5 +1,4 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
 from src.sandbox_env import SandboxEnvironment
 from src.experiment_utils import load_model_and_tokenizer
 

@@ -1,15 +1,13 @@
 import os
 import sys
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from src.experiment_utils import load_model_and_tokenizer
 from einops import rearrange
 
 def main():
     model_name = "gpt2"
     print(f"Loading {model_name}...")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    model.eval()
+    model, tokenizer = load_model_and_tokenizer(model_name)
 
     prompt = "apple -> red, banana -> yellow, grass -> green, sky ->"
     inputs = tokenizer(prompt, return_tensors="pt")

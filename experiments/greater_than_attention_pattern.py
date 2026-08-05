@@ -1,6 +1,6 @@
 import os
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from src.experiment_utils import load_model_and_tokenizer
 import sys
 
 # Ensure sandbox templates are setup
@@ -14,9 +14,7 @@ except ImportError:
 
 def run_experiment():
     print("Loading model and tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained("gpt2")
-    model = AutoModelForCausalLM.from_pretrained("gpt2", output_attentions=True)
-    model.eval()
+    model, tokenizer = load_model_and_tokenizer("gpt2", output_attentions=True)
 
     prompt = "The war lasted from the year 1732 to the year 17"
     inputs = tokenizer(prompt, return_tensors="pt")

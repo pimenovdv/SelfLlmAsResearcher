@@ -1,9 +1,7 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from src.experiment_utils import load_model_and_tokenizer
 
-tokenizer = AutoTokenizer.from_pretrained("gpt2")
-model = AutoModelForCausalLM.from_pretrained("gpt2")
-model.eval()
+model, tokenizer = load_model_and_tokenizer("gpt2")
 
 text = "The capital of France is"
 inputs = tokenizer(text, return_tensors="pt")

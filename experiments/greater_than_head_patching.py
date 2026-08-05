@@ -1,7 +1,7 @@
 import os
 import torch
 import torch.nn.functional as F
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from src.experiment_utils import load_model_and_tokenizer
 import sys
 
 # Ensure sandbox templates are setup
@@ -41,9 +41,7 @@ def get_greater_than_probs(probs, tokenizer, target_year):
 
 def run_experiment():
     print("Loading model and tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained("gpt2")
-    model = AutoModelForCausalLM.from_pretrained("gpt2")
-    model.eval()
+    model, tokenizer = load_model_and_tokenizer("gpt2")
 
     clean_prompt = "The war lasted from the year 1732 to the year 17"
     corrupt_prompt = "The war lasted from the year 1711 to the year 17"

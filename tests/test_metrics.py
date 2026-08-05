@@ -90,3 +90,10 @@ def test_mean_reciprocal_rank():
     logits = torch.tensor([[[0.1, 0.5, 0.2, 0.9, 0.4]]])
     assert mean_reciprocal_rank(logits, 3) == 1.0
     assert mean_reciprocal_rank(logits, 1) == 0.5
+
+def test_exact_match():
+    from src.metrics import exact_match
+    import torch
+    logits = torch.tensor([[[0.1, 0.5, 0.2, 0.9, 0.4]]])
+    assert exact_match(logits, 3) == 1.0
+    assert exact_match(logits, 1) == 0.0

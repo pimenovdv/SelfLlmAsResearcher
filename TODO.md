@@ -106,3 +106,4 @@
 ## Утилиты экспериментов
 - [x] Вынести повторяющийся код из скриптов экспериментов в общие утилиты `src/experiment_utils.py`.
 - [x] Перевести все эксперименты в `experiments/` на использование утилиты `load_model_and_tokenizer` из `src/experiment_utils.py`.
+- [x] Написать новый эксперимент для проверки гипотезы о влиянии контекста на Activation Patching (context_activation_patching.py).

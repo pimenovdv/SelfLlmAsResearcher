@@ -1,3 +1,4 @@
+import gc
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
@@ -11,3 +12,11 @@ def load_model_and_tokenizer(model_name: str, output_attentions: bool = False):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     return model, tokenizer
+
+def clear_memory():
+    """
+    Очищает кэш GPU и вызывает сборщик мусора.
+    """
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()

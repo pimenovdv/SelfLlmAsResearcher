@@ -111,3 +111,13 @@ def test_total_variation_distance():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     tvd_zero = total_variation_distance(same_logits, same_logits)
     assert abs(tvd_zero) < 1e-4
+
+def test_target_probability():
+    from src.metrics import target_probability
+    import torch
+
+    logits = torch.tensor([[[0.0, 10.0, 0.0]]])
+    prob = target_probability(logits, 1)
+    assert prob > 0.99
+    prob2 = target_probability(logits, 0)
+    assert prob2 < 0.01

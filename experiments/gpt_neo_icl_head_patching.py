@@ -1,16 +1,11 @@
 import os
 import sys
 import torch
-from src.experiment_utils import load_model_and_tokenizer
+from src.experiment_utils import load_model_and_tokenizer, clear_memory
 from einops import rearrange
 
-if not os.path.exists("agent_workspace/templates/metrics.py"):
-    from src.sandbox_env import SandboxEnvironment
-    env = SandboxEnvironment()
-    env.setup_templates()
 
-sys.path.append(os.path.abspath("agent_workspace"))
-from templates.metrics import logit_difference
+from src.metrics import logit_difference
 
 def main():
     model_name = "EleutherAI/gpt-neo-125m"
@@ -61,6 +56,7 @@ def main():
         return hook
 
     for layer_idx in range(num_layers):
+        clear_memory()
         for head_idx in range(num_heads):
             # GPT-Neo uses out_proj instead of c_proj
             handle1 = model.transformer.h[layer_idx].attn.attention.out_proj.register_forward_pre_hook(save_head_hook(head_idx))

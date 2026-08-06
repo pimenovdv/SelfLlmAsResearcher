@@ -1,15 +1,10 @@
 import sys
 import os
 import torch
-from src.experiment_utils import load_model_and_tokenizer
+from src.experiment_utils import load_model_and_tokenizer, clear_memory
 
-if not os.path.exists("agent_workspace/templates/metrics.py"):
-    from src.sandbox_env import SandboxEnvironment
-    env = SandboxEnvironment()
-    env.setup_templates()
 
-sys.path.append(os.path.abspath("agent_workspace"))
-from templates.metrics import logit_difference
+from src.metrics import logit_difference
 
 def run_experiment(model_name="gpt2"):
     print(f"\n--- Running Positional MLP Patching for {model_name} ---")
@@ -46,6 +41,7 @@ def run_experiment(model_name="gpt2"):
     print("\nLayer\tPosition\tLogit Diff")
 
     for layer_idx in range(num_layers):
+        clear_memory()
         if is_llama:
             mlp_layer = model.model.layers[layer_idx].mlp
         else:

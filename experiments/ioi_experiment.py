@@ -4,13 +4,8 @@ import torch
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
 # Make sure agent_workspace/templates exists
-if not os.path.exists("agent_workspace/templates/metrics.py"):
-    from src.sandbox_env import SandboxEnvironment
-    env = SandboxEnvironment()
-    env.setup_templates()
 
-sys.path.append(os.path.abspath("agent_workspace"))
-from templates.metrics import logit_difference, kl_divergence
+from src.metrics import logit_difference, kl_divergence
 
 def run_experiment():
     print("Loading model and tokenizer...")

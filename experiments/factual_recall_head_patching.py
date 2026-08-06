@@ -1,16 +1,10 @@
 import sys
 import os
 import torch
-from src.experiment_utils import load_model_and_tokenizer
+from src.experiment_utils import load_model_and_tokenizer, clear_memory
 
-# Ensure templates exist
-if not os.path.exists("agent_workspace/templates/metrics.py"):
-    from src.sandbox_env import SandboxEnvironment
-    env = SandboxEnvironment()
-    env.setup_templates()
 
-sys.path.append(os.path.abspath("agent_workspace"))
-from templates.metrics import logit_difference
+from src.metrics import logit_difference
 
 def run_experiment(model_name="gpt2"):
     print(f"\n--- Running Head Level Activation Patching for {model_name} ---")
@@ -50,6 +44,7 @@ def run_experiment(model_name="gpt2"):
     results = {}
 
     for layer_idx in range(num_layers):
+        clear_memory()
         attn_layer = model.transformer.h[layer_idx].attn
         results[layer_idx] = []
 
@@ -96,6 +91,7 @@ def run_experiment(model_name="gpt2"):
 
     print("\nDetailed Results (Layer, Head): Logit Difference")
     for layer_idx in range(num_layers):
+        clear_memory()
         print(f"--- Layer {layer_idx} ---")
         for head_idx, diff in results[layer_idx]:
             # only print interesting ones to save space, say diff drops by more than 0.2

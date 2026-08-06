@@ -2,14 +2,9 @@ import torch
 from src.experiment_utils import load_model_and_tokenizer
 import sys, os
 
-if not os.path.exists("agent_workspace/templates/metrics.py"):
-    sys.path.append(".")
-    from src.sandbox_env import SandboxEnvironment
-    env = SandboxEnvironment()
-    env.setup_templates()
+sys.path.append(".")
 
-sys.path.append(os.path.abspath("agent_workspace"))
-from templates.metrics import logit_difference
+from src.metrics import logit_difference
 
 def test_llama(model_name):
     model, tokenizer = load_model_and_tokenizer(model_name)

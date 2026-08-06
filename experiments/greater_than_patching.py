@@ -1,18 +1,11 @@
 import os
 import torch
 import torch.nn.functional as F
-from src.experiment_utils import load_model_and_tokenizer
+from src.experiment_utils import load_model_and_tokenizer, clear_memory
 import sys
 
 # Ensure sandbox templates are setup
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-try:
-    from src.sandbox_env import SandboxEnvironment
-    env = SandboxEnvironment()
-    env.setup_templates()
-except ImportError:
-    print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
-
 from src.metrics import brier_score, cross_entropy, top_k_accuracy, mean_reciprocal_rank
 
 def get_greater_than_probs(probs, tokenizer, target_year):
@@ -84,6 +77,7 @@ def run_experiment():
     print("-" * 100)
 
     for layer_idx in range(num_layers):
+        clear_memory()
         layer_to_patch = model.transformer.h[layer_idx]
         cached_activation = None
 

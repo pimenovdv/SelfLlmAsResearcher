@@ -1,11 +1,7 @@
 import torch
-from src.sandbox_env import SandboxEnvironment
 from src.experiment_utils import load_model_and_tokenizer
 
 def main():
-    # Setup SandboxEnvironment to ensure templates are generated if they aren't
-    env = SandboxEnvironment()
-    env.setup_templates()
 
     print("Loading model and tokenizer...")
     model, tokenizer = load_model_and_tokenizer("gpt2")

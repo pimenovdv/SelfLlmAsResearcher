@@ -114,3 +114,5 @@
 
 ## Утилиты управления памятью
 - [x] Добавить функцию `clear_memory` в `src/experiment_utils.py` и написать тесты.
+
+- [x] Перевести все скрипты экспериментов на прямой импорт метрик из `src.metrics` вместо `agent_workspace/templates/metrics.py` (Memory Rule).

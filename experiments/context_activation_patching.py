@@ -3,7 +3,7 @@ import os
 import torch
 
 sys.path.append(os.path.abspath("."))
-from src.experiment_utils import load_model_and_tokenizer
+from src.experiment_utils import load_model_and_tokenizer, clear_memory
 from src.metrics import logit_difference, brier_score, top_k_accuracy, mean_reciprocal_rank
 
 def run_experiment():
@@ -40,6 +40,7 @@ def run_experiment():
         attn_mrr = []
 
         for layer_idx in range(num_layers):
+            clear_memory()
             attn_layer = model.transformer.h[layer_idx].attn
             cached_attn = None
 

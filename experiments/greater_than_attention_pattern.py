@@ -5,13 +5,6 @@ import sys
 
 # Ensure sandbox templates are setup
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-try:
-    from src.sandbox_env import SandboxEnvironment
-    env = SandboxEnvironment()
-    env.setup_templates()
-except ImportError:
-    print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
-
 def run_experiment():
     print("Loading model and tokenizer...")
     model, tokenizer = load_model_and_tokenizer("gpt2", output_attentions=True)

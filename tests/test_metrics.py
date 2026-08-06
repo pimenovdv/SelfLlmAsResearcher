@@ -97,3 +97,17 @@ def test_exact_match():
     logits = torch.tensor([[[0.1, 0.5, 0.2, 0.9, 0.4]]])
     assert exact_match(logits, 3) == 1.0
     assert exact_match(logits, 1) == 0.0
+
+def test_total_variation_distance():
+    from src.metrics import total_variation_distance
+    import torch
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+
+    tvd = total_variation_distance(logits_p, logits_q)
+    assert tvd > 0.0
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    tvd_zero = total_variation_distance(same_logits, same_logits)
+    assert abs(tvd_zero) < 1e-4

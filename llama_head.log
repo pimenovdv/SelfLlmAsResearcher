@@ -1,11 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading JackFram/llama-160m...
-Loading weights:   0%|          | 0/111 [00:00<?, ?it/s]Loading weights: 100%|██████████| 111/111 [00:00<00:00, 1872.94it/s]
-Clean Logit Diff: 5.1742
-Corr Logit Diff: -3.1171
-
-Patching Clean Attention Heads into Corrupted Run
-L4H5: Recovered = 16.79%, Logit Diff = -1.7252
-L4H7: Recovered = 22.69%, Logit Diff = -1.2358
-L8H6: Recovered = 12.91%, Logit Diff = -2.0470
-L10H11: Recovered = 11.87%, Logit Diff = -2.1332

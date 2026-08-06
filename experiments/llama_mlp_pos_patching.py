@@ -1,15 +1,10 @@
 import sys
 import os
 import torch
-from src.experiment_utils import load_model_and_tokenizer
+from src.experiment_utils import load_model_and_tokenizer, clear_memory
 
-if not os.path.exists("agent_workspace/templates/metrics.py"):
-    from src.sandbox_env import SandboxEnvironment
-    env = SandboxEnvironment()
-    env.setup_templates()
 
-sys.path.append(os.path.abspath("agent_workspace"))
-from templates.metrics import logit_difference
+from src.metrics import logit_difference
 
 def run_experiment():
     model_name = "JackFram/llama-160m"
@@ -58,6 +53,7 @@ def run_experiment():
     print("\nLayer\tPosition\tLogit Diff")
 
     for layer_idx in range(num_layers):
+        clear_memory()
         mlp_layer = model.model.layers[layer_idx].mlp
 
         for pos in positions_to_patch:

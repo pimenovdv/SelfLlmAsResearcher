@@ -3,7 +3,6 @@ import sys
 import torch
 from src.experiment_utils import load_model_and_tokenizer
 from einops import rearrange
-from src.sandbox_env import SandboxEnvironment
 
 def logit_difference(logits, target_id, corrupted_id):
     next_token_logits = logits[0, -1, :]

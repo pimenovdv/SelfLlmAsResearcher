@@ -6,13 +6,6 @@ import sys
 
 # Ensure sandbox templates are setup
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-try:
-    from src.sandbox_env import SandboxEnvironment
-    env = SandboxEnvironment()
-    env.setup_templates()
-except ImportError:
-    print("Warning: Could not import SandboxEnvironment. Make sure PYTHONPATH is set.")
-
 from src.metrics import brier_score, cross_entropy, top_k_accuracy, mean_reciprocal_rank
 
 def get_greater_than_probs(model, tokenizer, prompt, target_year):

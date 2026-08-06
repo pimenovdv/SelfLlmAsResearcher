@@ -105,3 +105,11 @@ def exact_match(logits: torch.Tensor, target_id: int) -> float:
     next_token_logits = logits[0, -1, :]
     predicted_id = torch.argmax(next_token_logits).item()
     return 1.0 if predicted_id == target_id else 0.0
+
+def total_variation_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет Total Variation Distance (TVD) между двумя распределениями.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+    return 0.5 * torch.sum(torch.abs(probs_p - probs_q)).item()

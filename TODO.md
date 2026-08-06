@@ -100,6 +100,7 @@
 - [x] Добавить метрику top_k_accuracy в src/metrics.py и написать тесты.
 - [x] Добавить метрику mean_reciprocal_rank в src/metrics.py и написать тесты.
 - [x] Добавить метрику exact_match в src/metrics.py и написать тесты.
+- [x] Добавить метрику total_variation_distance в src/metrics.py и написать тесты.
 
 ## Покрытие тестами
 - [x] Настроить тестовое покрытие (test coverage) для скриптов в директории `experiments/`.

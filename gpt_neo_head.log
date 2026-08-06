@@ -1,20 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading EleutherAI/gpt-neo-125m...
-Loading weights:   0%|          | 0/160 [00:00<?, ?it/s]Loading weights: 100%|██████████| 160/160 [00:00<00:00, 1960.07it/s]
-[transformers] [1mGPTNeoForCausalLM LOAD REPORT[0m from: EleutherAI/gpt-neo-125m
-Key                                                   | Status     |  |
-------------------------------------------------------+------------+--+-
-transformer.h.{0, 2, 4, 6, 8, 10}.attn.attention.bias | UNEXPECTED |  |
-transformer.h.{0...11}.attn.attention.masked_bias     | UNEXPECTED |  |
-
-Notes:
-- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
-Clean Logit Diff: 10.7318
-Corr Logit Diff: -3.2689
-
-Patching Clean Attention Heads into Corrupted Run
-L0H5: Recovered = 40.78%, Logit Diff = 2.4403
-L7H10: Recovered = 10.64%, Logit Diff = -1.7789
-L8H2: Recovered = 19.57%, Logit Diff = -0.5290
-L8H6: Recovered = 11.91%, Logit Diff = -1.6010
-L11H2: Recovered = 10.91%, Logit Diff = -1.7420

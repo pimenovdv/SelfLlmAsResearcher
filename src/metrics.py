@@ -113,3 +113,10 @@ def total_variation_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> 
     probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
     probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
     return 0.5 * torch.sum(torch.abs(probs_p - probs_q)).item()
+
+def target_probability(logits: torch.Tensor, target_id: int) -> float:
+    """
+    Вычисляет вероятность целевого токена (Target Probability).
+    """
+    probs = F.softmax(logits[0, -1, :], dim=-1)
+    return probs[target_id].item()

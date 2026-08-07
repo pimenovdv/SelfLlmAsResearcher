@@ -103,6 +103,7 @@
 - [x] Добавить метрику total_variation_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику target_probability в src/metrics.py и написать тесты.
 - [x] Добавить метрику cosine_similarity в src/metrics.py и написать тесты.
+- [x] Добавить метрику chebyshev_distance в src/metrics.py и написать тесты.
 
 ## Покрытие тестами
 - [x] Настроить тестовое покрытие (test coverage) для скриптов в директории `experiments/`.

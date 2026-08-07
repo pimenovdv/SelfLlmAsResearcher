@@ -135,3 +135,17 @@ def test_cosine_similarity():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     sim_same = cosine_similarity(same_logits, same_logits)
     assert abs(sim_same - 1.0) < 1e-4
+
+def test_chebyshev_distance():
+    from src.metrics import chebyshev_distance
+    import torch
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+
+    dist = chebyshev_distance(logits_p, logits_q)
+    assert dist > 0.99
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    dist_same = chebyshev_distance(same_logits, same_logits)
+    assert abs(dist_same) < 1e-4

@@ -121,3 +121,17 @@ def test_target_probability():
     assert prob > 0.99
     prob2 = target_probability(logits, 0)
     assert prob2 < 0.01
+
+def test_cosine_similarity():
+    from src.metrics import cosine_similarity
+    import torch
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+
+    sim = cosine_similarity(logits_p, logits_q)
+    assert sim < 0.01
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    sim_same = cosine_similarity(same_logits, same_logits)
+    assert abs(sim_same - 1.0) < 1e-4

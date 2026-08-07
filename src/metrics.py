@@ -120,3 +120,11 @@ def target_probability(logits: torch.Tensor, target_id: int) -> float:
     """
     probs = F.softmax(logits[0, -1, :], dim=-1)
     return probs[target_id].item()
+
+def cosine_similarity(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет косинусное сходство (Cosine Similarity) между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+    return F.cosine_similarity(probs_p, probs_q, dim=0).item()

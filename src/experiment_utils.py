@@ -20,3 +20,12 @@ def clear_memory():
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
+
+def get_model_memory_footprint(model: torch.nn.Module) -> int:
+    """
+    Возвращает объем памяти, занимаемый параметрами модели, в байтах.
+    """
+    mem = 0
+    for param in model.parameters():
+        mem += param.nelement() * param.element_size()
+    return mem

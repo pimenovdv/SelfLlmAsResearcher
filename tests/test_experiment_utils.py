@@ -39,5 +39,12 @@ class TestExperimentUtils(unittest.TestCase):
         mock_is_available.assert_called_once()
         mock_empty_cache.assert_not_called()
 
+    def test_get_model_memory_footprint(self):
+        import torch.nn as nn
+        from src.experiment_utils import get_model_memory_footprint
+        model = nn.Linear(10, 10)
+        mem = get_model_memory_footprint(model)
+        self.assertGreater(mem, 0)
+
 if __name__ == '__main__':
     unittest.main()

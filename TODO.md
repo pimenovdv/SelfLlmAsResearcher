@@ -118,3 +118,6 @@
 - [x] Создать скрипт experiments/memory_report.py для генерации отчета по использованию памяти различными моделями.
 
 - [x] Перевести все скрипты экспериментов на прямой импорт метрик из `src.metrics` вместо `agent_workspace/templates/metrics.py` (Memory Rule).
+
+## Анализ Внимания (Attention Pattern)
+- [x] Разработать скрипт `experiments/gpt_neo_ioi_attention_pattern.py` для анализа паттернов внимания "Name Mover Heads" в GPT-Neo 125m.

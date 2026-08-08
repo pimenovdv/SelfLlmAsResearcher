@@ -168,3 +168,11 @@ def mean_squared_error(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
     probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
     probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
     return F.mse_loss(probs_p, probs_q, reduction='mean').item()
+
+def mean_absolute_error(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет среднюю абсолютную ошибку (MAE) между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+    return F.l1_loss(probs_p, probs_q, reduction='mean').item()

@@ -129,3 +129,4 @@
 - [x] Добавить метрику manhattan_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику minkowski_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику mean_squared_error в src/metrics.py и написать тесты.
+- [x] Добавить метрику mean_absolute_error в src/metrics.py и написать тесты.

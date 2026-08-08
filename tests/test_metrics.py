@@ -205,3 +205,17 @@ def test_mean_squared_error():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     mse_same = mean_squared_error(same_logits, same_logits)
     assert abs(mse_same) < 1e-4
+
+def test_mean_absolute_error():
+    from src.metrics import mean_absolute_error
+    import torch
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+
+    mae = mean_absolute_error(logits_p, logits_q)
+    assert mae > 0.1
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    mae_same = mean_absolute_error(same_logits, same_logits)
+    assert abs(mae_same) < 1e-4

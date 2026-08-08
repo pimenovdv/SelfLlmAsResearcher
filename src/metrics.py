@@ -144,3 +144,11 @@ def euclidean_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
     probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
     probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
     return torch.sqrt(torch.sum((probs_p - probs_q) ** 2)).item()
+
+def manhattan_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет манхэттенское расстояние (Manhattan Distance) между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+    return torch.sum(torch.abs(probs_p - probs_q)).item()

@@ -177,3 +177,17 @@ def test_manhattan_distance():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     dist_same = manhattan_distance(same_logits, same_logits)
     assert abs(dist_same) < 1e-4
+
+def test_minkowski_distance():
+    from src.metrics import minkowski_distance
+    import torch
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+
+    dist = minkowski_distance(logits_p, logits_q, 3.0)
+    assert dist > 1.25
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    dist_same = minkowski_distance(same_logits, same_logits, 3.0)
+    assert abs(dist_same) < 1e-4

@@ -149,3 +149,17 @@ def test_chebyshev_distance():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     dist_same = chebyshev_distance(same_logits, same_logits)
     assert abs(dist_same) < 1e-4
+
+def test_euclidean_distance():
+    from src.metrics import euclidean_distance
+    import torch
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+
+    dist = euclidean_distance(logits_p, logits_q)
+    assert dist > 1.4
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    dist_same = euclidean_distance(same_logits, same_logits)
+    assert abs(dist_same) < 1e-4

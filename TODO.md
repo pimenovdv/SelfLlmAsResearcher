@@ -123,3 +123,6 @@
 
 ## Анализ Внимания (Attention Pattern)
 - [x] Разработать скрипт `experiments/gpt_neo_ioi_attention_pattern.py` для анализа паттернов внимания "Name Mover Heads" в GPT-Neo 125m.
+
+## Новые метрики
+- [x] Добавить метрику euclidean_distance в src/metrics.py и написать тесты.

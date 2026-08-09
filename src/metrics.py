@@ -205,3 +205,11 @@ def huber_loss(logits_p: torch.Tensor, logits_q: torch.Tensor, delta: float = 1.
     probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
     probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
     return F.huber_loss(probs_p, probs_q, reduction='mean', delta=delta).item()
+
+def log_cosh_loss(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет Log-Cosh Loss между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+    return torch.mean(torch.log(torch.cosh(probs_p - probs_q))).item()

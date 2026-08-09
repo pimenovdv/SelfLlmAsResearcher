@@ -233,3 +233,17 @@ def test_pearson_correlation():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     corr_same = pearson_correlation(same_logits, same_logits)
     assert abs(corr_same - 1.0) < 1e-4
+
+def test_huber_loss():
+    from src.metrics import huber_loss
+    import torch
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+
+    loss = huber_loss(logits_p, logits_q)
+    assert loss > 0.0
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    loss_same = huber_loss(same_logits, same_logits)
+    assert abs(loss_same) < 1e-4

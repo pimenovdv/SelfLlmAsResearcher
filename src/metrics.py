@@ -176,3 +176,24 @@ def mean_absolute_error(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float
     probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
     probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
     return F.l1_loss(probs_p, probs_q, reduction='mean').item()
+
+def pearson_correlation(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет коэффициент корреляции Пирсона между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+
+    mean_p = torch.mean(probs_p)
+    mean_q = torch.mean(probs_q)
+
+    p_centered = probs_p - mean_p
+    q_centered = probs_q - mean_q
+
+    cov = torch.sum(p_centered * q_centered)
+    std_p = torch.sqrt(torch.sum(p_centered ** 2))
+    std_q = torch.sqrt(torch.sum(q_centered ** 2))
+
+    if std_p == 0 or std_q == 0:
+        return 0.0
+    return (cov / (std_p * std_q)).item()

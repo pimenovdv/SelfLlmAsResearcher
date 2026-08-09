@@ -219,3 +219,17 @@ def test_mean_absolute_error():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     mae_same = mean_absolute_error(same_logits, same_logits)
     assert abs(mae_same) < 1e-4
+
+def test_pearson_correlation():
+    from src.metrics import pearson_correlation
+    import torch
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+
+    corr = pearson_correlation(logits_p, logits_q)
+    assert corr < 0.0
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    corr_same = pearson_correlation(same_logits, same_logits)
+    assert abs(corr_same - 1.0) < 1e-4

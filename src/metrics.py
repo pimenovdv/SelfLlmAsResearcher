@@ -197,3 +197,11 @@ def pearson_correlation(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float
     if std_p == 0 or std_q == 0:
         return 0.0
     return (cov / (std_p * std_q)).item()
+
+def huber_loss(logits_p: torch.Tensor, logits_q: torch.Tensor, delta: float = 1.0) -> float:
+    """
+    Вычисляет Huber Loss между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+    return F.huber_loss(probs_p, probs_q, reduction='mean', delta=delta).item()

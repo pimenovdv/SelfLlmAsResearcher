@@ -275,3 +275,16 @@ def test_root_mean_squared_error():
     same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
     loss_same = root_mean_squared_error(same_logits, same_logits)
     assert abs(loss_same) < 1e-4
+
+def test_r2_score():
+    from src.metrics import r2_score
+    import torch
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    score_same = r2_score(same_logits, same_logits)
+    assert abs(score_same - 1.0) < 1e-4
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+    score_diff = r2_score(logits_p, logits_q)
+    assert score_diff < 1.0

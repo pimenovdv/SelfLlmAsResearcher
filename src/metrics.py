@@ -221,3 +221,18 @@ def root_mean_squared_error(logits_p: torch.Tensor, logits_q: torch.Tensor) -> f
     probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
     probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
     return torch.sqrt(F.mse_loss(probs_p, probs_q, reduction='mean')).item()
+
+def r2_score(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет коэффициент детерминации R^2 между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+
+    ss_res = torch.sum((probs_p - probs_q) ** 2)
+    ss_tot = torch.sum((probs_p - torch.mean(probs_p)) ** 2)
+
+    if ss_tot == 0:
+        return 1.0 if ss_res == 0 else 0.0
+
+    return (1 - ss_res / ss_tot).item()

@@ -132,3 +132,4 @@
 - [x] Добавить метрику mean_absolute_error в src/metrics.py и написать тесты.
 - [x] Добавить метрику pearson_correlation в src/metrics.py и написать тесты.
 - [x] Добавить метрику huber_loss в src/metrics.py и написать тесты.
+- [x] Добавить метрику log_cosh_loss в src/metrics.py и написать тесты.

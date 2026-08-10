@@ -236,3 +236,13 @@ def r2_score(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
         return 1.0 if ss_res == 0 else 0.0
 
     return (1 - ss_res / ss_tot).item()
+
+def mean_absolute_percentage_error(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет среднюю абсолютную процентную ошибку (MAPE) между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+
+    epsilon = 1e-8
+    return torch.mean(torch.abs((probs_p - probs_q) / torch.clamp(probs_p, min=epsilon))).item()

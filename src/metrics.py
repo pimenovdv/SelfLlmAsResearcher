@@ -269,3 +269,12 @@ def bhattacharyya_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> fl
     bc = torch.sum(torch.sqrt(probs_p * probs_q))
     epsilon = 1e-8
     return -torch.log(torch.clamp(bc, min=epsilon)).item()
+
+def hellinger_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет расстояние Хеллингера между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+
+    return (1.0 / (2.0 ** 0.5)) * torch.sqrt(torch.sum((torch.sqrt(probs_p) - torch.sqrt(probs_q)) ** 2)).item()

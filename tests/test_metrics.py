@@ -327,3 +327,16 @@ def test_bhattacharyya_distance():
     logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
     dist_diff = bhattacharyya_distance(logits_p, logits_q)
     assert dist_diff > 0.0
+
+def test_hellinger_distance():
+    from src.metrics import hellinger_distance
+    import torch
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    dist_same = hellinger_distance(same_logits, same_logits)
+    assert abs(dist_same) < 1e-4
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+    dist_diff = hellinger_distance(logits_p, logits_q)
+    assert dist_diff > 0.0

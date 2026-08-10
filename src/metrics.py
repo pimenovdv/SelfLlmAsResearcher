@@ -246,3 +246,15 @@ def mean_absolute_percentage_error(logits_p: torch.Tensor, logits_q: torch.Tenso
 
     epsilon = 1e-8
     return torch.mean(torch.abs((probs_p - probs_q) / torch.clamp(probs_p, min=epsilon))).item()
+
+def symmetric_mean_absolute_percentage_error(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет симметричную среднюю абсолютную процентную ошибку (SMAPE) между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+
+    epsilon = 1e-8
+    numerator = torch.abs(probs_p - probs_q)
+    denominator = torch.clamp(torch.abs(probs_p) + torch.abs(probs_q), min=epsilon)
+    return torch.mean(2.0 * numerator / denominator).item()

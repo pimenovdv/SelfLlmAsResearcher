@@ -136,3 +136,4 @@
 - [x] Добавить метрику root_mean_squared_error в src/metrics.py и написать тесты.
 - [x] Добавить метрику r2_score в src/metrics.py и написать тесты.
 - [x] Добавить метрику mean_absolute_percentage_error в src/metrics.py и написать тесты.
+- [x] Добавить метрику symmetric_mean_absolute_percentage_error в src/metrics.py и написать тесты.

@@ -301,3 +301,16 @@ def test_mean_absolute_percentage_error():
     logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
     error_diff = mean_absolute_percentage_error(logits_p, logits_q)
     assert error_diff > 0.0
+
+def test_symmetric_mean_absolute_percentage_error():
+    from src.metrics import symmetric_mean_absolute_percentage_error
+    import torch
+
+    same_logits = torch.tensor([[[1.0, 2.0, 3.0]]])
+    error_same = symmetric_mean_absolute_percentage_error(same_logits, same_logits)
+    assert abs(error_same) < 1e-4
+
+    logits_p = torch.tensor([[[10.0, 0.0, 0.0]]])
+    logits_q = torch.tensor([[[0.0, 10.0, 0.0]]])
+    error_diff = symmetric_mean_absolute_percentage_error(logits_p, logits_q)
+    assert error_diff > 0.0

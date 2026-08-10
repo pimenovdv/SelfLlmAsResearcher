@@ -138,3 +138,4 @@
 - [x] Добавить метрику mean_absolute_percentage_error в src/metrics.py и написать тесты.
 - [x] Добавить метрику symmetric_mean_absolute_percentage_error в src/metrics.py и написать тесты.
 - [x] Добавить метрику bhattacharyya_distance в src/metrics.py и написать тесты.
+- [x] Добавить метрику hellinger_distance в src/metrics.py и написать тесты.

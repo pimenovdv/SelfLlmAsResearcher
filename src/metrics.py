@@ -319,3 +319,13 @@ def wasserstein_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> floa
     cdf_q = torch.cumsum(probs_q, dim=-1)
 
     return torch.sum(torch.abs(cdf_p - cdf_q)).item()
+
+def chi_square_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет Хи-квадрат расстояние (Chi-Square Distance) между двумя одномерными распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+
+    epsilon = 1e-8
+    return 0.5 * torch.sum(((probs_p - probs_q) ** 2) / (probs_p + probs_q + epsilon)).item()

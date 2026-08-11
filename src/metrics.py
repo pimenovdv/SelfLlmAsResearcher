@@ -307,3 +307,15 @@ def renyi_divergence(logits_p: torch.Tensor, logits_q: torch.Tensor, alpha: floa
     sum_term = torch.sum(term)
 
     return (1.0 / (alpha - 1.0)) * torch.log(torch.clamp(sum_term, min=epsilon)).item()
+
+def wasserstein_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет расстояние Вассерштейна-1 (Earth Mover's Distance) между двумя одномерными распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+
+    cdf_p = torch.cumsum(probs_p, dim=-1)
+    cdf_q = torch.cumsum(probs_q, dim=-1)
+
+    return torch.sum(torch.abs(cdf_p - cdf_q)).item()

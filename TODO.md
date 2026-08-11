@@ -141,3 +141,4 @@
 - [x] Добавить метрику hellinger_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику jaccard_similarity в src/metrics.py и написать тесты.
 - [x] Добавить метрику renyi_divergence в src/metrics.py и написать тесты.
+- [x] Добавить метрику wasserstein_distance в src/metrics.py и написать тесты.

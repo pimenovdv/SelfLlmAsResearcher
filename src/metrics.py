@@ -290,3 +290,20 @@ def jaccard_similarity(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
     union = torch.max(probs_p, probs_q).sum()
 
     return (intersection / union).item()
+
+def renyi_divergence(logits_p: torch.Tensor, logits_q: torch.Tensor, alpha: float = 2.0) -> float:
+    """
+    Вычисляет дивергенцию Реньи между двумя распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+
+    epsilon = 1e-8
+
+    if alpha == 1.0:
+        return torch.sum(probs_p * torch.log((probs_p + epsilon) / (probs_q + epsilon))).item()
+
+    term = (probs_p ** alpha) * (probs_q ** (1.0 - alpha))
+    sum_term = torch.sum(term)
+
+    return (1.0 / (alpha - 1.0)) * torch.log(torch.clamp(sum_term, min=epsilon)).item()

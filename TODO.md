@@ -144,3 +144,4 @@
 - [x] Добавить метрику wasserstein_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику chi_square_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику canberra_distance в src/metrics.py и написать тесты.
+- [x] Добавить метрику bray_curtis_distance в src/metrics.py и написать тесты.

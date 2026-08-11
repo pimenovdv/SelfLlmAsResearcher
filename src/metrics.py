@@ -341,3 +341,15 @@ def canberra_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
     numerator = torch.abs(probs_p - probs_q)
     denominator = torch.abs(probs_p) + torch.abs(probs_q) + epsilon
     return torch.sum(numerator / denominator).item()
+
+def bray_curtis_distance(logits_p: torch.Tensor, logits_q: torch.Tensor) -> float:
+    """
+    Вычисляет расстояние Брея-Кертиса (Bray-Curtis Distance) между двумя одномерными распределениями вероятностей.
+    """
+    probs_p = F.softmax(logits_p[0, -1, :], dim=-1)
+    probs_q = F.softmax(logits_q[0, -1, :], dim=-1)
+
+    epsilon = 1e-8
+    numerator = torch.sum(torch.abs(probs_p - probs_q))
+    denominator = torch.sum(torch.abs(probs_p) + torch.abs(probs_q)) + epsilon
+    return (numerator / denominator).item()

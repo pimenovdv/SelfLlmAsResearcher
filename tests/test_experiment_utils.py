@@ -58,5 +58,19 @@ class TestExperimentUtils(unittest.TestCase):
         mock_is_available.assert_called_once()
         mock_manual_seed_all.assert_called_once_with(42)
 
+    def test_count_parameters(self):
+        import torch.nn as nn
+        from src.experiment_utils import count_parameters
+        model = nn.Linear(10, 5)
+        res = count_parameters(model)
+        self.assertEqual(res["total"], 55)
+        self.assertEqual(res["trainable"], 55)
+
+        for param in model.parameters():
+            param.requires_grad = False
+        res = count_parameters(model)
+        self.assertEqual(res["total"], 55)
+        self.assertEqual(res["trainable"], 0)
+
 if __name__ == '__main__':
     unittest.main()

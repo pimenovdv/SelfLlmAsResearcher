@@ -100,5 +100,22 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(device, torch.device("cpu"))
         mock_cuda.assert_called_once()
 
+    def test_freeze_model_parameters(self):
+        import torch.nn as nn
+        from src.experiment_utils import freeze_model_parameters
+        model = nn.Linear(10, 5)
+        freeze_model_parameters(model)
+        for param in model.parameters():
+            self.assertFalse(param.requires_grad)
+
+    def test_unfreeze_model_parameters(self):
+        import torch.nn as nn
+        from src.experiment_utils import freeze_model_parameters, unfreeze_model_parameters
+        model = nn.Linear(10, 5)
+        freeze_model_parameters(model)
+        unfreeze_model_parameters(model)
+        for param in model.parameters():
+            self.assertTrue(param.requires_grad)
+
 if __name__ == '__main__':
     unittest.main()

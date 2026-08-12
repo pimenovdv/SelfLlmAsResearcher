@@ -58,3 +58,17 @@ def get_device() -> torch.device:
         return torch.device("mps")
     else:
         return torch.device("cpu")
+
+def freeze_model_parameters(model: torch.nn.Module):
+    """
+    Замораживает все параметры модели.
+    """
+    for param in model.parameters():
+        param.requires_grad = False
+
+def unfreeze_model_parameters(model: torch.nn.Module):
+    """
+    Размораживает все параметры модели.
+    """
+    for param in model.parameters():
+        param.requires_grad = True

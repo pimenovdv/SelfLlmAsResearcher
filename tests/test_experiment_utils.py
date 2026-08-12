@@ -72,5 +72,33 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(res["total"], 55)
         self.assertEqual(res["trainable"], 0)
 
+    @patch('src.experiment_utils.torch.cuda.is_available', return_value=True)
+    def test_get_device_cuda(self, mock_cuda):
+        from src.experiment_utils import get_device
+        import torch
+        device = get_device()
+        self.assertEqual(device, torch.device("cuda"))
+        mock_cuda.assert_called_once()
+
+    @patch('src.experiment_utils.torch.cuda.is_available', return_value=False)
+    @patch('src.experiment_utils.hasattr', return_value=True, create=True)
+    @patch('src.experiment_utils.torch.backends.mps.is_available', return_value=True, create=True)
+    def test_get_device_mps(self, mock_mps, mock_hasattr, mock_cuda):
+        from src.experiment_utils import get_device
+        import torch
+        device = get_device()
+        self.assertEqual(device, torch.device("mps"))
+        mock_cuda.assert_called_once()
+        mock_mps.assert_called_once()
+
+    @patch('src.experiment_utils.torch.cuda.is_available', return_value=False)
+    @patch('src.experiment_utils.hasattr', return_value=False, create=True)
+    def test_get_device_cpu(self, mock_hasattr, mock_cuda):
+        from src.experiment_utils import get_device
+        import torch
+        device = get_device()
+        self.assertEqual(device, torch.device("cpu"))
+        mock_cuda.assert_called_once()
+
 if __name__ == '__main__':
     unittest.main()

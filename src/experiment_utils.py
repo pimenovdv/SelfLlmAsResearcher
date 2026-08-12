@@ -1,6 +1,16 @@
 import gc
+import random
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
+
+def set_seed(seed: int = 42):
+    """
+    Устанавливает seed для воспроизводимости экспериментов.
+    """
+    random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 def load_model_and_tokenizer(model_name: str, output_attentions: bool = False):
     """

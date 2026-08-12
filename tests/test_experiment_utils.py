@@ -46,5 +46,17 @@ class TestExperimentUtils(unittest.TestCase):
         mem = get_model_memory_footprint(model)
         self.assertGreater(mem, 0)
 
+    @patch('src.experiment_utils.torch.cuda.is_available', return_value=True)
+    @patch('src.experiment_utils.torch.cuda.manual_seed_all')
+    @patch('src.experiment_utils.torch.manual_seed')
+    @patch('src.experiment_utils.random.seed')
+    def test_set_seed(self, mock_random_seed, mock_torch_seed, mock_manual_seed_all, mock_is_available):
+        from src.experiment_utils import set_seed
+        set_seed(42)
+        mock_random_seed.assert_called_once_with(42)
+        mock_torch_seed.assert_called_once_with(42)
+        mock_is_available.assert_called_once()
+        mock_manual_seed_all.assert_called_once_with(42)
+
 if __name__ == '__main__':
     unittest.main()

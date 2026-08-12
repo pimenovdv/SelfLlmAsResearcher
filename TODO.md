@@ -145,3 +145,6 @@
 - [x] Добавить метрику chi_square_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику canberra_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику bray_curtis_distance в src/metrics.py и написать тесты.
+
+## Утилиты (Дополнительно)
+- [x] Добавить функцию set_seed в src/experiment_utils.py и написать тесты.

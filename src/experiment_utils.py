@@ -39,3 +39,11 @@ def get_model_memory_footprint(model: torch.nn.Module) -> int:
     for param in model.parameters():
         mem += param.nelement() * param.element_size()
     return mem
+
+def count_parameters(model: torch.nn.Module) -> dict:
+    """
+    Возвращает количество параметров модели (всего и обучаемых).
+    """
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    return {"total": total_params, "trainable": trainable_params}

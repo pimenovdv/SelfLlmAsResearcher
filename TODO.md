@@ -148,3 +148,4 @@
 
 ## Утилиты (Дополнительно)
 - [x] Добавить функцию set_seed в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию count_parameters в src/experiment_utils.py и написать тесты.

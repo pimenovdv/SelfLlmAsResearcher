@@ -97,3 +97,14 @@ def check_model_device_consistency(model: torch.nn.Module) -> bool:
     """
     devices = {param.device for param in model.parameters()}
     return len(devices) <= 1
+
+def compute_gradient_norm(model: torch.nn.Module) -> float:
+    """
+    Вычисляет L2 норму градиентов всех параметров модели.
+    """
+    total_norm = 0.0
+    for p in model.parameters():
+        if p.grad is not None:
+            param_norm = p.grad.data.norm(2)
+            total_norm += param_norm.item() ** 2
+    return total_norm ** 0.5

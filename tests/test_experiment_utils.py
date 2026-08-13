@@ -171,5 +171,26 @@ class TestExperimentUtils(unittest.TestCase):
 
         self.assertFalse(check_model_device_consistency(mock_model))
 
+    def test_compute_gradient_norm(self):
+        from src.experiment_utils import compute_gradient_norm
+        import torch
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.linear = torch.nn.Linear(10, 2)
+            def forward(self, x):
+                return self.linear(x)
+
+        model = DummyModel()
+        # Without gradients
+        self.assertEqual(compute_gradient_norm(model), 0.0)
+
+        # With gradients
+        loss = model(torch.randn(1, 10)).sum()
+        loss.backward()
+        norm = compute_gradient_norm(model)
+        self.assertGreater(norm, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

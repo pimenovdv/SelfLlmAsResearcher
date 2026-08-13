@@ -117,5 +117,26 @@ class TestExperimentUtils(unittest.TestCase):
         for param in model.parameters():
             self.assertTrue(param.requires_grad)
 
+    def test_get_module_by_name(self):
+        import torch.nn as nn
+        from src.experiment_utils import get_module_by_name
+
+        class DummyModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer1 = nn.Linear(10, 10)
+                self.layer2 = nn.Sequential(nn.Linear(10, 5), nn.ReLU())
+
+        model = DummyModel()
+
+        mod1 = get_module_by_name(model, "layer1")
+        self.assertEqual(mod1, model.layer1)
+
+        mod2 = get_module_by_name(model, "layer2.0")
+        self.assertEqual(mod2, model.layer2[0])
+
+        with self.assertRaises(ValueError):
+            get_module_by_name(model, "nonexistent_layer")
+
 if __name__ == '__main__':
     unittest.main()

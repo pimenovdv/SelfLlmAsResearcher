@@ -151,3 +151,4 @@
 - [x] Добавить функцию count_parameters в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию get_device в src/experiment_utils.py и написать тесты.
 - [x] Добавить функции freeze_model_parameters и unfreeze_model_parameters в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию get_module_by_name в src/experiment_utils.py и написать тесты.

@@ -108,3 +108,10 @@ def compute_gradient_norm(model: torch.nn.Module) -> float:
             param_norm = p.grad.data.norm(2)
             total_norm += param_norm.item() ** 2
     return total_norm ** 0.5
+
+def set_requires_grad(model: torch.nn.Module, requires_grad: bool):
+    """
+    Устанавливает requires_grad для всех параметров модели.
+    """
+    for param in model.parameters():
+        param.requires_grad = requires_grad

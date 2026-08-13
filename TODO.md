@@ -155,3 +155,4 @@
 - [x] Добавить функцию get_model_device в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию check_model_device_consistency в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_norm в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию set_requires_grad в src/experiment_utils.py и написать тесты.

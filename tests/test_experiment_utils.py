@@ -153,5 +153,23 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         self.assertEqual(get_model_device(empty_model), torch.device("cpu"))
 
+    def test_check_model_device_consistency(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import check_model_device_consistency
+        from unittest.mock import MagicMock
+
+        model = nn.Linear(10, 5)
+        self.assertTrue(check_model_device_consistency(model))
+
+        mock_model = MagicMock(spec=nn.Module)
+        param1 = MagicMock()
+        param1.device = torch.device("cpu")
+        param2 = MagicMock()
+        param2.device = torch.device("cuda:0")
+        mock_model.parameters.return_value = iter([param1, param2])
+
+        self.assertFalse(check_model_device_consistency(mock_model))
+
 if __name__ == '__main__':
     unittest.main()

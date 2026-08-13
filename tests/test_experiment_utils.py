@@ -192,5 +192,16 @@ class TestExperimentUtils(unittest.TestCase):
         norm = compute_gradient_norm(model)
         self.assertGreater(norm, 0.0)
 
+    def test_set_requires_grad(self):
+        import torch.nn as nn
+        from src.experiment_utils import set_requires_grad
+        model = nn.Linear(10, 5)
+        set_requires_grad(model, False)
+        for param in model.parameters():
+            self.assertFalse(param.requires_grad)
+        set_requires_grad(model, True)
+        for param in model.parameters():
+            self.assertTrue(param.requires_grad)
+
 if __name__ == '__main__':
     unittest.main()

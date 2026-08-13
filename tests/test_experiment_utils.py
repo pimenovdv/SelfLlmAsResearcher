@@ -138,5 +138,20 @@ class TestExperimentUtils(unittest.TestCase):
         with self.assertRaises(ValueError):
             get_module_by_name(model, "nonexistent_layer")
 
+    def test_get_model_device(self):
+        import torch.nn as nn
+        from src.experiment_utils import get_model_device
+        model = nn.Linear(10, 5)
+        device = get_model_device(model)
+        self.assertEqual(device, model.weight.device)
+
+        # Test with no parameters
+        class EmptyModel(nn.Module):
+            pass
+
+        empty_model = EmptyModel()
+        import torch
+        self.assertEqual(get_model_device(empty_model), torch.device("cpu"))
+
 if __name__ == '__main__':
     unittest.main()

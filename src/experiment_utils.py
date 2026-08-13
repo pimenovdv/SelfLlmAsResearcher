@@ -81,3 +81,12 @@ def get_module_by_name(model: torch.nn.Module, module_name: str) -> torch.nn.Mod
         if name == module_name:
             return module
     raise ValueError(f"Module {module_name} not found in model.")
+
+def get_model_device(model: torch.nn.Module) -> torch.device:
+    """
+    Возвращает устройство (device), на котором находятся параметры модели.
+    """
+    try:
+        return next(model.parameters()).device
+    except StopIteration:
+        return torch.device("cpu")

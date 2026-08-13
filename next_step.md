@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлены функции `freeze_model_parameters` и `unfreeze_model_parameters` в `src/experiment_utils.py` и написаны тесты.
+Добавлена функция `get_model_device` в `src/experiment_utils.py` и написаны тесты.
 
 **План действий на следующий этап:**
 1. Выполнить следующую задачу из TODO.md.

@@ -90,3 +90,10 @@ def get_model_device(model: torch.nn.Module) -> torch.device:
         return next(model.parameters()).device
     except StopIteration:
         return torch.device("cpu")
+
+def check_model_device_consistency(model: torch.nn.Module) -> bool:
+    """
+    Проверяет, находятся ли все параметры модели на одном устройстве.
+    """
+    devices = {param.device for param in model.parameters()}
+    return len(devices) <= 1

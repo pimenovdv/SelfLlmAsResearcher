@@ -72,3 +72,12 @@ def unfreeze_model_parameters(model: torch.nn.Module):
     """
     for param in model.parameters():
         param.requires_grad = True
+
+def get_module_by_name(model: torch.nn.Module, module_name: str) -> torch.nn.Module:
+    """
+    Возвращает модуль по его имени (например, 'transformer.h.0.mlp').
+    """
+    for name, module in model.named_modules():
+        if name == module_name:
+            return module
+    raise ValueError(f"Module {module_name} not found in model.")

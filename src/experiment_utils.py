@@ -151,3 +151,12 @@ def has_nan_parameters(model: torch.nn.Module) -> bool:
         if torch.isnan(param).any():
             return True
     return False
+
+def has_inf_parameters(model: torch.nn.Module) -> bool:
+    """
+    Проверяет, содержат ли параметры модели Inf значения.
+    """
+    for param in model.parameters():
+        if torch.isinf(param).any():
+            return True
+    return False

@@ -159,3 +159,4 @@
 - [x] Добавить функцию get_model_dtype в src/experiment_utils.py и написать тесты.
 - [x] Добавить функции save_model_weights и load_model_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию get_model_device_map в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию has_nan_parameters в src/experiment_utils.py и написать тесты.

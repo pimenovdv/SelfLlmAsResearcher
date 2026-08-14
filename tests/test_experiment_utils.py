@@ -260,5 +260,18 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('weight', device_map)
         self.assertIn('bias', device_map)
 
+    def test_has_nan_parameters(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import has_nan_parameters
+
+        model = nn.Linear(10, 10)
+        self.assertFalse(has_nan_parameters(model))
+
+        with torch.no_grad():
+            model.weight[0, 0] = float('nan')
+
+        self.assertTrue(has_nan_parameters(model))
+
 if __name__ == '__main__':
     unittest.main()

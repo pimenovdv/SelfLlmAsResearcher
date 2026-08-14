@@ -142,3 +142,12 @@ def get_model_device_map(model: torch.nn.Module) -> dict:
     Возвращает словарь, сопоставляющий имена параметров модели с их устройствами.
     """
     return {name: param.device for name, param in model.named_parameters()}
+
+def has_nan_parameters(model: torch.nn.Module) -> bool:
+    """
+    Проверяет, содержат ли параметры модели NaN значения.
+    """
+    for param in model.parameters():
+        if torch.isnan(param).any():
+            return True
+    return False

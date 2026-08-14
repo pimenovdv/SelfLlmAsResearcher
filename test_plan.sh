@@ -1,1 +1,1 @@
-echo "All done in TODO.md."
+echo "Testing plan..."

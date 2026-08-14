@@ -250,5 +250,15 @@ class TestExperimentUtils(unittest.TestCase):
 
             self.assertTrue(True)
 
+    def test_get_model_device_map(self):
+        import torch.nn as nn
+        from src.experiment_utils import get_model_device_map
+
+        model = nn.Linear(10, 10)
+        device_map = get_model_device_map(model)
+        self.assertEqual(len(device_map), 2)
+        self.assertIn('weight', device_map)
+        self.assertIn('bias', device_map)
+
 if __name__ == '__main__':
     unittest.main()

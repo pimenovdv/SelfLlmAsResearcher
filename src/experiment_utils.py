@@ -136,3 +136,9 @@ def load_model_weights(model: torch.nn.Module, filepath: str):
     Загружает веса модели из файла.
     """
     model.load_state_dict(torch.load(filepath, map_location=get_model_device(model), weights_only=True))
+
+def get_model_device_map(model: torch.nn.Module) -> dict:
+    """
+    Возвращает словарь, сопоставляющий имена параметров модели с их устройствами.
+    """
+    return {name: param.device for name, param in model.named_parameters()}

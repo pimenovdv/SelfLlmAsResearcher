@@ -203,5 +203,17 @@ class TestExperimentUtils(unittest.TestCase):
         for param in model.parameters():
             self.assertTrue(param.requires_grad)
 
+    def test_get_model_dtype(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import get_model_dtype
+        model = nn.Linear(10, 5)
+        self.assertEqual(get_model_dtype(model), torch.float32)
+
+        class EmptyModel(nn.Module):
+            pass
+        empty_model = EmptyModel()
+        self.assertEqual(get_model_dtype(empty_model), torch.float32)
+
 if __name__ == '__main__':
     unittest.main()

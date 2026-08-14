@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлена функция `has_nan_parameters` в `src/experiment_utils.py` и написаны тесты.
+Добавлена функция `has_inf_parameters` в `src/experiment_utils.py` и написаны тесты.
 
 **План действий на следующий этап:**
 1. Выполнить следующую задачу из TODO.md.

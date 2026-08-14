@@ -273,5 +273,18 @@ class TestExperimentUtils(unittest.TestCase):
 
         self.assertTrue(has_nan_parameters(model))
 
+    def test_has_inf_parameters(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import has_inf_parameters
+
+        model = nn.Linear(10, 10)
+        self.assertFalse(has_inf_parameters(model))
+
+        with torch.no_grad():
+            model.weight[0, 0] = float('inf')
+
+        self.assertTrue(has_inf_parameters(model))
+
 if __name__ == '__main__':
     unittest.main()

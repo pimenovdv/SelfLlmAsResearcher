@@ -115,3 +115,12 @@ def set_requires_grad(model: torch.nn.Module, requires_grad: bool):
     """
     for param in model.parameters():
         param.requires_grad = requires_grad
+
+def get_model_dtype(model: torch.nn.Module) -> torch.dtype:
+    """
+    Возвращает тип данных (dtype) параметров модели.
+    """
+    try:
+        return next(model.parameters()).dtype
+    except StopIteration:
+        return torch.float32

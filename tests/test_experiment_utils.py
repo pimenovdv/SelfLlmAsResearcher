@@ -215,5 +215,40 @@ class TestExperimentUtils(unittest.TestCase):
         empty_model = EmptyModel()
         self.assertEqual(get_model_dtype(empty_model), torch.float32)
 
+    def test_save_and_load_model_weights(self):
+        import tempfile
+        import os
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import save_model_weights, load_model_weights
+        model1 = nn.Linear(10, 5)
+        model2 = nn.Linear(10, 5)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = os.path.join(tmpdir, "model.pth")
+            save_model_weights(model1, filepath)
+            load_model_weights(model2, filepath)
+
+            for p1, p2 in zip(model1.parameters(), model2.parameters()):
+                self.assertTrue(torch.allclose(p1, p2))
+
+    def test_save_and_load_empty_model_weights(self):
+        import tempfile
+        import os
+        import torch.nn as nn
+        from src.experiment_utils import save_model_weights, load_model_weights
+        class EmptyModel(nn.Module):
+            pass
+
+        model1 = EmptyModel()
+        model2 = EmptyModel()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = os.path.join(tmpdir, "model_empty.pth")
+            save_model_weights(model1, filepath)
+            load_model_weights(model2, filepath)
+
+            self.assertTrue(True)
+
 if __name__ == '__main__':
     unittest.main()

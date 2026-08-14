@@ -124,3 +124,15 @@ def get_model_dtype(model: torch.nn.Module) -> torch.dtype:
         return next(model.parameters()).dtype
     except StopIteration:
         return torch.float32
+
+def save_model_weights(model: torch.nn.Module, filepath: str):
+    """
+    Сохраняет веса модели в файл.
+    """
+    torch.save(model.state_dict(), filepath)
+
+def load_model_weights(model: torch.nn.Module, filepath: str):
+    """
+    Загружает веса модели из файла.
+    """
+    model.load_state_dict(torch.load(filepath, map_location=get_model_device(model), weights_only=True))

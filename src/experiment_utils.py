@@ -209,3 +209,12 @@ def find_modules_by_class(model: torch.nn.Module, module_class: type) -> list:
     Возвращает список имен модулей в модели, которые являются экземплярами указанного класса.
     """
     return [name for name, module in model.named_modules() if isinstance(module, module_class)]
+
+def check_model_weights_equality(model1: torch.nn.Module, model2: torch.nn.Module) -> bool:
+    """
+    Проверяет, равны ли веса двух моделей.
+    """
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        if p1.shape != p2.shape or not torch.allclose(p1, p2):
+            return False
+    return True

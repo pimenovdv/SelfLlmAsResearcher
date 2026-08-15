@@ -337,5 +337,16 @@ class TestExperimentUtils(unittest.TestCase):
 
         self.assertGreater(get_model_sparsity(model), 0.0)
 
+    def test_find_modules_by_class(self):
+        import torch.nn as nn
+        from src.experiment_utils import find_modules_by_class
+
+        model = nn.Sequential(nn.Linear(10, 5), nn.Dropout(0.1), nn.Linear(5, 2))
+        names = find_modules_by_class(model, nn.Linear)
+        self.assertEqual(names, ['0', '2'])
+
+        names_dropout = find_modules_by_class(model, nn.Dropout)
+        self.assertEqual(names_dropout, ['1'])
+
 if __name__ == '__main__':
     unittest.main()

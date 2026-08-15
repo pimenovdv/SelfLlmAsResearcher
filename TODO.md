@@ -147,6 +147,7 @@
 - [x] Добавить метрику bray_curtis_distance в src/metrics.py и написать тесты.
 
 ## Утилиты (Дополнительно)
+- [x] Добавить функцию find_modules_by_class в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию set_seed в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию count_parameters в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию get_device в src/experiment_utils.py и написать тесты.

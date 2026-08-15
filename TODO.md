@@ -165,3 +165,4 @@
 - [x] Добавить функцию replace_module в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию get_parameter_by_name в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию get_model_sparsity в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию check_model_weights_equality в src/experiment_utils.py и написать тесты.

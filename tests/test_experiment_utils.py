@@ -348,5 +348,21 @@ class TestExperimentUtils(unittest.TestCase):
         names_dropout = find_modules_by_class(model, nn.Dropout)
         self.assertEqual(names_dropout, ['1'])
 
+    def test_check_model_weights_equality(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import check_model_weights_equality
+
+        model1 = nn.Linear(10, 5)
+        model2 = nn.Linear(10, 5)
+        model2.load_state_dict(model1.state_dict())
+
+        self.assertTrue(check_model_weights_equality(model1, model2))
+
+        with torch.no_grad():
+            model2.weight[0, 0] += 0.1
+
+        self.assertFalse(check_model_weights_equality(model1, model2))
+
 if __name__ == '__main__':
     unittest.main()

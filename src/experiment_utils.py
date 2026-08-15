@@ -160,3 +160,23 @@ def has_inf_parameters(model: torch.nn.Module) -> bool:
         if torch.isinf(param).any():
             return True
     return False
+
+def replace_module(model: torch.nn.Module, module_name: str, new_module: torch.nn.Module):
+    """
+    Заменяет модуль в модели по его имени (например, 'transformer.h.0.mlp') на новый модуль.
+    """
+    parts = module_name.split('.')
+    if len(parts) == 1:
+        if not hasattr(model, parts[0]):
+            raise ValueError(f"Module {module_name} not found in model.")
+        setattr(model, parts[0], new_module)
+        return
+
+    parent_name = '.'.join(parts[:-1])
+    target_name = parts[-1]
+
+    parent_module = get_module_by_name(model, parent_name)
+
+    if not hasattr(parent_module, target_name):
+        raise ValueError(f"Module {module_name} not found in model.")
+    setattr(parent_module, target_name, new_module)

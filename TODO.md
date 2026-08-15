@@ -161,3 +161,4 @@
 - [x] Добавить функцию get_model_device_map в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию has_nan_parameters в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию has_inf_parameters в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию replace_module в src/experiment_utils.py и написать тесты.

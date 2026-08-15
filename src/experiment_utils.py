@@ -218,3 +218,14 @@ def check_model_weights_equality(model1: torch.nn.Module, model2: torch.nn.Modul
         if p1.shape != p2.shape or not torch.allclose(p1, p2):
             return False
     return True
+
+def interpolate_model_weights(model1: torch.nn.Module, model2: torch.nn.Module, alpha: float) -> torch.nn.Module:
+    """
+    Создает копию model1, веса которой интерполированы между model1 и model2.
+    w_new = (1 - alpha) * w1 + alpha * w2
+    """
+    import copy
+    model_interp = copy.deepcopy(model1)
+    for p_interp, p1, p2 in zip(model_interp.parameters(), model1.parameters(), model2.parameters()):
+        p_interp.data = (1.0 - alpha) * p1.data + alpha * p2.data
+    return model_interp

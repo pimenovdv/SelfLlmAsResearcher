@@ -203,3 +203,9 @@ def get_model_sparsity(model: torch.nn.Module) -> float:
     if total_params == 0:
         return 0.0
     return zero_params / total_params
+
+def find_modules_by_class(model: torch.nn.Module, module_class: type) -> list:
+    """
+    Возвращает список имен модулей в модели, которые являются экземплярами указанного класса.
+    """
+    return [name for name, module in model.named_modules() if isinstance(module, module_class)]

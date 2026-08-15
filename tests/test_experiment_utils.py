@@ -313,5 +313,29 @@ class TestExperimentUtils(unittest.TestCase):
         with self.assertRaises(ValueError):
             replace_module(model, "layer2.5", new_relu)
 
+    def test_get_parameter_by_name(self):
+        import torch.nn as nn
+        from src.experiment_utils import get_parameter_by_name
+
+        model = nn.Linear(10, 10)
+        param = get_parameter_by_name(model, "weight")
+        self.assertEqual(param.shape, (10, 10))
+
+        with self.assertRaises(ValueError):
+            get_parameter_by_name(model, "nonexistent")
+
+    def test_get_model_sparsity(self):
+        import torch.nn as nn
+        import torch
+        from src.experiment_utils import get_model_sparsity
+
+        model = nn.Linear(2, 2)
+        self.assertEqual(get_model_sparsity(model), 0.0)
+
+        with torch.no_grad():
+            model.weight[0, 0] = 0.0
+
+        self.assertGreater(get_model_sparsity(model), 0.0)
+
 if __name__ == '__main__':
     unittest.main()

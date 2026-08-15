@@ -180,3 +180,26 @@ def replace_module(model: torch.nn.Module, module_name: str, new_module: torch.n
     if not hasattr(parent_module, target_name):
         raise ValueError(f"Module {module_name} not found in model.")
     setattr(parent_module, target_name, new_module)
+
+def get_parameter_by_name(model: torch.nn.Module, parameter_name: str) -> torch.nn.Parameter:
+    """
+    Возвращает параметр модели по его имени.
+    """
+    for name, param in model.named_parameters():
+        if name == parameter_name:
+            return param
+    raise ValueError(f"Parameter {parameter_name} not found in model.")
+
+def get_model_sparsity(model: torch.nn.Module) -> float:
+    """
+    Вычисляет долю нулевых параметров в модели.
+    """
+    zero_params = 0
+    total_params = 0
+    for param in model.parameters():
+        zero_params += torch.sum(param == 0).item()
+        total_params += param.numel()
+
+    if total_params == 0:
+        return 0.0
+    return zero_params / total_params

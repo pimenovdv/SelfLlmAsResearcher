@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлена функция `replace_module` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
+Добавлены функции `get_parameter_by_name` и `get_model_sparsity` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
 
 **План действий на следующий этап:**
 1. Выполнить следующую задачу из TODO.md.

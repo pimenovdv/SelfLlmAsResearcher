@@ -286,5 +286,32 @@ class TestExperimentUtils(unittest.TestCase):
 
         self.assertTrue(has_inf_parameters(model))
 
+    def test_replace_module(self):
+        import torch.nn as nn
+        from src.experiment_utils import replace_module
+
+        class DummyModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer1 = nn.Linear(10, 10)
+                self.layer2 = nn.Sequential(nn.Linear(10, 5), nn.ReLU())
+
+        model = DummyModel()
+        new_relu = nn.GELU()
+
+        # Replace direct child
+        replace_module(model, "layer1", new_relu)
+        self.assertIsInstance(model.layer1, nn.GELU)
+
+        # Replace nested child
+        replace_module(model, "layer2.1", new_relu)
+        self.assertIsInstance(model.layer2[1], nn.GELU)
+
+        with self.assertRaises(ValueError):
+            replace_module(model, "nonexistent_layer", new_relu)
+
+        with self.assertRaises(ValueError):
+            replace_module(model, "layer2.5", new_relu)
+
 if __name__ == '__main__':
     unittest.main()

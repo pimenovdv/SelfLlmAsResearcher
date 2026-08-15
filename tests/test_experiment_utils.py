@@ -364,5 +364,32 @@ class TestExperimentUtils(unittest.TestCase):
 
         self.assertFalse(check_model_weights_equality(model1, model2))
 
+    def test_interpolate_model_weights(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import interpolate_model_weights
+
+        model1 = nn.Linear(10, 5)
+        model2 = nn.Linear(10, 5)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(2.0)
+            model2.bias.fill_(2.0)
+
+        model_interp = interpolate_model_weights(model1, model2, alpha=0.5)
+
+        for p_interp in model_interp.parameters():
+            self.assertTrue(torch.allclose(p_interp, torch.full_like(p_interp, 1.5)))
+
+        model_interp_0 = interpolate_model_weights(model1, model2, alpha=0.0)
+        for p_interp_0 in model_interp_0.parameters():
+            self.assertTrue(torch.allclose(p_interp_0, torch.full_like(p_interp_0, 1.0)))
+
+        model_interp_1 = interpolate_model_weights(model1, model2, alpha=1.0)
+        for p_interp_1 in model_interp_1.parameters():
+            self.assertTrue(torch.allclose(p_interp_1, torch.full_like(p_interp_1, 2.0)))
+
 if __name__ == '__main__':
     unittest.main()

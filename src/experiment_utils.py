@@ -229,3 +229,16 @@ def interpolate_model_weights(model1: torch.nn.Module, model2: torch.nn.Module, 
     for p_interp, p1, p2 in zip(model_interp.parameters(), model1.parameters(), model2.parameters()):
         p_interp.data = (1.0 - alpha) * p1.data + alpha * p2.data
     return model_interp
+
+
+def add_noise_to_weights(model: torch.nn.Module, noise_std: float = 0.01) -> torch.nn.Module:
+    """
+    Создает копию модели и добавляет гауссовский шум с заданным стандартным отклонением к ее весам.
+    """
+    import copy
+    model_noisy = copy.deepcopy(model)
+    with torch.no_grad():
+        for param in model_noisy.parameters():
+            noise = torch.randn_like(param) * noise_std
+            param.add_(noise)
+    return model_noisy

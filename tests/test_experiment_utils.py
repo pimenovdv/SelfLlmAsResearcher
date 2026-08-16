@@ -391,5 +391,25 @@ class TestExperimentUtils(unittest.TestCase):
         for p_interp_1 in model_interp_1.parameters():
             self.assertTrue(torch.allclose(p_interp_1, torch.full_like(p_interp_1, 2.0)))
 
+
+    def test_add_noise_to_weights(self):
+        import torch
+        from src.experiment_utils import add_noise_to_weights
+        model = torch.nn.Linear(10, 10)
+        with torch.no_grad():
+            model.weight.fill_(1.0)
+            model.bias.fill_(1.0)
+
+        model_noisy = add_noise_to_weights(model, noise_std=0.1)
+
+        # Check shapes are the same
+        self.assertEqual(model.weight.shape, model_noisy.weight.shape)
+        self.assertEqual(model.bias.shape, model_noisy.bias.shape)
+
+        # Check weights are different due to noise
+        self.assertFalse(torch.allclose(model.weight, model_noisy.weight))
+        self.assertFalse(torch.allclose(model.bias, model_noisy.bias))
+
+
 if __name__ == '__main__':
     unittest.main()

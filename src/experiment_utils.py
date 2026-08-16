@@ -278,3 +278,21 @@ def compute_l2_distance_between_models(model1: torch.nn.Module, model2: torch.nn
         return 0.0
 
     return torch.nn.functional.pairwise_distance(vec1.unsqueeze(0), vec2.unsqueeze(0), p=2).item()
+
+def compute_l1_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет L1 расстояние (Манхэттенское расстояние) между весами двух моделей.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    return float(torch.sum(torch.abs(vec1 - vec2)).item())

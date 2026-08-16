@@ -440,6 +440,37 @@ class TestExperimentUtils(unittest.TestCase):
         empty2 = EmptyModel()
         self.assertEqual(compute_cosine_similarity_between_models(empty1, empty2), 0.0)
 
+    def test_compute_l2_distance_between_models(self):
+        import torch
+        from src.experiment_utils import compute_l2_distance_between_models
+
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+
+        dist = compute_l2_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 0.0, places=4)
+
+        with torch.no_grad():
+            model2.weight.fill_(2.0)
+            model2.bias.fill_(2.0)
+
+        # 55 parameters: sqrt(55 * (2.0 - 1.0)^2) = sqrt(55) ~ 7.416198
+        dist = compute_l2_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 55 ** 0.5, places=4)
+
+        class EmptyModel(torch.nn.Module):
+            pass
+
+        empty1 = EmptyModel()
+        empty2 = EmptyModel()
+        self.assertEqual(compute_l2_distance_between_models(empty1, empty2), 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -170,3 +170,4 @@
 - [x] Добавить функцию add_noise_to_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_cosine_similarity_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_l2_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_l1_distance_between_models в src/experiment_utils.py и написать тесты.

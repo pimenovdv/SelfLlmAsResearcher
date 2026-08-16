@@ -242,3 +242,21 @@ def add_noise_to_weights(model: torch.nn.Module, noise_std: float = 0.01) -> tor
             noise = torch.randn_like(param) * noise_std
             param.add_(noise)
     return model_noisy
+
+def compute_cosine_similarity_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет косинусное сходство между весами двух моделей.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    return torch.nn.functional.cosine_similarity(vec1, vec2, dim=0).item()

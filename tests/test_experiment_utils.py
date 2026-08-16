@@ -410,6 +410,36 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertFalse(torch.allclose(model.weight, model_noisy.weight))
         self.assertFalse(torch.allclose(model.bias, model_noisy.bias))
 
+    def test_compute_cosine_similarity_between_models(self):
+        import torch
+        from src.experiment_utils import compute_cosine_similarity_between_models
+
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+
+        sim = compute_cosine_similarity_between_models(model1, model2)
+        self.assertAlmostEqual(sim, 1.0, places=5)
+
+        with torch.no_grad():
+            model2.weight.fill_(-1.0)
+            model2.bias.fill_(-1.0)
+
+        sim = compute_cosine_similarity_between_models(model1, model2)
+        self.assertAlmostEqual(sim, -1.0, places=5)
+
+        class EmptyModel(torch.nn.Module):
+            pass
+
+        empty1 = EmptyModel()
+        empty2 = EmptyModel()
+        self.assertEqual(compute_cosine_similarity_between_models(empty1, empty2), 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

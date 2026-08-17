@@ -314,3 +314,13 @@ def compute_linf_distance_between_models(model1: torch.nn.Module, model2: torch.
         return 0.0
 
     return float(torch.max(torch.abs(vec1 - vec2)).item())
+
+def compute_parameter_norm(model: torch.nn.Module, p: float = 2.0) -> float:
+    """
+    Вычисляет Lp норму всех параметров модели.
+    """
+    params = [param.flatten() for param in model.parameters()]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    return float(vec.norm(p).item())

@@ -553,6 +553,28 @@ class TestExperimentUtils(unittest.TestCase):
         empty_model = EmptyModel()
         self.assertEqual(compute_parameter_norm(empty_model), 0.0)
 
+    def test_prune_model_weights(self):
+        from src.experiment_utils import prune_model_weights
+        import torch
+        import torch.nn as nn
+
+        model = nn.Sequential(
+            nn.Linear(10, 10),
+            nn.ReLU(),
+            nn.Linear(10, 5)
+        )
+
+        with torch.no_grad():
+            model[0].weight.fill_(1.0)
+            model[2].weight.fill_(1.0)
+
+        prune_model_weights(model, 0.5)
+
+        zeros_count_0 = (model[0].weight == 0).sum().item()
+        zeros_count_2 = (model[2].weight == 0).sum().item()
+
+        self.assertEqual(zeros_count_0, 50)
+        self.assertEqual(zeros_count_2, 25)
 
 if __name__ == '__main__':
     unittest.main()

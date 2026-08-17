@@ -324,3 +324,13 @@ def compute_parameter_norm(model: torch.nn.Module, p: float = 2.0) -> float:
         return 0.0
     vec = torch.cat(params)
     return float(vec.norm(p).item())
+
+def prune_model_weights(model: torch.nn.Module, amount: float) -> None:
+    """
+    Применяет L1 неструктурированный прунинг (l1_unstructured) ко всем Linear слоям модели.
+    """
+    import torch.nn.utils.prune as prune
+    for module in model.modules():
+        if isinstance(module, torch.nn.Linear):
+            prune.l1_unstructured(module, name='weight', amount=amount)
+            prune.remove(module, 'weight')

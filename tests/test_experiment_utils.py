@@ -576,5 +576,21 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(zeros_count_0, 50)
         self.assertEqual(zeros_count_2, 25)
 
+    def test_get_parameter_statistics(self):
+        from src.experiment_utils import get_parameter_statistics
+        import torch
+        import torch.nn as nn
+
+        model = nn.Linear(10, 2)
+        with torch.no_grad():
+            model.weight.fill_(2.0)
+            model.bias.fill_(1.0)
+
+        stats = get_parameter_statistics(model)
+        self.assertAlmostEqual(stats["mean"], 1.9090908765792847, places=5)
+        self.assertAlmostEqual(stats["min"], 1.0, places=5)
+        self.assertAlmostEqual(stats["max"], 2.0, places=5)
+        self.assertTrue(stats["std"] > 0)
+
 if __name__ == '__main__':
     unittest.main()

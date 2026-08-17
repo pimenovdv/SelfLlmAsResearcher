@@ -334,3 +334,19 @@ def prune_model_weights(model: torch.nn.Module, amount: float) -> None:
         if isinstance(module, torch.nn.Linear):
             prune.l1_unstructured(module, name='weight', amount=amount)
             prune.remove(module, 'weight')
+
+def get_parameter_statistics(model: torch.nn.Module) -> dict:
+    """
+    Возвращает статистику параметров модели (mean, std, min, max).
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
+
+    vec = torch.cat(params)
+    return {
+        "mean": float(vec.mean().item()),
+        "std": float(vec.std().item()) if vec.numel() > 1 else 0.0,
+        "min": float(vec.min().item()),
+        "max": float(vec.max().item())
+    }

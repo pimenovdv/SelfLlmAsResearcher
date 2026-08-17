@@ -359,3 +359,12 @@ def clip_model_weights(model: torch.nn.Module, min_val: float, max_val: float) -
     with torch.no_grad():
         for param in model.parameters():
             param.clamp_(min_val, max_val)
+
+def scale_model_weights(model: torch.nn.Module, scale_factor: float) -> None:
+    """
+    Умножает все параметры модели на scale_factor.
+    """
+    import torch
+    with torch.no_grad():
+        for param in model.parameters():
+            param.mul_(scale_factor)

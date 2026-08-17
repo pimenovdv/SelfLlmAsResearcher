@@ -607,5 +607,20 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(torch.all(model.weight <= 1.0))
         self.assertTrue(torch.all(model.bias >= -1.0))
 
+    def test_scale_model_weights(self):
+        from src.experiment_utils import scale_model_weights
+        import torch
+        import torch.nn as nn
+
+        model = nn.Linear(2, 2)
+        with torch.no_grad():
+            model.weight.fill_(1.0)
+            model.bias.fill_(1.0)
+
+        scale_model_weights(model, 2.5)
+
+        self.assertTrue(torch.allclose(model.weight, torch.tensor(2.5)))
+        self.assertTrue(torch.allclose(model.bias, torch.tensor(2.5)))
+
 if __name__ == '__main__':
     unittest.main()

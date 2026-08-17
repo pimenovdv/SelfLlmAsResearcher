@@ -530,6 +530,29 @@ class TestExperimentUtils(unittest.TestCase):
         empty2 = EmptyModel()
         self.assertEqual(compute_linf_distance_between_models(empty1, empty2), 0.0)
 
+    def test_compute_parameter_norm(self):
+        from src.experiment_utils import compute_parameter_norm
+        import torch
+        model = torch.nn.Linear(2, 2)
+
+        with torch.no_grad():
+            model.weight.fill_(1.0)
+            model.bias.fill_(2.0)
+
+        # Lp norm with p=2: sqrt(4*(1.0^2) + 2*(2.0^2)) = sqrt(4 + 8) = sqrt(12) = 3.4641016151377544
+        norm_l2 = compute_parameter_norm(model, 2.0)
+        self.assertAlmostEqual(norm_l2, 12**0.5, places=4)
+
+        # Lp norm with p=1: 4*|1.0| + 2*|2.0| = 4 + 4 = 8.0
+        norm_l1 = compute_parameter_norm(model, 1.0)
+        self.assertAlmostEqual(norm_l1, 8.0, places=4)
+
+        class EmptyModel(torch.nn.Module):
+            pass
+
+        empty_model = EmptyModel()
+        self.assertEqual(compute_parameter_norm(empty_model), 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -592,5 +592,20 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertAlmostEqual(stats["max"], 2.0, places=5)
         self.assertTrue(stats["std"] > 0)
 
+    def test_clip_model_weights(self):
+        from src.experiment_utils import clip_model_weights
+        import torch
+        import torch.nn as nn
+
+        model = nn.Linear(10, 2)
+        with torch.no_grad():
+            model.weight.fill_(5.0)
+            model.bias.fill_(-5.0)
+
+        clip_model_weights(model, -1.0, 1.0)
+
+        self.assertTrue(torch.all(model.weight <= 1.0))
+        self.assertTrue(torch.all(model.bias >= -1.0))
+
 if __name__ == '__main__':
     unittest.main()

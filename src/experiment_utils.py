@@ -350,3 +350,12 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "min": float(vec.min().item()),
         "max": float(vec.max().item())
     }
+
+def clip_model_weights(model: torch.nn.Module, min_val: float, max_val: float) -> None:
+    """
+    Clips all parameters of the model to be within the range [min_val, max_val].
+    """
+    import torch
+    with torch.no_grad():
+        for param in model.parameters():
+            param.clamp_(min_val, max_val)

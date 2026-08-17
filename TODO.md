@@ -175,3 +175,4 @@
 - [x] Добавить функцию compute_parameter_norm в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию prune_model_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию get_parameter_statistics в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию clip_model_weights в src/experiment_utils.py и написать тесты.

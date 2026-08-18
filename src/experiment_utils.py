@@ -411,3 +411,13 @@ def get_model_size_mb(model: torch.nn.Module) -> float:
     Возвращает размер модели в мегабайтах (MB).
     """
     return get_model_memory_footprint(model) / (1024 * 1024)
+
+def get_trainable_parameters_percentage(model: torch.nn.Module) -> float:
+    """
+    Возвращает процент обучаемых параметров модели.
+    """
+    total_params = sum(p.numel() for p in model.parameters())
+    if total_params == 0:
+        return 0.0
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    return (trainable_params / total_params) * 100.0

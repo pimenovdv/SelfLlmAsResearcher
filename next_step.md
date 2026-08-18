@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлена функция `get_model_size_mb` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
+Добавлена функция `get_trainable_parameters_percentage` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
 
 **План действий на следующий этап:**
 1. Выполнить следующую задачу из TODO.md.

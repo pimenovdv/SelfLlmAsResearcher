@@ -660,5 +660,17 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(size_mb, float)
         self.assertGreater(size_mb, 0.0)
 
+    def test_get_trainable_parameters_percentage(self):
+        from src.experiment_utils import get_trainable_parameters_percentage
+        import torch
+        model = torch.nn.Linear(10, 2)
+        percentage = get_trainable_parameters_percentage(model)
+        self.assertEqual(percentage, 100.0)
+
+        for param in model.parameters():
+            param.requires_grad = False
+        percentage = get_trainable_parameters_percentage(model)
+        self.assertEqual(percentage, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

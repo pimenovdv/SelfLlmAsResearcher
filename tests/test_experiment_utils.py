@@ -633,5 +633,15 @@ class TestExperimentUtils(unittest.TestCase):
         snr = compute_snr(signal, noise)
         self.assertAlmostEqual(snr, 20.0, places=4)
 
+    def test_compute_psnr(self):
+        from src.experiment_utils import compute_psnr
+        import torch
+        image_true = torch.tensor([1.0, 2.0, 3.0])
+        image_test = torch.tensor([1.1, 1.9, 3.1])
+        # mse = (0.01 + 0.01 + 0.01) / 3 = 0.01
+        # max_val = 3.0, psnr = 10 * log10(9.0 / 0.01) = 10 * log10(900) = 29.5424
+        psnr = compute_psnr(image_true, image_test, max_val=3.0)
+        self.assertAlmostEqual(psnr, 29.5424, places=3)
+
 if __name__ == '__main__':
     unittest.main()

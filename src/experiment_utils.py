@@ -378,3 +378,13 @@ def compute_snr(signal: torch.Tensor, noise: torch.Tensor) -> float:
     noise_power = torch.mean(noise ** 2)
     epsilon = 1e-8
     return 10 * torch.log10(signal_power / (noise_power + epsilon)).item()
+
+def compute_psnr(image_true: torch.Tensor, image_test: torch.Tensor, max_val: float) -> float:
+    """
+    Вычисляет Peak Signal-to-Noise Ratio (PSNR).
+    """
+    import torch
+    mse = torch.mean((image_true - image_test) ** 2)
+    if mse == 0:
+        return float('inf')
+    return 10 * torch.log10((max_val ** 2) / mse).item()

@@ -643,5 +643,14 @@ class TestExperimentUtils(unittest.TestCase):
         psnr = compute_psnr(image_true, image_test, max_val=3.0)
         self.assertAlmostEqual(psnr, 29.5424, places=3)
 
+    def test_measure_inference_time(self):
+        from src.experiment_utils import measure_inference_time
+        import torch
+        model = torch.nn.Linear(10, 2)
+        input_data = torch.randn(1, 10)
+        avg_time = measure_inference_time(model, input_data, num_runs=5)
+        self.assertIsInstance(avg_time, float)
+        self.assertGreaterEqual(avg_time, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

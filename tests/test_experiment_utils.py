@@ -622,5 +622,16 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(torch.allclose(model.weight, torch.tensor(2.5)))
         self.assertTrue(torch.allclose(model.bias, torch.tensor(2.5)))
 
+    def test_compute_snr(self):
+        from src.experiment_utils import compute_snr
+        import torch
+        signal = torch.tensor([1.0, 2.0, 3.0])
+        noise = torch.tensor([0.1, 0.2, 0.3])
+        # signal power = (1+4+9)/3 = 14/3
+        # noise power = (0.01+0.04+0.09)/3 = 0.14/3
+        # SNR = 10 * log10(14/0.14) = 10 * log10(100) = 20.0
+        snr = compute_snr(signal, noise)
+        self.assertAlmostEqual(snr, 20.0, places=4)
+
 if __name__ == '__main__':
     unittest.main()

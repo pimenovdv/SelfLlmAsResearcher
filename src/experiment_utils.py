@@ -368,3 +368,13 @@ def scale_model_weights(model: torch.nn.Module, scale_factor: float) -> None:
     with torch.no_grad():
         for param in model.parameters():
             param.mul_(scale_factor)
+
+def compute_snr(signal: torch.Tensor, noise: torch.Tensor) -> float:
+    """
+    Вычисляет Signal-to-Noise Ratio (SNR).
+    """
+    import torch
+    signal_power = torch.mean(signal ** 2)
+    noise_power = torch.mean(noise ** 2)
+    epsilon = 1e-8
+    return 10 * torch.log10(signal_power / (noise_power + epsilon)).item()

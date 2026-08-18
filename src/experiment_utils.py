@@ -388,3 +388,20 @@ def compute_psnr(image_true: torch.Tensor, image_test: torch.Tensor, max_val: fl
     if mse == 0:
         return float('inf')
     return 10 * torch.log10((max_val ** 2) / mse).item()
+
+def measure_inference_time(model: torch.nn.Module, input_data: torch.Tensor, num_runs: int = 10) -> float:
+    """
+    Измеряет среднее время инференса модели на заданных входных данных.
+    """
+    import time
+    model.eval()
+    with torch.no_grad():
+        # Warmup
+        _ = model(input_data)
+
+        start_time = time.time()
+        for _ in range(num_runs):
+            _ = model(input_data)
+        end_time = time.time()
+
+    return (end_time - start_time) / num_runs

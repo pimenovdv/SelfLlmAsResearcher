@@ -179,3 +179,4 @@
 - [x] Добавить функцию scale_model_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_snr в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_psnr в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию measure_inference_time в src/experiment_utils.py и написать тесты.

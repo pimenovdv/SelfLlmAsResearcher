@@ -405,3 +405,9 @@ def measure_inference_time(model: torch.nn.Module, input_data: torch.Tensor, num
         end_time = time.time()
 
     return (end_time - start_time) / num_runs
+
+def get_model_size_mb(model: torch.nn.Module) -> float:
+    """
+    Возвращает размер модели в мегабайтах (MB).
+    """
+    return get_model_memory_footprint(model) / (1024 * 1024)

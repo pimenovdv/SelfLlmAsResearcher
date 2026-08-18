@@ -652,5 +652,13 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(avg_time, float)
         self.assertGreaterEqual(avg_time, 0.0)
 
+    def test_get_model_size_mb(self):
+        from src.experiment_utils import get_model_size_mb
+        import torch
+        model = torch.nn.Linear(10, 2)
+        size_mb = get_model_size_mb(model)
+        self.assertIsInstance(size_mb, float)
+        self.assertGreater(size_mb, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

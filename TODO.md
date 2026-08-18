@@ -180,3 +180,4 @@
 - [x] Добавить функцию compute_snr в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_psnr в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию measure_inference_time в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию get_model_size_mb в src/experiment_utils.py и написать тесты.

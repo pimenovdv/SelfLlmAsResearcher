@@ -428,3 +428,12 @@ def clone_model(model: torch.nn.Module) -> torch.nn.Module:
     """
     import copy
     return copy.deepcopy(model)
+
+def shift_model_weights(model: torch.nn.Module, shift_value: float) -> None:
+    """
+    Добавляет заданное значение (shift_value) ко всем весам модели.
+    """
+    import torch
+    with torch.no_grad():
+        for param in model.parameters():
+            param.add_(shift_value)

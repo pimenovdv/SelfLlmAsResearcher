@@ -183,3 +183,4 @@
 - [x] Добавить функцию get_model_size_mb в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию get_trainable_parameters_percentage в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию clone_model в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию shift_model_weights в src/experiment_utils.py и написать тесты.

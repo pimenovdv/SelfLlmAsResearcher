@@ -672,5 +672,22 @@ class TestExperimentUtils(unittest.TestCase):
         percentage = get_trainable_parameters_percentage(model)
         self.assertEqual(percentage, 0.0)
 
+    def test_clone_model(self):
+        from src.experiment_utils import clone_model
+        import torch
+        model = torch.nn.Linear(10, 2)
+        with torch.no_grad():
+            model.weight.fill_(1.0)
+            model.bias.fill_(1.0)
+        cloned_model = clone_model(model)
+
+        self.assertIsNot(model, cloned_model)
+        self.assertTrue(torch.equal(model.weight, cloned_model.weight))
+
+        # Модифицируем оригинал и проверяем, что копия не изменилась
+        with torch.no_grad():
+            model.weight.fill_(2.0)
+        self.assertFalse(torch.equal(model.weight, cloned_model.weight))
+
 if __name__ == '__main__':
     unittest.main()

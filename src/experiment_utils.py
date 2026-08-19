@@ -421,3 +421,10 @@ def get_trainable_parameters_percentage(model: torch.nn.Module) -> float:
         return 0.0
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     return (trainable_params / total_params) * 100.0
+
+def clone_model(model: torch.nn.Module) -> torch.nn.Module:
+    """
+    Создает и возвращает глубокую копию модели.
+    """
+    import copy
+    return copy.deepcopy(model)

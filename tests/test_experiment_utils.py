@@ -702,5 +702,18 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(torch.allclose(model.weight, torch.tensor(3.5)))
         self.assertTrue(torch.allclose(model.bias, torch.tensor(3.5)))
 
+    def test_randomize_model_weights(self):
+        from src.experiment_utils import randomize_model_weights
+        import torch
+        model = torch.nn.Linear(10, 2)
+        with torch.no_grad():
+            model.weight.fill_(1.0)
+            model.bias.fill_(1.0)
+
+        randomize_model_weights(model, mean=0.0, std=1.0)
+
+        self.assertFalse(torch.allclose(model.weight, torch.tensor(1.0)))
+        self.assertFalse(torch.allclose(model.bias, torch.tensor(1.0)))
+
 if __name__ == '__main__':
     unittest.main()

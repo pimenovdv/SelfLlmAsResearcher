@@ -437,3 +437,12 @@ def shift_model_weights(model: torch.nn.Module, shift_value: float) -> None:
     with torch.no_grad():
         for param in model.parameters():
             param.add_(shift_value)
+
+def randomize_model_weights(model: torch.nn.Module, mean: float = 0.0, std: float = 1.0) -> None:
+    """
+    Рандомизирует веса модели, используя нормальное распределение с заданными средним и стандартным отклонением.
+    """
+    import torch
+    with torch.no_grad():
+        for param in model.parameters():
+            torch.nn.init.normal_(param, mean=mean, std=std)

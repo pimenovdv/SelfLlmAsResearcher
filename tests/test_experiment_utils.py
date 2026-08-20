@@ -759,5 +759,22 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(torch.allclose(model2.weight, torch.tensor(5.0)))
         self.assertTrue(torch.allclose(model2.bias, torch.tensor(5.0)))
 
+    def test_has_nan_gradients(self):
+        import torch.nn as nn
+        import torch
+        from src.experiment_utils import has_nan_gradients
+        model = nn.Linear(2, 2)
+        # Without gradients
+        self.assertFalse(has_nan_gradients(model))
+
+        # With normal gradients
+        loss = model(torch.tensor([1.0, 2.0])).sum()
+        loss.backward()
+        self.assertFalse(has_nan_gradients(model))
+
+        # With NaN gradients
+        model.weight.grad[0, 0] = float('nan')
+        self.assertTrue(has_nan_gradients(model))
+
 if __name__ == '__main__':
     unittest.main()

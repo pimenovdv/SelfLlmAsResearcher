@@ -446,3 +446,22 @@ def randomize_model_weights(model: torch.nn.Module, mean: float = 0.0, std: floa
     with torch.no_grad():
         for param in model.parameters():
             torch.nn.init.normal_(param, mean=mean, std=std)
+
+def average_model_weights(models: list[torch.nn.Module]) -> torch.nn.Module:
+    """
+    Усредняет веса списка моделей с одинаковой архитектурой.
+    """
+    import torch
+    from copy import deepcopy
+    if not models:
+        raise ValueError("The list of models is empty.")
+
+    avg_model = deepcopy(models[0])
+    avg_state_dict = avg_model.state_dict()
+
+    for key in avg_state_dict.keys():
+        tensors = [model.state_dict()[key] for model in models]
+        avg_state_dict[key] = torch.stack(tensors).mean(dim=0)
+
+    avg_model.load_state_dict(avg_state_dict)
+    return avg_model

@@ -744,5 +744,20 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertFalse(torch.allclose(model.weight, torch.tensor(1.0)))
         self.assertFalse(torch.allclose(model.bias, torch.tensor(1.0)))
 
+    def test_copy_model_weights(self):
+        import torch.nn as nn
+        from src.experiment_utils import copy_model_weights
+        model1 = nn.Linear(2, 2)
+        model2 = nn.Linear(2, 2)
+        import torch
+        with torch.no_grad():
+            model1.weight.fill_(5.0)
+            model1.bias.fill_(5.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+        copy_model_weights(model1, model2)
+        self.assertTrue(torch.allclose(model2.weight, torch.tensor(5.0)))
+        self.assertTrue(torch.allclose(model2.bias, torch.tensor(5.0)))
+
 if __name__ == '__main__':
     unittest.main()

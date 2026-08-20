@@ -188,3 +188,4 @@
 - [x] Добавить функцию average_model_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию reset_model_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию copy_model_weights в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию has_nan_gradients в src/experiment_utils.py и написать тесты.

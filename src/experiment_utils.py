@@ -473,3 +473,9 @@ def reset_model_weights(model: torch.nn.Module) -> None:
     for module in model.modules():
         if hasattr(module, 'reset_parameters'):
             module.reset_parameters()
+
+def copy_model_weights(source_model: torch.nn.Module, target_model: torch.nn.Module) -> None:
+    """
+    Копирует веса из source_model в target_model.
+    """
+    target_model.load_state_dict(source_model.state_dict())

@@ -731,5 +731,18 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(torch.allclose(avg_model.weight, torch.tensor(2.0)))
         self.assertTrue(torch.allclose(avg_model.bias, torch.tensor(2.0)))
 
+    def test_reset_model_weights(self):
+        import torch.nn as nn
+        from src.experiment_utils import reset_model_weights
+        model = nn.Linear(2, 2)
+        import torch
+        with torch.no_grad():
+            model.weight.fill_(1.0)
+            model.bias.fill_(1.0)
+
+        reset_model_weights(model)
+        self.assertFalse(torch.allclose(model.weight, torch.tensor(1.0)))
+        self.assertFalse(torch.allclose(model.bias, torch.tensor(1.0)))
+
 if __name__ == '__main__':
     unittest.main()

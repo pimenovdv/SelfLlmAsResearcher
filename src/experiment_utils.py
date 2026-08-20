@@ -465,3 +465,11 @@ def average_model_weights(models: list[torch.nn.Module]) -> torch.nn.Module:
 
     avg_model.load_state_dict(avg_state_dict)
     return avg_model
+
+def reset_model_weights(model: torch.nn.Module) -> None:
+    """
+    Сбрасывает веса модели к значениям по умолчанию, используя методы инициализации каждого модуля.
+    """
+    for module in model.modules():
+        if hasattr(module, 'reset_parameters'):
+            module.reset_parameters()

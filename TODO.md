@@ -186,3 +186,4 @@
 - [x] Добавить функцию shift_model_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию randomize_model_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию average_model_weights в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию reset_model_weights в src/experiment_utils.py и написать тесты.

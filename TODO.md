@@ -191,3 +191,4 @@
 - [x] Добавить функцию has_nan_gradients в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию has_inf_gradients в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию remove_all_hooks в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию set_dropout_prob в src/experiment_utils.py и написать тесты.

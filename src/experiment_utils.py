@@ -515,3 +515,11 @@ def remove_all_hooks(model: torch.nn.Module) -> None:
                 hooks = getattr(module, attr)
                 if hooks is not None and hasattr(hooks, 'clear'):
                     hooks.clear()
+
+def set_dropout_prob(model: torch.nn.Module, p: float) -> None:
+    """
+    Устанавливает вероятность отсева (dropout probability) для всех слоев Dropout в модели.
+    """
+    for module in model.modules():
+        if isinstance(module, torch.nn.Dropout):
+            module.p = p

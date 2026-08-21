@@ -808,5 +808,19 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(len(model._forward_pre_hooks), 0)
         self.assertEqual(len(model._backward_hooks), 0)
 
+    def test_set_dropout_prob(self):
+        from src.experiment_utils import set_dropout_prob
+        import torch
+        model = torch.nn.Sequential(
+            torch.nn.Linear(10, 10),
+            torch.nn.Dropout(p=0.5),
+            torch.nn.ReLU(),
+            torch.nn.Dropout(p=0.5)
+        )
+        set_dropout_prob(model, 0.1)
+        for module in model.modules():
+            if isinstance(module, torch.nn.Dropout):
+                self.assertEqual(module.p, 0.1)
+
 if __name__ == '__main__':
     unittest.main()

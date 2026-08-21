@@ -538,3 +538,20 @@ def compute_gradient_sparsity(model: torch.nn.Module, threshold: float = 1e-7) -
     if num_elements == 0:
         return 0.0
     return float(num_zeros / num_elements)
+
+def get_gradient_statistics(model: torch.nn.Module) -> dict:
+    """
+    Возвращает статистику градиентов модели (mean, std, min, max).
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
+
+    vec = torch.cat(grads)
+    return {
+        "mean": float(vec.mean().item()),
+        "std": float(vec.std().item()) if vec.numel() > 1 else 0.0,
+        "min": float(vec.min().item()),
+        "max": float(vec.max().item())
+    }

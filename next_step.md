@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлена функция `compute_gradient_sparsity` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
+Добавлена функция `get_gradient_statistics` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
 
 **План действий на следующий этап:**
 1. Выполнить следующую задачу из TODO.md или сформулировать новую.

@@ -793,5 +793,20 @@ class TestExperimentUtils(unittest.TestCase):
         model.weight.grad[0, 0] = float('inf')
         self.assertTrue(has_inf_gradients(model))
 
+    def test_remove_all_hooks(self):
+        import torch.nn as nn
+        from src.experiment_utils import remove_all_hooks
+        model = nn.Linear(2, 2)
+        def hook_fn(*args): pass
+        model.register_forward_hook(hook_fn)
+        model.register_forward_pre_hook(hook_fn)
+        model.register_full_backward_hook(hook_fn)
+
+        self.assertTrue(len(model._forward_hooks) > 0)
+        remove_all_hooks(model)
+        self.assertEqual(len(model._forward_hooks), 0)
+        self.assertEqual(len(model._forward_pre_hooks), 0)
+        self.assertEqual(len(model._backward_hooks), 0)
+
 if __name__ == '__main__':
     unittest.main()

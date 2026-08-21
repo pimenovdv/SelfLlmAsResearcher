@@ -523,3 +523,18 @@ def set_dropout_prob(model: torch.nn.Module, p: float) -> None:
     for module in model.modules():
         if isinstance(module, torch.nn.Dropout):
             module.p = p
+
+def compute_gradient_sparsity(model: torch.nn.Module, threshold: float = 1e-7) -> float:
+    """
+    Вычисляет разреженность градиентов модели (доля элементов градиентов, абсолютное значение которых меньше threshold).
+    """
+    import torch
+    num_zeros = 0
+    num_elements = 0
+    for param in model.parameters():
+        if param.grad is not None:
+            num_zeros += torch.sum(torch.abs(param.grad) < threshold).item()
+            num_elements += param.grad.numel()
+    if num_elements == 0:
+        return 0.0
+    return float(num_zeros / num_elements)

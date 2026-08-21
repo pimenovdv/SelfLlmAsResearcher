@@ -161,6 +161,15 @@ def has_nan_gradients(model: torch.nn.Module) -> bool:
             return True
     return False
 
+def has_inf_gradients(model: torch.nn.Module) -> bool:
+    """
+    Проверяет, содержат ли градиенты параметров модели Inf значения.
+    """
+    for param in model.parameters():
+        if param.grad is not None and torch.isinf(param.grad).any():
+            return True
+    return False
+
 def has_inf_parameters(model: torch.nn.Module) -> bool:
     """
     Проверяет, содержат ли параметры модели Inf значения.

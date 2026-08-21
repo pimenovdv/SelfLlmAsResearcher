@@ -776,5 +776,22 @@ class TestExperimentUtils(unittest.TestCase):
         model.weight.grad[0, 0] = float('nan')
         self.assertTrue(has_nan_gradients(model))
 
+    def test_has_inf_gradients(self):
+        import torch.nn as nn
+        import torch
+        from src.experiment_utils import has_inf_gradients
+        model = nn.Linear(2, 2)
+        # Without gradients
+        self.assertFalse(has_inf_gradients(model))
+
+        # With normal gradients
+        loss = model(torch.tensor([1.0, 2.0])).sum()
+        loss.backward()
+        self.assertFalse(has_inf_gradients(model))
+
+        # With Inf gradients
+        model.weight.grad[0, 0] = float('inf')
+        self.assertTrue(has_inf_gradients(model))
+
 if __name__ == '__main__':
     unittest.main()

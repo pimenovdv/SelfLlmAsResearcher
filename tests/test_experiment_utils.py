@@ -840,5 +840,27 @@ class TestExperimentUtils(unittest.TestCase):
         sparsity = compute_gradient_sparsity(model)
         self.assertAlmostEqual(sparsity, 20.0 / 22.0)
 
+    def test_get_gradient_statistics(self):
+        from src.experiment_utils import get_gradient_statistics
+        import torch
+        model = torch.nn.Linear(10, 2)
+
+        # Test with no gradients
+        stats = get_gradient_statistics(model)
+        self.assertEqual(stats, {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0})
+
+        # Test with gradients
+        model.weight.grad = torch.full_like(model.weight, 2.0)
+        model.bias.grad = torch.full_like(model.bias, 4.0)
+
+        stats = get_gradient_statistics(model)
+
+        # We have 20 elements with 2.0 and 2 elements with 4.0.
+        # Mean = (20 * 2 + 2 * 4) / 22 = 48 / 22 = 2.181818...
+        self.assertAlmostEqual(stats["mean"], 48.0 / 22.0, places=6)
+        self.assertEqual(stats["min"], 2.0)
+        self.assertEqual(stats["max"], 4.0)
+        self.assertTrue("std" in stats)
+
 if __name__ == '__main__':
     unittest.main()

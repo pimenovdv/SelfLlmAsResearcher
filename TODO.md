@@ -190,3 +190,4 @@
 - [x] Добавить функцию copy_model_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию has_nan_gradients в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию has_inf_gradients в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию remove_all_hooks в src/experiment_utils.py и написать тесты.

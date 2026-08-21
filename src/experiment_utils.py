@@ -497,3 +497,21 @@ def copy_model_weights(source_model: torch.nn.Module, target_model: torch.nn.Mod
     Копирует веса из source_model в target_model.
     """
     target_model.load_state_dict(source_model.state_dict())
+
+def remove_all_hooks(model: torch.nn.Module) -> None:
+    """
+    Удаляет все хуки (forward, forward_pre, backward, state_dict и т.д.) из всех модулей модели.
+    """
+    hook_attrs = [
+        '_forward_hooks', '_forward_pre_hooks', '_backward_hooks',
+        '_full_backward_hooks', '_full_backward_pre_hooks',
+        '_state_dict_hooks', '_state_dict_pre_hooks',
+        '_load_state_dict_pre_hooks', '_load_state_dict_post_hooks',
+        '_backward_pre_hooks'
+    ]
+    for module in model.modules():
+        for attr in hook_attrs:
+            if hasattr(module, attr):
+                hooks = getattr(module, attr)
+                if hooks is not None and hasattr(hooks, 'clear'):
+                    hooks.clear()

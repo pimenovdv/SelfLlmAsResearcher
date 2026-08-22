@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлена функция `zero_gradients` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
+Добавлены функции `check_nan_weights` и `check_inf_weights` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
 
 **План действий на следующий этап:**
 1. Выполнить следующую задачу из TODO.md или сформулировать новую.

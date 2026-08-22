@@ -907,5 +907,23 @@ class TestExperimentUtils(unittest.TestCase):
         # After clipping, the max value in gradients should be <= 1.0
         self.assertLessEqual(model.weight.grad.abs().max().item(), 1.0)
 
+    def test_check_nan_weights(self):
+        from src.experiment_utils import check_nan_weights
+        import torch
+        model = torch.nn.Linear(10, 2)
+        self.assertFalse(check_nan_weights(model))
+        with torch.no_grad():
+            model.weight.data[0, 0] = float('nan')
+        self.assertTrue(check_nan_weights(model))
+
+    def test_check_inf_weights(self):
+        from src.experiment_utils import check_inf_weights
+        import torch
+        model = torch.nn.Linear(10, 2)
+        self.assertFalse(check_inf_weights(model))
+        with torch.no_grad():
+            model.weight.data[0, 0] = float('inf')
+        self.assertTrue(check_inf_weights(model))
+
 if __name__ == '__main__':
     unittest.main()

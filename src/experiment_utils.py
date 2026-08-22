@@ -369,6 +369,26 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def check_nan_weights(model: torch.nn.Module) -> bool:
+    """
+    Проверяет, есть ли NaN значения в весах модели.
+    """
+    import torch
+    for param in model.parameters():
+        if torch.isnan(param).any():
+            return True
+    return False
+
+def check_inf_weights(model: torch.nn.Module) -> bool:
+    """
+    Проверяет, есть ли Inf (бесконечность) значения в весах модели.
+    """
+    import torch
+    for param in model.parameters():
+        if torch.isinf(param).any():
+            return True
+    return False
+
 def clip_gradients(model: torch.nn.Module, max_norm: float, norm_type: float = 2.0) -> float:
     """
     Обрезает градиенты модели (gradient clipping) по норме.

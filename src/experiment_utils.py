@@ -369,6 +369,13 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def freeze_model_weights(model: torch.nn.Module) -> None:
+    """
+    Замораживает все веса модели (устанавливает requires_grad = False).
+    """
+    for param in model.parameters():
+        param.requires_grad = False
+
 def check_nan_weights(model: torch.nn.Module) -> bool:
     """
     Проверяет, есть ли NaN значения в весах модели.

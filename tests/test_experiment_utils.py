@@ -925,5 +925,13 @@ class TestExperimentUtils(unittest.TestCase):
             model.weight.data[0, 0] = float('inf')
         self.assertTrue(check_inf_weights(model))
 
+    def test_freeze_model_weights(self):
+        from src.experiment_utils import freeze_model_weights
+        import torch
+        model = torch.nn.Linear(10, 2)
+        freeze_model_weights(model)
+        for param in model.parameters():
+            self.assertFalse(param.requires_grad)
+
 if __name__ == '__main__':
     unittest.main()

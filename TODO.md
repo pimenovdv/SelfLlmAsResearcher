@@ -199,3 +199,4 @@
 - [x] Добавить функцию zero_gradients в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию check_nan_weights в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию check_inf_weights в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию freeze_model_weights в src/experiment_utils.py и написать тесты.

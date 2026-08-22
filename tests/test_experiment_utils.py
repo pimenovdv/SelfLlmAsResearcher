@@ -862,5 +862,20 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(stats["max"], 4.0)
         self.assertTrue("std" in stats)
 
+    def test_add_noise_to_gradients(self):
+        from src.experiment_utils import add_noise_to_gradients
+        import torch
+
+        model = torch.nn.Linear(10, 2)
+        model.weight.grad = torch.zeros_like(model.weight)
+        model.bias.grad = torch.zeros_like(model.bias)
+
+        # Add noise
+        add_noise_to_gradients(model, noise_std=0.5)
+
+        # Gradients should no longer be exactly zero
+        self.assertFalse(torch.all(model.weight.grad == 0))
+        self.assertFalse(torch.all(model.bias.grad == 0))
+
 if __name__ == '__main__':
     unittest.main()

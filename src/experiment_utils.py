@@ -384,6 +384,16 @@ def clip_gradients(model: torch.nn.Module, max_norm: float, norm_type: float = 2
     import torch
     return float(torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm, norm_type=norm_type))
 
+def zero_gradients(model: torch.nn.Module, set_to_none: bool = False) -> None:
+    """
+    Обнуляет градиенты всех параметров модели.
+
+    Args:
+        model: Модель PyTorch.
+        set_to_none: Если True, устанавливает градиенты в None вместо нулей.
+    """
+    model.zero_grad(set_to_none=set_to_none)
+
 def add_noise_to_gradients(model: torch.nn.Module, noise_std: float = 0.01) -> None:
     """
     Добавляет гауссовский шум с нулевым средним и заданным стандартным отклонением

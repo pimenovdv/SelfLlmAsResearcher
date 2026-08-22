@@ -877,5 +877,21 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertFalse(torch.all(model.weight.grad == 0))
         self.assertFalse(torch.all(model.bias.grad == 0))
 
+    def test_clip_gradients(self):
+        from src.experiment_utils import clip_gradients
+        import torch
+
+        model = torch.nn.Linear(10, 2)
+        # Create dummy gradients
+        model.weight.grad = torch.ones_like(model.weight) * 10.0
+        model.bias.grad = torch.ones_like(model.bias) * 10.0
+
+        # Norm of these gradients will be sqrt(20 * 10^2 + 2 * 10^2) = sqrt(2200) ≈ 46.9
+        total_norm = clip_gradients(model, max_norm=1.0)
+        self.assertGreater(total_norm, 10.0)
+
+        # After clipping, the max value in gradients should be <= 1.0
+        self.assertLessEqual(model.weight.grad.abs().max().item(), 1.0)
+
 if __name__ == '__main__':
     unittest.main()

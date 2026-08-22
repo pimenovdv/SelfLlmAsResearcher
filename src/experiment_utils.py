@@ -369,6 +369,21 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def clip_gradients(model: torch.nn.Module, max_norm: float, norm_type: float = 2.0) -> float:
+    """
+    Обрезает градиенты модели (gradient clipping) по норме.
+
+    Args:
+        model: Модель PyTorch.
+        max_norm: Максимальная норма градиентов.
+        norm_type: Тип используемой нормы (по умолчанию L2).
+
+    Returns:
+        Общая норма градиентов до обрезки.
+    """
+    import torch
+    return float(torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm, norm_type=norm_type))
+
 def add_noise_to_gradients(model: torch.nn.Module, noise_std: float = 0.01) -> None:
     """
     Добавляет гауссовский шум с нулевым средним и заданным стандартным отклонением

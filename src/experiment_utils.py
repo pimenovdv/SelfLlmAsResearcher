@@ -369,6 +369,21 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def add_noise_to_gradients(model: torch.nn.Module, noise_std: float = 0.01) -> None:
+    """
+    Добавляет гауссовский шум с нулевым средним и заданным стандартным отклонением
+    к градиентам параметров модели (если они существуют).
+
+    Args:
+        model: Модель PyTorch.
+        noise_std: Стандартное отклонение шума.
+    """
+    import torch
+    for param in model.parameters():
+        if param.grad is not None:
+            noise = torch.randn_like(param.grad) * noise_std
+            param.grad.data.add_(noise)
+
 def clip_model_weights(model: torch.nn.Module, min_val: float, max_val: float) -> None:
     """
     Clips all parameters of the model to be within the range [min_val, max_val].

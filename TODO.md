@@ -196,3 +196,4 @@
 - [x] Добавить функцию get_gradient_statistics в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию add_noise_to_gradients в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию clip_gradients в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию zero_gradients в src/experiment_utils.py и написать тесты.

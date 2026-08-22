@@ -862,6 +862,20 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(stats["max"], 4.0)
         self.assertTrue("std" in stats)
 
+    def test_zero_gradients(self):
+        from src.experiment_utils import zero_gradients
+        import torch
+
+        model = torch.nn.Linear(10, 2)
+        model.weight.grad = torch.ones_like(model.weight)
+
+        zero_gradients(model)
+
+        self.assertTrue(torch.all(model.weight.grad == 0))
+
+        zero_gradients(model, set_to_none=True)
+        self.assertIsNone(model.weight.grad)
+
     def test_add_noise_to_gradients(self):
         from src.experiment_utils import add_noise_to_gradients
         import torch

@@ -204,3 +204,4 @@
 - [x] Добавить функцию compute_parameter_variance в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_parameter_kurtosis в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_parameter_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_median в src/experiment_utils.py и написать тесты.

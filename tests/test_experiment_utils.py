@@ -965,5 +965,12 @@ class TestExperimentUtils(unittest.TestCase):
         skewness = compute_parameter_skewness(model)
         self.assertIsInstance(skewness, float)
 
+    def test_compute_parameter_median(self):
+        from src.experiment_utils import compute_parameter_median
+        import torch
+        model = torch.nn.Linear(10, 2)
+        median = compute_parameter_median(model)
+        self.assertIsInstance(median, float)
+
 if __name__ == '__main__':
     unittest.main()

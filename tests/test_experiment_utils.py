@@ -958,5 +958,12 @@ class TestExperimentUtils(unittest.TestCase):
         kurtosis = compute_parameter_kurtosis(model)
         self.assertIsInstance(kurtosis, float)
 
+    def test_compute_parameter_skewness(self):
+        from src.experiment_utils import compute_parameter_skewness
+        import torch
+        model = torch.nn.Linear(10, 2)
+        skewness = compute_parameter_skewness(model)
+        self.assertIsInstance(skewness, float)
+
 if __name__ == '__main__':
     unittest.main()

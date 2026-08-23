@@ -403,6 +403,27 @@ def compute_parameter_kurtosis(model: torch.nn.Module) -> float:
     kurtosis = torch.mean(((vec - mean) / std) ** 4) - 3.0
     return float(kurtosis.item())
 
+def compute_parameter_skewness(model: torch.nn.Module) -> float:
+    """
+    Вычисляет асимметрию (skewness) всех параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+
+    mean = vec.mean()
+    std = vec.std()
+
+    if std == 0:
+        return 0.0
+
+    skewness = torch.mean(((vec - mean) / std) ** 3)
+    return float(skewness.item())
+
 def freeze_model_weights(model: torch.nn.Module) -> None:
     """
     Замораживает все веса модели (устанавливает requires_grad = False).

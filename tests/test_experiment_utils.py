@@ -943,5 +943,13 @@ class TestExperimentUtils(unittest.TestCase):
         for param in model.parameters():
             self.assertTrue(param.requires_grad)
 
+    def test_compute_parameter_variance(self):
+        from src.experiment_utils import compute_parameter_variance
+        import torch
+        model = torch.nn.Linear(10, 2)
+        variance = compute_parameter_variance(model)
+        self.assertIsInstance(variance, float)
+        self.assertGreaterEqual(variance, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

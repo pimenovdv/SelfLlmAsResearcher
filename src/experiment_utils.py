@@ -382,6 +382,27 @@ def compute_parameter_variance(model: torch.nn.Module) -> float:
         return 0.0
     return float(vec.var().item())
 
+def compute_parameter_kurtosis(model: torch.nn.Module) -> float:
+    """
+    Вычисляет эксцесс (kurtosis) всех параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+
+    mean = vec.mean()
+    std = vec.std()
+
+    if std == 0:
+        return 0.0
+
+    kurtosis = torch.mean(((vec - mean) / std) ** 4) - 3.0
+    return float(kurtosis.item())
+
 def freeze_model_weights(model: torch.nn.Module) -> None:
     """
     Замораживает все веса модели (устанавливает requires_grad = False).

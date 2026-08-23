@@ -951,5 +951,12 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(variance, float)
         self.assertGreaterEqual(variance, 0.0)
 
+    def test_compute_parameter_kurtosis(self):
+        from src.experiment_utils import compute_parameter_kurtosis
+        import torch
+        model = torch.nn.Linear(10, 2)
+        kurtosis = compute_parameter_kurtosis(model)
+        self.assertIsInstance(kurtosis, float)
+
 if __name__ == '__main__':
     unittest.main()

@@ -4,4 +4,4 @@
 Добавлена функция `compute_parameter_variance` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
 
 **План действий на следующий этап:**
-1. Выполнить следующую задачу из TODO.md или сформулировать новую.
+1. Сформулирована новая задача в TODO.md. Добавлена функция `compute_parameter_kurtosis` в `src/experiment_utils.py` и написаны тесты.

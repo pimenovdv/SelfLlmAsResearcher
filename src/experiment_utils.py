@@ -376,6 +376,13 @@ def freeze_model_weights(model: torch.nn.Module) -> None:
     for param in model.parameters():
         param.requires_grad = False
 
+def unfreeze_model_weights(model: torch.nn.Module) -> None:
+    """
+    Размораживает все веса модели (устанавливает requires_grad = True).
+    """
+    for param in model.parameters():
+        param.requires_grad = True
+
 def check_nan_weights(model: torch.nn.Module) -> bool:
     """
     Проверяет, есть ли NaN значения в весах модели.

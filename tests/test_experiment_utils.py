@@ -933,5 +933,15 @@ class TestExperimentUtils(unittest.TestCase):
         for param in model.parameters():
             self.assertFalse(param.requires_grad)
 
+    def test_unfreeze_model_weights(self):
+        from src.experiment_utils import unfreeze_model_weights
+        import torch
+        model = torch.nn.Linear(10, 2)
+        for param in model.parameters():
+            param.requires_grad = False
+        unfreeze_model_weights(model)
+        for param in model.parameters():
+            self.assertTrue(param.requires_grad)
+
 if __name__ == '__main__':
     unittest.main()

@@ -369,6 +369,19 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_parameter_variance(model: torch.nn.Module) -> float:
+    """
+    Вычисляет дисперсию всех параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+    return float(vec.var().item())
+
 def freeze_model_weights(model: torch.nn.Module) -> None:
     """
     Замораживает все веса модели (устанавливает requires_grad = False).

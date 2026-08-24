@@ -1008,5 +1008,14 @@ class TestExperimentUtils(unittest.TestCase):
         skewness = compute_gradient_skewness(model)
         self.assertIsInstance(skewness, float)
 
+    def test_compute_gradient_median(self):
+        from src.experiment_utils import compute_gradient_median
+        import torch
+        model = torch.nn.Linear(10, 2)
+        loss = model(torch.randn(1, 10)).sum()
+        loss.backward()
+        median = compute_gradient_median(model)
+        self.assertIsInstance(median, float)
+
 if __name__ == '__main__':
     unittest.main()

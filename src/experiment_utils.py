@@ -369,6 +369,19 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_gradient_median(model: torch.nn.Module) -> float:
+    """
+    Вычисляет медиану градиентов модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    return float(torch.median(vec).item())
+
 def compute_gradient_variance(model: torch.nn.Module) -> float:
     """
     Вычисляет дисперсию градиентов модели.

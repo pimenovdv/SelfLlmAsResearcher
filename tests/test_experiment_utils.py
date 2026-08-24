@@ -972,5 +972,14 @@ class TestExperimentUtils(unittest.TestCase):
         median = compute_parameter_median(model)
         self.assertIsInstance(median, float)
 
+    def test_compute_parameter_quantiles(self):
+        from src.experiment_utils import compute_parameter_quantiles
+        import torch
+        model = torch.nn.Linear(10, 2)
+        quantiles = compute_parameter_quantiles(model)
+        self.assertIsInstance(quantiles, list)
+        self.assertEqual(len(quantiles), 3)
+        self.assertTrue(all(isinstance(x, float) for x in quantiles))
+
 if __name__ == '__main__':
     unittest.main()

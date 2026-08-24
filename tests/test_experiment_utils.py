@@ -981,5 +981,14 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(len(quantiles), 3)
         self.assertTrue(all(isinstance(x, float) for x in quantiles))
 
+    def test_compute_gradient_variance(self):
+        from src.experiment_utils import compute_gradient_variance
+        import torch
+        model = torch.nn.Linear(10, 2)
+        loss = model(torch.randn(1, 10)).sum()
+        loss.backward()
+        variance = compute_gradient_variance(model)
+        self.assertIsInstance(variance, float)
+
 if __name__ == '__main__':
     unittest.main()

@@ -990,5 +990,14 @@ class TestExperimentUtils(unittest.TestCase):
         variance = compute_gradient_variance(model)
         self.assertIsInstance(variance, float)
 
+    def test_compute_gradient_kurtosis(self):
+        from src.experiment_utils import compute_gradient_kurtosis
+        import torch
+        model = torch.nn.Linear(10, 2)
+        loss = model(torch.randn(1, 10)).sum()
+        loss.backward()
+        kurtosis = compute_gradient_kurtosis(model)
+        self.assertIsInstance(kurtosis, float)
+
 if __name__ == '__main__':
     unittest.main()

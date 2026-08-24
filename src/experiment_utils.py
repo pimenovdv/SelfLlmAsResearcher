@@ -382,6 +382,27 @@ def compute_gradient_variance(model: torch.nn.Module) -> float:
         return 0.0
     return float(vec.var().item())
 
+def compute_gradient_kurtosis(model: torch.nn.Module) -> float:
+    """
+    Вычисляет эксцесс (kurtosis) градиентов модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1:
+        return 0.0
+
+    mean = vec.mean()
+    std = vec.std()
+
+    if std == 0:
+        return 0.0
+
+    kurtosis = torch.mean(((vec - mean) / std) ** 4) - 3.0
+    return float(kurtosis.item())
+
 def compute_parameter_quantiles(model: torch.nn.Module, q: list[float] = None) -> list[float]:
     """
     Вычисляет квантили параметров модели.

@@ -999,5 +999,14 @@ class TestExperimentUtils(unittest.TestCase):
         kurtosis = compute_gradient_kurtosis(model)
         self.assertIsInstance(kurtosis, float)
 
+    def test_compute_gradient_skewness(self):
+        from src.experiment_utils import compute_gradient_skewness
+        import torch
+        model = torch.nn.Linear(10, 2)
+        loss = model(torch.randn(1, 10)).sum()
+        loss.backward()
+        skewness = compute_gradient_skewness(model)
+        self.assertIsInstance(skewness, float)
+
 if __name__ == '__main__':
     unittest.main()

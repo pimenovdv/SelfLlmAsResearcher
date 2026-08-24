@@ -369,6 +369,22 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_parameter_quantiles(model: torch.nn.Module, q: list[float] = None) -> list[float]:
+    """
+    Вычисляет квантили параметров модели.
+    """
+    import torch
+    if q is None:
+        q = [0.25, 0.5, 0.75]
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return [0.0] * len(q)
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return [0.0] * len(q)
+    q_tensor = torch.tensor(q, dtype=vec.dtype, device=vec.device)
+    return torch.quantile(vec, q_tensor).tolist()
+
 def compute_parameter_median(model: torch.nn.Module) -> float:
     """
     Вычисляет медиану всех параметров модели.

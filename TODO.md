@@ -208,3 +208,4 @@
 - [x] Добавить функцию compute_parameter_quantiles в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_variance в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_kurtosis в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_skewness в src/experiment_utils.py и написать тесты.

@@ -369,6 +369,23 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_parameter_coefficient_of_variation(model: torch.nn.Module) -> float:
+    """
+    Вычисляет коэффициент вариации (coefficient of variation) параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+    mean = vec.mean().item()
+    if mean == 0:
+        return 0.0
+    std = vec.std().item()
+    return float(std / mean)
+
 def compute_gradient_coefficient_of_variation(model: torch.nn.Module) -> float:
     """
     Вычисляет коэффициент вариации (coefficient of variation) градиентов модели.

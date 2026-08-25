@@ -1037,5 +1037,12 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(len(quantiles), 3)
         self.assertIsInstance(quantiles[0], float)
 
+    def test_compute_parameter_coefficient_of_variation(self):
+        from src.experiment_utils import compute_parameter_coefficient_of_variation
+        import torch
+        model = torch.nn.Linear(10, 2)
+        cv = compute_parameter_coefficient_of_variation(model)
+        self.assertIsInstance(cv, float)
+
 if __name__ == '__main__':
     unittest.main()

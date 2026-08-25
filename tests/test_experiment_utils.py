@@ -1017,6 +1017,15 @@ class TestExperimentUtils(unittest.TestCase):
         median = compute_gradient_median(model)
         self.assertIsInstance(median, float)
 
+    def test_compute_gradient_coefficient_of_variation(self):
+        from src.experiment_utils import compute_gradient_coefficient_of_variation
+        import torch
+        model = torch.nn.Linear(10, 2)
+        loss = model(torch.randn(1, 10)).sum()
+        loss.backward()
+        cv = compute_gradient_coefficient_of_variation(model)
+        self.assertIsInstance(cv, float)
+
     def test_compute_gradient_quantiles(self):
         from src.experiment_utils import compute_gradient_quantiles
         import torch

@@ -369,6 +369,75 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def get_module_activations(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, **kwargs) -> torch.Tensor:
+    """
+    Возвращает активации (выход) указанного модуля при прохождении input_data через модель.
+    """
+    import torch
+    activation = {}
+
+    def hook_fn(module, input, output):
+        if isinstance(output, torch.Tensor):
+            activation['out'] = output.detach()
+        elif isinstance(output, tuple) and len(output) > 0 and isinstance(output[0], torch.Tensor):
+            activation['out'] = output[0].detach()
+
+    module = None
+    for name, mod in model.named_modules():
+        if name == module_name:
+            module = mod
+            break
+
+    if module is None:
+        raise ValueError(f"Module {module_name} not found in model.")
+
+    hook = module.register_forward_hook(hook_fn)
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data, **kwargs)
+
+    if training_state:
+        model.train()
+    hook.remove()
+    return activation.get('out', torch.tensor([]))
+
+def get_module_gradients(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, target: torch.Tensor, loss_fn, **kwargs) -> torch.Tensor:
+    """
+    Возвращает градиенты по выходу указанного модуля при прохождении input_data и вычислении loss.
+    """
+    import torch
+    gradients = {}
+
+    def hook_fn(module, grad_input, grad_output):
+        if grad_output and len(grad_output) > 0 and grad_output[0] is not None:
+            gradients['out'] = grad_output[0].detach()
+
+    module = None
+    for name, mod in model.named_modules():
+        if name == module_name:
+            module = mod
+            break
+
+    if module is None:
+        raise ValueError(f"Module {module_name} not found in model.")
+
+    hook = module.register_full_backward_hook(hook_fn)
+
+    training_state = model.training
+    model.train()
+    model.zero_grad()
+
+    output = model(input_data, **kwargs)
+    loss = loss_fn(output, target)
+    loss.backward()
+
+    if not training_state:
+        model.eval()
+    hook.remove()
+    return gradients.get('out', torch.tensor([]))
+
 def compute_parameter_entropy(model: torch.nn.Module, bins: int = 256) -> float:
     """
     Вычисляет энтропию параметров модели, оценивая распределение через гистограмму.

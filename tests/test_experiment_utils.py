@@ -1060,5 +1060,26 @@ class TestExperimentUtils(unittest.TestCase):
         entropy = compute_gradient_entropy(model)
         self.assertIsInstance(entropy, float)
 
+    def test_get_module_activations(self):
+        from src.experiment_utils import get_module_activations
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.ReLU(), torch.nn.Linear(5, 2))
+        model[0].weight.data.fill_(1.0)
+        model[0].bias.data.fill_(0.0)
+        x = torch.ones(1, 10)
+        out = get_module_activations(model, '0', x)
+        self.assertEqual(out.shape, (1, 5))
+        self.assertTrue(torch.allclose(out, torch.full((1, 5), 10.0)))
+
+    def test_get_module_gradients(self):
+        from src.experiment_utils import get_module_gradients
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.ReLU(), torch.nn.Linear(5, 2))
+        x = torch.ones(1, 10)
+        target = torch.ones(1, 2)
+        loss_fn = torch.nn.MSELoss()
+        grads = get_module_gradients(model, '0', x, target, loss_fn)
+        self.assertEqual(grads.shape, (1, 5))
+
 if __name__ == '__main__':
     unittest.main()

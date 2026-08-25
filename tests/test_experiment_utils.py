@@ -1044,5 +1044,21 @@ class TestExperimentUtils(unittest.TestCase):
         cv = compute_parameter_coefficient_of_variation(model)
         self.assertIsInstance(cv, float)
 
+    def test_compute_parameter_entropy(self):
+        from src.experiment_utils import compute_parameter_entropy
+        import torch
+        model = torch.nn.Linear(10, 2)
+        entropy = compute_parameter_entropy(model)
+        self.assertIsInstance(entropy, float)
+
+    def test_compute_gradient_entropy(self):
+        from src.experiment_utils import compute_gradient_entropy
+        import torch
+        model = torch.nn.Linear(10, 2)
+        loss = model(torch.randn(1, 10)).sum()
+        loss.backward()
+        entropy = compute_gradient_entropy(model)
+        self.assertIsInstance(entropy, float)
+
 if __name__ == '__main__':
     unittest.main()

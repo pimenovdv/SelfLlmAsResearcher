@@ -1017,5 +1017,16 @@ class TestExperimentUtils(unittest.TestCase):
         median = compute_gradient_median(model)
         self.assertIsInstance(median, float)
 
+    def test_compute_gradient_quantiles(self):
+        from src.experiment_utils import compute_gradient_quantiles
+        import torch
+        model = torch.nn.Linear(10, 2)
+        loss = model(torch.randn(1, 10)).sum()
+        loss.backward()
+        quantiles = compute_gradient_quantiles(model)
+        self.assertIsInstance(quantiles, list)
+        self.assertEqual(len(quantiles), 3)
+        self.assertIsInstance(quantiles[0], float)
+
 if __name__ == '__main__':
     unittest.main()

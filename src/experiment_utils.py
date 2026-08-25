@@ -369,6 +369,42 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_parameter_entropy(model: torch.nn.Module, bins: int = 256) -> float:
+    """
+    Вычисляет энтропию параметров модели, оценивая распределение через гистограмму.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+
+    hist = torch.histc(vec, bins=bins)
+    p = hist / hist.sum()
+    p = p[p > 0]
+    entropy = -torch.sum(p * torch.log2(p))
+    return float(entropy.item())
+
+def compute_gradient_entropy(model: torch.nn.Module, bins: int = 256) -> float:
+    """
+    Вычисляет энтропию градиентов модели, оценивая распределение через гистограмму.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1:
+        return 0.0
+
+    hist = torch.histc(vec, bins=bins)
+    p = hist / hist.sum()
+    p = p[p > 0]
+    entropy = -torch.sum(p * torch.log2(p))
+    return float(entropy.item())
+
 def compute_parameter_coefficient_of_variation(model: torch.nn.Module) -> float:
     """
     Вычисляет коэффициент вариации (coefficient of variation) параметров модели.

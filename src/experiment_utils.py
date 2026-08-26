@@ -369,6 +369,49 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def get_module_input_shape(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, **kwargs) -> tuple:
+    """
+    Возвращает форму входного тензора для указанного модуля.
+    """
+    import torch
+    module = get_module_by_name(model, module_name)
+    input_shape = None
+
+    def hook_fn(module, input):
+        nonlocal input_shape
+        input_shape = input[0].shape
+
+    handle = module.register_forward_pre_hook(hook_fn)
+    try:
+        model(input_data, **kwargs)
+    finally:
+        handle.remove()
+
+    return input_shape
+
+def get_module_output_shape(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, **kwargs) -> tuple:
+    """
+    Возвращает форму выходного тензора для указанного модуля.
+    """
+    import torch
+    module = get_module_by_name(model, module_name)
+    output_shape = None
+
+    def hook_fn(module, input, output):
+        nonlocal output_shape
+        if isinstance(output, tuple):
+            output_shape = output[0].shape
+        else:
+            output_shape = output.shape
+
+    handle = module.register_forward_hook(hook_fn)
+    try:
+        model(input_data, **kwargs)
+    finally:
+        handle.remove()
+
+    return output_shape
+
 def get_module_activations(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, **kwargs) -> torch.Tensor:
     """
     Возвращает активации (выход) указанного модуля при прохождении input_data через модель.

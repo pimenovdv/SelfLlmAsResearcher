@@ -1081,5 +1081,25 @@ class TestExperimentUtils(unittest.TestCase):
         grads = get_module_gradients(model, '0', x, target, loss_fn)
         self.assertEqual(grads.shape, (1, 5))
 
+    def test_get_module_input_shape(self):
+        from src.experiment_utils import get_module_input_shape
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.ReLU(), torch.nn.Linear(5, 2))
+        x = torch.ones(1, 10)
+        shape = get_module_input_shape(model, '0', x)
+        self.assertEqual(shape, (1, 10))
+        shape2 = get_module_input_shape(model, '2', x)
+        self.assertEqual(shape2, (1, 5))
+
+    def test_get_module_output_shape(self):
+        from src.experiment_utils import get_module_output_shape
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.ReLU(), torch.nn.Linear(5, 2))
+        x = torch.ones(1, 10)
+        shape = get_module_output_shape(model, '0', x)
+        self.assertEqual(shape, (1, 5))
+        shape2 = get_module_output_shape(model, '2', x)
+        self.assertEqual(shape2, (1, 2))
+
 if __name__ == '__main__':
     unittest.main()

@@ -1081,5 +1081,40 @@ class TestExperimentUtils(unittest.TestCase):
         grads = get_module_gradients(model, '0', x, target, loss_fn)
         self.assertEqual(grads.shape, (1, 5))
 
+    def test_compute_activation_statistics(self):
+        from src.experiment_utils import compute_activation_statistics
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.ReLU())
+        model[0].weight.data.fill_(1.0)
+        model[0].bias.data.fill_(0.0)
+        x = torch.ones(1, 10)
+
+        stats = compute_activation_statistics(model, '0', x)
+        self.assertAlmostEqual(stats["mean"], 10.0, places=6)
+        self.assertAlmostEqual(stats["std"], 0.0, places=6)
+        self.assertAlmostEqual(stats["min"], 10.0, places=6)
+        self.assertAlmostEqual(stats["max"], 10.0, places=6)
+
+        stats_empty = compute_activation_statistics(model, 'nonexistent', x)
+        self.assertEqual(stats_empty, {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0})
+
+    def test_compute_activation_sparsity(self):
+        from src.experiment_utils import compute_activation_sparsity
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5))
+        model[0].weight.data = torch.zeros(5, 10)
+        model[0].weight.data[0, 0] = 1.0
+        model[0].weight.data[1, 0] = -1.0
+        model[0].weight.data[2, 0] = 2.0
+        model[0].bias.data.fill_(0.0)
+        x = torch.ones(1, 10)
+        x[0, 1:] = 0.0
+
+        sparsity = compute_activation_sparsity(model, '0', x, threshold=0.1)
+        self.assertAlmostEqual(sparsity, 0.4, places=6)
+
+        sparsity_empty = compute_activation_sparsity(model, 'nonexistent', x)
+        self.assertEqual(sparsity_empty, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

@@ -369,6 +369,40 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_activation_statistics(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, **kwargs) -> dict:
+    """
+    Вычисляет статистику активаций (mean, std, min, max) для указанного модуля.
+    """
+    try:
+        activations = get_module_activations(model, module_name, input_data, **kwargs)
+    except ValueError:
+        return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
+
+    if activations.numel() == 0:
+        return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
+    vec = activations.flatten()
+    return {
+        "mean": float(vec.mean().item()),
+        "std": float(vec.std().item()) if vec.numel() > 1 else 0.0,
+        "min": float(vec.min().item()),
+        "max": float(vec.max().item())
+    }
+
+def compute_activation_sparsity(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, threshold: float = 1e-7, **kwargs) -> float:
+    """
+    Вычисляет разреженность активаций (долю элементов по модулю меньше threshold) для указанного модуля.
+    """
+    import torch
+    try:
+        activations = get_module_activations(model, module_name, input_data, **kwargs)
+    except ValueError:
+        return 0.0
+
+    if activations.numel() == 0:
+        return 0.0
+    num_zeros = torch.sum(torch.abs(activations) < threshold).item()
+    return float(num_zeros / activations.numel())
+
 def get_module_activations(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, **kwargs) -> torch.Tensor:
     """
     Возвращает активации (выход) указанного модуля при прохождении input_data через модель.

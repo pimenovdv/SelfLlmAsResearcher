@@ -217,3 +217,5 @@
 - [x] Добавить функцию compute_gradient_entropy в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию get_module_activations в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию get_module_gradients в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию get_activation_statistics в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_sparsity в src/experiment_utils.py и написать тесты.

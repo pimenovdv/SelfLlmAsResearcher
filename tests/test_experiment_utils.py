@@ -1081,5 +1081,30 @@ class TestExperimentUtils(unittest.TestCase):
         grads = get_module_gradients(model, '0', x, target, loss_fn)
         self.assertEqual(grads.shape, (1, 5))
 
+    def test_get_activation_statistics(self):
+        from src.experiment_utils import get_activation_statistics
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.ReLU())
+        model[0].weight.data.fill_(1.0)
+        model[0].bias.data.fill_(0.0)
+        x = torch.ones(1, 10)
+        stats = get_activation_statistics(model, '0', x)
+        self.assertAlmostEqual(stats["mean"], 10.0)
+        self.assertAlmostEqual(stats["std"], 0.0)
+        self.assertAlmostEqual(stats["min"], 10.0)
+        self.assertAlmostEqual(stats["max"], 10.0)
+
+    def test_compute_activation_sparsity(self):
+        from src.experiment_utils import compute_activation_sparsity
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.ReLU())
+        # To make sparsity 0.4, 2 out of 5 elements should be zero.
+        model[0].weight.data = torch.zeros(5, 10)
+        model[0].weight.data[0:3, :].fill_(1.0) # 3 outputs will be 10, 2 will be 0
+        model[0].bias.data.fill_(0.0)
+        x = torch.ones(1, 10)
+        sparsity = compute_activation_sparsity(model, '0', x)
+        self.assertAlmostEqual(sparsity, 0.4)
+
 if __name__ == '__main__':
     unittest.main()

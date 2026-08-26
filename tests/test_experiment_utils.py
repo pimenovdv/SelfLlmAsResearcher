@@ -1081,5 +1081,23 @@ class TestExperimentUtils(unittest.TestCase):
         grads = get_module_gradients(model, '0', x, target, loss_fn)
         self.assertEqual(grads.shape, (1, 5))
 
+    def test_get_activation_statistics(self):
+        from src.experiment_utils import get_activation_statistics
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.ReLU(), torch.nn.Linear(5, 2))
+        model[0].weight.data.fill_(1.0)
+        model[0].bias.data.fill_(0.0)
+        x = torch.ones(1, 10)
+        stats = get_activation_statistics(model, '0', x)
+        self.assertIsInstance(stats, dict)
+        self.assertIn('mean', stats)
+        self.assertIn('std', stats)
+        self.assertIn('min', stats)
+        self.assertIn('max', stats)
+        self.assertAlmostEqual(stats['mean'], 10.0, places=5)
+        self.assertAlmostEqual(stats['std'], 0.0, places=5)
+        self.assertAlmostEqual(stats['min'], 10.0, places=5)
+        self.assertAlmostEqual(stats['max'], 10.0, places=5)
+
 if __name__ == '__main__':
     unittest.main()

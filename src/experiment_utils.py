@@ -369,6 +369,21 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def get_activation_statistics(model: torch.nn.Module, module_name: str, x: torch.Tensor) -> dict:
+    """
+    Возвращает статистику активаций (mean, std, min, max) указанного модуля при подаче входа x.
+    """
+    import torch
+    activations = get_module_activations(model, module_name, x)
+    if activations.numel() == 0:
+        return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
+    return {
+        "mean": float(activations.mean().item()),
+        "std": float(activations.std().item()) if activations.numel() > 1 else 0.0,
+        "min": float(activations.min().item()),
+        "max": float(activations.max().item())
+    }
+
 def get_module_activations(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, **kwargs) -> torch.Tensor:
     """
     Возвращает активации (выход) указанного модуля при прохождении input_data через модель.

@@ -1173,6 +1173,25 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('min', stats['layer1'])
         self.assertIn('max', stats['layer1'])
 
+    def test_compute_activation_variance(self):
+        import torch
+        from src.experiment_utils import compute_activation_variance
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer1 = torch.nn.Linear(10, 5)
+                self.layer2 = torch.nn.Linear(5, 2)
+            def forward(self, x):
+                x = self.layer1(x)
+                return self.layer2(x)
+        model = DummyModel()
+        input_data = torch.randn(2, 10)
+        variances = compute_activation_variance(model, input_data, ['layer1', 'layer2'])
+        self.assertIn('layer1', variances)
+        self.assertIn('layer2', variances)
+        self.assertIsInstance(variances['layer1'], float)
+
     def test_compute_activation_entropy(self):
         import torch
         from src.experiment_utils import compute_activation_entropy

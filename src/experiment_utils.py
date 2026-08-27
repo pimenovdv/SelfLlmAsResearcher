@@ -1057,6 +1057,48 @@ def compute_gradient_sparsity(model: torch.nn.Module, threshold: float = 1e-7) -
         return 0.0
     return float(num_zeros / num_elements)
 
+def compute_activation_variance(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет дисперсию активаций для заданных слоев.
+    """
+    import torch
+    variance_dict = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, tuple):
+                out_tensor = out[0].detach()
+            elif isinstance(out, torch.Tensor):
+                out_tensor = out.detach()
+            else:
+                return
+
+            vec = out_tensor.flatten()
+            if vec.numel() <= 1:
+                variance_dict[name] = 0.0
+                return
+
+            variance_dict[name] = float(vec.var().item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return variance_dict
+
 def compute_activation_entropy(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], bins: int = 256) -> dict[str, float]:
     """
     Вычисляет энтропию активаций для заданных слоев, оценивая распределение через гистограмму.

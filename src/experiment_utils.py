@@ -398,6 +398,39 @@ def compute_activation_norms(model: torch.nn.Module, input_data: torch.Tensor, m
 
     return norms
 
+def compute_activation_sparsity(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], threshold: float = 1e-7) -> dict[str, float]:
+    """
+    Вычисляет разреженность активаций для заданных слоев (доля элементов, абсолютное значение которых меньше threshold).
+    """
+    import torch
+    sparsity_dict = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, torch.Tensor):
+                num_zeros = torch.sum(torch.abs(out) < threshold).item()
+                num_elements = out.numel()
+                sparsity_dict[name] = float(num_zeros / num_elements) if num_elements > 0 else 0.0
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return sparsity_dict
+
 def compute_activation_statistics(model: torch.nn.Module, input_data: torch.Tensor, module_names: list) -> dict:
     """
     Computes activation statistics (mean, std, min, max) for given layers.

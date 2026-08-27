@@ -220,3 +220,4 @@
 - [x] Добавить функцию compute_module_parameter_norms в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_module_gradient_norms в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_norms в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_statistics в src/experiment_utils.py и написать тесты.

@@ -398,6 +398,42 @@ def compute_activation_norms(model: torch.nn.Module, input_data: torch.Tensor, m
 
     return norms
 
+def compute_activation_statistics(model: torch.nn.Module, input_data: torch.Tensor, module_names: list) -> dict:
+    """
+    Computes activation statistics (mean, std, min, max) for given layers.
+    """
+    import torch
+    stats = {}
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, tuple):
+                out = output[0].detach()
+            elif isinstance(output, torch.Tensor):
+                out = output.detach()
+            else:
+                return
+            stats[name] = {
+                "mean": float(out.mean().item()),
+                "std": float(out.std().item()) if out.numel() > 1 else 0.0,
+                "min": float(out.min().item()),
+                "max": float(out.max().item()),
+            }
+        return hook
+
+    hooks = []
+    for name, module in model.named_modules():
+        if name in module_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    try:
+        with torch.no_grad():
+            model(input_data)
+    finally:
+        for hook in hooks:
+            hook.remove()
+
+    return stats
+
 def compute_module_parameter_norms(model: torch.nn.Module, p: float = 2.0) -> dict:
     """
     Вычисляет Lp норму параметров каждого модуля (слоя) в модели.

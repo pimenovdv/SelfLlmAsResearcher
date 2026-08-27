@@ -1131,5 +1131,27 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(isinstance(norms['layer1'], float))
         self.assertTrue(isinstance(norms['layer2'], float))
 
+    def test_compute_activation_statistics(self):
+        import torch
+        from src.experiment_utils import compute_activation_statistics
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer1 = torch.nn.Linear(10, 5)
+                self.layer2 = torch.nn.Linear(5, 2)
+            def forward(self, x):
+                x = self.layer1(x)
+                return self.layer2(x)
+        model = DummyModel()
+        input_data = torch.randn(2, 10)
+        stats = compute_activation_statistics(model, input_data, ['layer1', 'layer2'])
+        self.assertIn('layer1', stats)
+        self.assertIn('layer2', stats)
+        self.assertIn('mean', stats['layer1'])
+        self.assertIn('std', stats['layer1'])
+        self.assertIn('min', stats['layer1'])
+        self.assertIn('max', stats['layer1'])
+
 if __name__ == '__main__':
     unittest.main()

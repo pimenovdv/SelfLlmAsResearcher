@@ -1057,6 +1057,52 @@ def compute_gradient_sparsity(model: torch.nn.Module, threshold: float = 1e-7) -
         return 0.0
     return float(num_zeros / num_elements)
 
+def compute_activation_entropy(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], bins: int = 256) -> dict[str, float]:
+    """
+    Вычисляет энтропию активаций для заданных слоев, оценивая распределение через гистограмму.
+    """
+    import torch
+    entropy_dict = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, tuple):
+                out_tensor = out[0].detach()
+            elif isinstance(out, torch.Tensor):
+                out_tensor = out.detach()
+            else:
+                return
+
+            vec = out_tensor.flatten()
+            if vec.numel() <= 1:
+                entropy_dict[name] = 0.0
+                return
+
+            hist = torch.histc(vec, bins=bins)
+            p = hist / hist.sum()
+            p = p[p > 0]
+            entropy = -torch.sum(p * torch.log2(p))
+            entropy_dict[name] = float(entropy.item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return entropy_dict
+
 def get_gradient_statistics(model: torch.nn.Module) -> dict:
     """
     Возвращает статистику градиентов модели (mean, std, min, max).

@@ -398,6 +398,44 @@ def compute_activation_sparsity(model: torch.nn.Module, module_name: str, input_
         return 0.0
     num_zeros = (acts.abs() <= threshold).sum().item()
     return float(num_zeros / num_elements)
+def compute_module_parameter_norms(model: torch.nn.Module, p: float = 2.0) -> dict:
+    """
+    Вычисляет Lp норму параметров каждого модуля (слоя) в модели.
+    Возвращает словарь {module_name: norm}.
+    """
+    import torch
+    norms = {}
+    for name, module in model.named_modules():
+        if name == "": continue
+        total_norm = 0.0
+        has_params = False
+        for param in module.parameters(recurse=False):
+            has_params = True
+            param_norm = torch.norm(param.detach(), p=p)
+            total_norm += param_norm.item() ** p
+        if has_params:
+            norms[name] = total_norm ** (1.0 / p)
+    return norms
+
+def compute_module_gradient_norms(model: torch.nn.Module, p: float = 2.0) -> dict:
+    """
+    Вычисляет Lp норму градиентов каждого модуля (слоя) в модели.
+    Возвращает словарь {module_name: norm}.
+    """
+    import torch
+    norms = {}
+    for name, module in model.named_modules():
+        if name == "": continue
+        total_norm = 0.0
+        has_grad = False
+        for param in module.parameters(recurse=False):
+            if param.grad is not None:
+                has_grad = True
+                param_norm = torch.norm(param.grad.detach(), p=p)
+                total_norm += param_norm.item() ** p
+        if has_grad:
+            norms[name] = total_norm ** (1.0 / p)
+    return norms
 
 def get_module_activations(model: torch.nn.Module, module_name: str, input_data: torch.Tensor, **kwargs) -> torch.Tensor:
     """

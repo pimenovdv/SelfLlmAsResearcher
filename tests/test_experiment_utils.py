@@ -1105,6 +1105,32 @@ class TestExperimentUtils(unittest.TestCase):
         x = torch.ones(1, 10)
         sparsity = compute_activation_sparsity(model, '0', x)
         self.assertAlmostEqual(sparsity, 0.4)
+    def test_compute_module_parameter_norms(self):
+        from src.experiment_utils import compute_module_parameter_norms
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.Linear(5, 2))
+        with torch.no_grad():
+            model[0].weight.fill_(1.0)
+            model[0].bias.fill_(1.0)
+            model[1].weight.fill_(1.0)
+            model[1].bias.fill_(1.0)
+        norms = compute_module_parameter_norms(model)
+        self.assertIn('0', norms)
+        self.assertIn('1', norms)
+        self.assertAlmostEqual(norms['0'], 55.0 ** 0.5, places=4)
+        self.assertAlmostEqual(norms['1'], 12.0 ** 0.5, places=4)
+
+    def test_compute_module_gradient_norms(self):
+        from src.experiment_utils import compute_module_gradient_norms
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 5), torch.nn.Linear(5, 2))
+        x = torch.ones(1, 10)
+        y = model(x)
+        loss = y.sum()
+        loss.backward()
+        norms = compute_module_gradient_norms(model)
+        self.assertIn('0', norms)
+        self.assertIn('1', norms)
 
 if __name__ == '__main__':
     unittest.main()

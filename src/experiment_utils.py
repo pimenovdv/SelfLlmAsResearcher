@@ -369,6 +369,35 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_activation_norms(model: torch.nn.Module, input_data: torch.Tensor, module_names: list, p: float = 2.0) -> dict:
+    """
+    Вычисляет Lp норму активаций для списка модулей при прохождении input_data через модель.
+    Возвращает словарь {module_name: norm}.
+    """
+    import torch
+    norms = {}
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                norms[name] = torch.norm(output.detach(), p=p).item()
+            elif isinstance(output, tuple) and len(output) > 0 and isinstance(output[0], torch.Tensor):
+                norms[name] = torch.norm(output[0].detach(), p=p).item()
+        return hook
+
+    hooks = []
+    for name, module in model.named_modules():
+        if name in module_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    with torch.no_grad():
+        model(input_data)
+
+    for hook in hooks:
+        hook.remove()
+
+    return norms
+
 def compute_module_parameter_norms(model: torch.nn.Module, p: float = 2.0) -> dict:
     """
     Вычисляет Lp норму параметров каждого модуля (слоя) в модели.

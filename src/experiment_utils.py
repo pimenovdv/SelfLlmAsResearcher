@@ -1243,6 +1243,49 @@ def compute_activation_kurtosis(model: torch.nn.Module, input_data: torch.Tensor
 
     return kurtosis_dict
 
+def compute_activation_median(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет медиану активаций для заданных слоев.
+    """
+    import torch
+    median_dict = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, tuple):
+                out_tensor = out[0].detach()
+            elif isinstance(out, torch.Tensor):
+                out_tensor = out.detach()
+            else:
+                return
+
+            vec = out_tensor.flatten()
+            if vec.numel() == 0:
+                median_dict[name] = 0.0
+                return
+
+            median_val = vec.median()
+            median_dict[name] = float(median_val.item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return median_dict
+
 def get_gradient_statistics(model: torch.nn.Module) -> dict:
     """
     Возвращает статистику градиентов модели (mean, std, min, max).

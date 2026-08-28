@@ -1286,6 +1286,58 @@ def compute_activation_median(model: torch.nn.Module, input_data: torch.Tensor, 
 
     return median_dict
 
+def compute_activation_quantiles(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], q: list[float] = None) -> dict[str, list[float]]:
+    """
+    Вычисляет квантили активаций для заданных слоев при проходе input_data.
+    """
+    import torch
+    if q is None:
+        q = [0.25, 0.5, 0.75]
+
+    quantiles_dict = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, tuple):
+                out_tensor = out[0].detach()
+            elif isinstance(out, torch.Tensor):
+                out_tensor = out.detach()
+            else:
+                return
+
+            vec = out_tensor.flatten()
+            if vec.numel() == 0:
+                quantiles_dict[name] = [0.0] * len(q)
+                return
+
+            q_tensor = torch.tensor(q, dtype=vec.dtype, device=vec.device)
+            try:
+                quantiles_val = torch.quantile(vec, q_tensor).tolist()
+            except RuntimeError:
+                # Fallback if quantile fails
+                quantiles_val = [0.0] * len(q)
+
+            quantiles_dict[name] = quantiles_val
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return quantiles_dict
+
 def get_gradient_statistics(model: torch.nn.Module) -> dict:
     """
     Возвращает статистику градиентов модели (mean, std, min, max).

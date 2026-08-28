@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлена функция `compute_activation_variance` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
+Добавлена функция `compute_activation_skewness` в `src/experiment_utils.py` и написаны тесты. Обновлен `TODO.md`.
 
 **План действий на следующий этап:**
-1. Разработать новые функции для анализа активаций или расширения метрик и добавить их в TODO.md.
+1. Добавить функцию `compute_activation_kurtosis` в `src/experiment_utils.py` и написать тесты.

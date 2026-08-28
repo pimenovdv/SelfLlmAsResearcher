@@ -1145,6 +1145,55 @@ def compute_activation_entropy(model: torch.nn.Module, input_data: torch.Tensor,
 
     return entropy_dict
 
+def compute_activation_skewness(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет асимметрию (skewness) активаций для заданных слоев.
+    """
+    import torch
+    skewness_dict = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, tuple):
+                out_tensor = out[0].detach()
+            elif isinstance(out, torch.Tensor):
+                out_tensor = out.detach()
+            else:
+                return
+
+            vec = out_tensor.flatten()
+            if vec.numel() <= 1:
+                skewness_dict[name] = 0.0
+                return
+
+            mean = vec.mean()
+            std = vec.std()
+
+            if std == 0:
+                skewness_dict[name] = 0.0
+            else:
+                skewness = torch.mean(((vec - mean) / std) ** 3)
+                skewness_dict[name] = float(skewness.item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return skewness_dict
+
 def get_gradient_statistics(model: torch.nn.Module) -> dict:
     """
     Возвращает статистику градиентов модели (mean, std, min, max).

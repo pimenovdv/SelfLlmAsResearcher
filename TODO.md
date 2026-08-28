@@ -224,3 +224,7 @@
 - [x] Добавить функцию compute_activation_sparsity в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_entropy в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_variance в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_skewness в src/experiment_utils.py и написать тесты.
+- [ ] Добавить функцию compute_activation_kurtosis в src/experiment_utils.py и написать тесты.
+- [ ] Добавить функцию compute_activation_median в src/experiment_utils.py и написать тесты.
+- [ ] Добавить функцию compute_activation_quantiles в src/experiment_utils.py и написать тесты.

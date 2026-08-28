@@ -1192,6 +1192,25 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('layer2', variances)
         self.assertIsInstance(variances['layer1'], float)
 
+    def test_compute_activation_skewness(self):
+        import torch
+        from src.experiment_utils import compute_activation_skewness
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer1 = torch.nn.Linear(10, 5)
+                self.layer2 = torch.nn.Linear(5, 2)
+            def forward(self, x):
+                x = self.layer1(x)
+                return self.layer2(x)
+        model = DummyModel()
+        input_data = torch.randn(2, 10)
+        skewness = compute_activation_skewness(model, input_data, ['layer1', 'layer2'])
+        self.assertIn('layer1', skewness)
+        self.assertIn('layer2', skewness)
+        self.assertIsInstance(skewness['layer1'], float)
+
     def test_compute_activation_entropy(self):
         import torch
         from src.experiment_utils import compute_activation_entropy

@@ -1288,5 +1288,23 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(quantiles['layer1'], list)
         self.assertEqual(len(quantiles['layer1']), 3)
 
+    def test_compute_activation_coefficient_of_variation(self):
+        from src.experiment_utils import compute_activation_coefficient_of_variation
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer1 = torch.nn.Linear(10, 5)
+                self.layer2 = torch.nn.Linear(5, 2)
+            def forward(self, x):
+                x = self.layer1(x)
+                return self.layer2(x)
+        model = DummyModel()
+        input_data = torch.randn(2, 10)
+        cv_dict = compute_activation_coefficient_of_variation(model, input_data, ['layer1', 'layer2'])
+        self.assertIn('layer1', cv_dict)
+        self.assertIn('layer2', cv_dict)
+        self.assertIsInstance(cv_dict['layer1'], float)
+
 if __name__ == '__main__':
     unittest.main()

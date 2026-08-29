@@ -228,3 +228,4 @@
 - [x] Добавить функцию compute_activation_kurtosis в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_median в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_quantiles в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_coefficient_of_variation в src/experiment_utils.py и написать тесты.

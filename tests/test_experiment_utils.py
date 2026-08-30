@@ -1325,5 +1325,47 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(range_dict['layer1'], float)
         self.assertGreaterEqual(range_dict['layer1'], 0.0)
 
+    def test_compute_parameter_mean(self):
+        from src.experiment_utils import compute_parameter_mean
+        import torch
+        model = torch.nn.Linear(2, 2)
+        model.weight.data.fill_(2.0)
+        model.bias.data.fill_(4.0)
+        mean = compute_parameter_mean(model)
+        # weights = [2.0, 2.0, 2.0, 2.0], biases = [4.0, 4.0]
+        # sum = 8 + 8 = 16, numel = 6
+        # mean = 16 / 6 = 2.6666...
+        self.assertAlmostEqual(mean, 2.666666, places=4)
+
+    def test_compute_gradient_mean(self):
+        from src.experiment_utils import compute_gradient_mean
+        import torch
+        model = torch.nn.Linear(2, 2)
+        model.weight.grad = torch.full((2, 2), 1.0)
+        model.bias.grad = torch.full((2,), 4.0)
+        mean = compute_gradient_mean(model)
+        # sum = 4 + 8 = 12, numel = 6
+        # mean = 12 / 6 = 2.0
+        self.assertAlmostEqual(mean, 2.0, places=4)
+
+    def test_compute_activation_mean(self):
+        from src.experiment_utils import compute_activation_mean
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer1 = torch.nn.Linear(2, 2)
+                self.layer1.weight.data.fill_(1.0)
+                self.layer1.bias.data.fill_(0.0)
+            def forward(self, x):
+                return self.layer1(x)
+
+        model = DummyModel()
+        input_data = torch.tensor([[2.0, 3.0]])
+        # act = [2+3, 2+3] = [5.0, 5.0], mean = 5.0
+        mean_dict = compute_activation_mean(model, input_data, ['layer1'])
+        self.assertIn('layer1', mean_dict)
+        self.assertAlmostEqual(mean_dict['layer1'], 5.0, places=4)
+
 if __name__ == '__main__':
     unittest.main()

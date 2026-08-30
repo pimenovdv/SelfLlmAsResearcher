@@ -369,6 +369,61 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_parameter_mean(model: torch.nn.Module) -> float:
+    """
+    Вычисляет среднее значение всех параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    return float(torch.cat(params).mean().item())
+
+def compute_gradient_mean(model: torch.nn.Module) -> float:
+    """
+    Вычисляет среднее значение всех градиентов модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    return float(torch.cat(grads).mean().item())
+
+def compute_activation_mean(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет среднее значение активаций для заданных слоев модели.
+    """
+    import torch
+    activations = {}
+    def hook_fn(name):
+        def hook(module, input, output):
+            activations[name] = output.detach()
+        return hook
+
+    handles = []
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook_fn(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    mean_dict = {}
+    for name, act in activations.items():
+        if act.numel() > 0:
+            mean_dict[name] = float(act.float().mean().item())
+        else:
+            mean_dict[name] = 0.0
+
+    return mean_dict
+
 def compute_activation_range(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
     """
     Вычисляет размах (range = max - min) активаций для заданных слоев при проходе input_data.

@@ -1367,5 +1367,53 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('layer1', mean_dict)
         self.assertAlmostEqual(mean_dict['layer1'], 5.0, places=4)
 
+    def test_compute_parameter_std(self):
+        from src.experiment_utils import compute_parameter_std
+        import torch
+        model = torch.nn.Linear(2, 2)
+        model.weight.data.fill_(2.0)
+        model.bias.data.fill_(4.0)
+        # weights = [2.0, 2.0, 2.0, 2.0], biases = [4.0, 4.0]
+        # data = [2, 2, 2, 2, 4, 4]
+        # mean = 16/6 = 2.6667
+        # var = (4 * (2 - 2.6667)^2 + 2 * (4 - 2.6667)^2) / 5
+        # var = (4 * 0.4444 + 2 * 1.7777) / 5 = (1.7777 + 3.5555) / 5 = 5.3333 / 5 = 1.0666
+        # std = sqrt(1.0666) = 1.0328
+        std = compute_parameter_std(model)
+        self.assertAlmostEqual(std, 1.03279, places=4)
+
+    def test_compute_gradient_std(self):
+        from src.experiment_utils import compute_gradient_std
+        import torch
+        model = torch.nn.Linear(2, 2)
+        model.weight.grad = torch.full((2, 2), 1.0)
+        model.bias.grad = torch.full((2,), 4.0)
+        # grads = [1, 1, 1, 1, 4, 4]
+        # mean = 12/6 = 2
+        # var = (4 * (1-2)^2 + 2 * (4-2)^2) / 5 = (4*1 + 2*4) / 5 = (4+8)/5 = 12/5 = 2.4
+        # std = sqrt(2.4) = 1.5492
+        std = compute_gradient_std(model)
+        self.assertAlmostEqual(std, 1.54919, places=4)
+
+    def test_compute_activation_std(self):
+        from src.experiment_utils import compute_activation_std
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer1 = torch.nn.Linear(2, 2)
+                self.layer1.weight.data = torch.tensor([[1.0, 0.0], [0.0, 1.0]])
+                self.layer1.bias.data.fill_(0.0)
+            def forward(self, x):
+                return self.layer1(x)
+
+        model = DummyModel()
+        input_data = torch.tensor([[2.0, 4.0]])
+        # act = [2.0, 4.0]
+        # std = sqrt( ( (2-3)^2 + (4-3)^2 ) / 1 ) = sqrt(2) = 1.4142
+        std_dict = compute_activation_std(model, input_data, ['layer1'])
+        self.assertIn('layer1', std_dict)
+        self.assertAlmostEqual(std_dict['layer1'], 1.41421, places=4)
+
 if __name__ == '__main__':
     unittest.main()

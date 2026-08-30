@@ -1465,5 +1465,30 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('0', stats)
         self.assertTrue(isinstance(stats['0'], float))
 
+    def test_compute_parameter_sum(self):
+        from src.experiment_utils import compute_parameter_sum
+        import torch
+        model = torch.nn.Linear(10, 10)
+        val = compute_parameter_sum(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_gradient_sum(self):
+        from src.experiment_utils import compute_gradient_sum
+        import torch
+        model = torch.nn.Linear(10, 10)
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        val = compute_gradient_sum(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_activation_sum(self):
+        from src.experiment_utils import compute_activation_sum
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 10))
+        input_data = torch.randn(1, 10)
+        stats = compute_activation_sum(model, input_data, ['0'])
+        self.assertIn('0', stats)
+        self.assertTrue(isinstance(stats['0'], float))
+
 if __name__ == '__main__':
     unittest.main()

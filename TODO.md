@@ -242,3 +242,6 @@
 - [x] Добавить функцию compute_gradient_max в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_min в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_max в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_sum в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_sum в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_sum в src/experiment_utils.py и написать тесты.

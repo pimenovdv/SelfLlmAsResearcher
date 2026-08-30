@@ -425,6 +425,26 @@ def compute_activation_mean(model: torch.nn.Module, input_data: torch.Tensor, la
     return mean_dict
 
 
+def compute_parameter_min(model: torch.nn.Module) -> float:
+    """
+    Вычисляет минимальное значение всех параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    return float(torch.cat(params).min().item())
+
+def compute_parameter_max(model: torch.nn.Module) -> float:
+    """
+    Вычисляет максимальное значение всех параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    return float(torch.cat(params).max().item())
+
 def compute_parameter_std(model: torch.nn.Module) -> float:
     """
     Вычисляет стандартное отклонение всех параметров модели.
@@ -437,6 +457,26 @@ def compute_parameter_std(model: torch.nn.Module) -> float:
     return float(vec.std().item()) if vec.numel() > 1 else 0.0
 
 
+def compute_gradient_min(model: torch.nn.Module) -> float:
+    """
+    Вычисляет минимальное значение градиентов параметров модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    return float(torch.cat(grads).min().item())
+
+def compute_gradient_max(model: torch.nn.Module) -> float:
+    """
+    Вычисляет максимальное значение градиентов параметров модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    return float(torch.cat(grads).max().item())
+
 def compute_gradient_std(model: torch.nn.Module) -> float:
     """
     Вычисляет стандартное отклонение всех градиентов модели.
@@ -448,6 +488,86 @@ def compute_gradient_std(model: torch.nn.Module) -> float:
     vec = torch.cat(grads)
     return float(vec.std().item()) if vec.numel() > 1 else 0.0
 
+
+def compute_activation_min(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет минимальное значение активаций для каждого указанного слоя.
+    """
+    import torch
+    stats = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, input, output):
+            if isinstance(output, tuple):
+                out_tensor = output[0].detach()
+            elif isinstance(output, torch.Tensor):
+                out_tensor = output.detach()
+            else:
+                return
+            vec = out_tensor.flatten()
+            if vec.numel() == 0:
+                stats[name] = 0.0
+            else:
+                stats[name] = float(vec.min().item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return stats
+
+def compute_activation_max(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет максимальное значение активаций для каждого указанного слоя.
+    """
+    import torch
+    stats = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, input, output):
+            if isinstance(output, tuple):
+                out_tensor = output[0].detach()
+            elif isinstance(output, torch.Tensor):
+                out_tensor = output.detach()
+            else:
+                return
+            vec = out_tensor.flatten()
+            if vec.numel() == 0:
+                stats[name] = 0.0
+            else:
+                stats[name] = float(vec.max().item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return stats
 
 def compute_activation_std(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
     """

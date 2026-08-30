@@ -236,3 +236,9 @@
 - [x] Добавить функцию compute_parameter_std в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_std в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_std в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_min в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_max в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_min в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_max в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_min в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_max в src/experiment_utils.py и написать тесты.

@@ -1306,5 +1306,24 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('layer2', cv_dict)
         self.assertIsInstance(cv_dict['layer1'], float)
 
+    def test_compute_activation_range(self):
+        from src.experiment_utils import compute_activation_range
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer1 = torch.nn.Linear(10, 5)
+                self.layer2 = torch.nn.Linear(5, 2)
+            def forward(self, x):
+                x = self.layer1(x)
+                return self.layer2(x)
+        model = DummyModel()
+        input_data = torch.randn(2, 10)
+        range_dict = compute_activation_range(model, input_data, ['layer1', 'layer2'])
+        self.assertIn('layer1', range_dict)
+        self.assertIn('layer2', range_dict)
+        self.assertIsInstance(range_dict['layer1'], float)
+        self.assertGreaterEqual(range_dict['layer1'], 0.0)
+
 if __name__ == '__main__':
     unittest.main()

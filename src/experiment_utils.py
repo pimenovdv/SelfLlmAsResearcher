@@ -369,6 +369,36 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_activation_range(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет размах (range = max - min) активаций для заданных слоев при проходе input_data.
+    """
+    import torch
+    range_dict = {}
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, tuple):
+                out = output[0].detach()
+            elif isinstance(output, torch.Tensor):
+                out = output.detach()
+            else:
+                return
+            range_dict[name] = float((out.max() - out.min()).item())
+        return hook
+
+    handles = []
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(get_hook(name)))
+
+    with torch.no_grad():
+        model(input_data)
+
+    for handle in handles:
+        handle.remove()
+
+    return range_dict
+
 def compute_activation_norms(model: torch.nn.Module, input_data: torch.Tensor, module_names: list, p: float = 2.0) -> dict:
     """
     Вычисляет Lp норму активаций для списка модулей при прохождении input_data через модель.

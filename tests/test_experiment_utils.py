@@ -1415,5 +1415,55 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('layer1', std_dict)
         self.assertAlmostEqual(std_dict['layer1'], 1.41421, places=4)
 
+    def test_compute_parameter_min(self):
+        from src.experiment_utils import compute_parameter_min
+        import torch
+        model = torch.nn.Linear(10, 10)
+        val = compute_parameter_min(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_parameter_max(self):
+        from src.experiment_utils import compute_parameter_max
+        import torch
+        model = torch.nn.Linear(10, 10)
+        val = compute_parameter_max(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_gradient_min(self):
+        from src.experiment_utils import compute_gradient_min
+        import torch
+        model = torch.nn.Linear(10, 10)
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        val = compute_gradient_min(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_gradient_max(self):
+        from src.experiment_utils import compute_gradient_max
+        import torch
+        model = torch.nn.Linear(10, 10)
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        val = compute_gradient_max(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_activation_min(self):
+        from src.experiment_utils import compute_activation_min
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 10))
+        input_data = torch.randn(1, 10)
+        stats = compute_activation_min(model, input_data, ['0'])
+        self.assertIn('0', stats)
+        self.assertTrue(isinstance(stats['0'], float))
+
+    def test_compute_activation_max(self):
+        from src.experiment_utils import compute_activation_max
+        import torch
+        model = torch.nn.Sequential(torch.nn.Linear(10, 10))
+        input_data = torch.randn(1, 10)
+        stats = compute_activation_max(model, input_data, ['0'])
+        self.assertIn('0', stats)
+        self.assertTrue(isinstance(stats['0'], float))
+
 if __name__ == '__main__':
     unittest.main()

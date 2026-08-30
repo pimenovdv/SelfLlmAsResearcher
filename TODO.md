@@ -230,3 +230,6 @@
 - [x] Добавить функцию compute_activation_quantiles в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_coefficient_of_variation в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_range в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_mean в src/experiment_utils.py и написать тесты.

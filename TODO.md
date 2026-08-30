@@ -233,3 +233,6 @@
 - [x] Добавить функцию compute_parameter_mean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_mean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_std в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_std в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_std в src/experiment_utils.py и написать тесты.

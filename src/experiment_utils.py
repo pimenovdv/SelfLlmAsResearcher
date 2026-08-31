@@ -369,6 +369,71 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_parameter_mad(model: torch.nn.Module) -> float:
+    """
+    Вычисляет среднее абсолютное отклонение (MAD) параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+    mean_val = vec.mean()
+    mad = torch.abs(vec - mean_val).mean()
+    return float(mad.item())
+
+def compute_gradient_mad(model: torch.nn.Module) -> float:
+    """
+    Вычисляет среднее абсолютное отклонение (MAD) градиентов модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1:
+        return 0.0
+    mean_val = vec.mean()
+    mad = torch.abs(vec - mean_val).mean()
+    return float(mad.item())
+
+def compute_activation_mad(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет среднее абсолютное отклонение (MAD) активаций для заданных слоев при проходе input_data.
+    """
+    import torch
+    stats = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, input, output):
+            if isinstance(output, tuple):
+                out = output[0]
+            else:
+                out = output
+            vec = out.detach().flatten()
+            if vec.numel() <= 1:
+                stats[name] = 0.0
+                return
+            mean_val = vec.mean()
+            mad = torch.abs(vec - mean_val).mean()
+            stats[name] = float(mad.item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    with torch.no_grad():
+        model(input_data)
+
+    for handle in handles:
+        handle.remove()
+
+    return stats
+
 def compute_parameter_iqr(model: torch.nn.Module) -> float:
     """
     Вычисляет межквартильный размах (IQR) параметров модели (75-й процентиль минус 25-й процентиль).

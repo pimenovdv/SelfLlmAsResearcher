@@ -248,3 +248,6 @@
 - [x] Добавить функцию compute_parameter_rms в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_rms в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_rms в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_iqr в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_iqr в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_iqr в src/experiment_utils.py и написать тесты.

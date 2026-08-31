@@ -1930,6 +1930,83 @@ def compute_activation_coefficient_of_variation(model: torch.nn.Module, input_da
 
     return cv_dict
 
+def compute_parameter_mode(model: torch.nn.Module) -> float:
+    """
+    Вычисляет моду (наиболее частое значение) параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    vals, counts = torch.unique(vec, return_counts=True)
+    mode_idx = torch.argmax(counts)
+    return float(vals[mode_idx].item())
+
+
+def compute_gradient_mode(model: torch.nn.Module) -> float:
+    """
+    Вычисляет моду (наиболее частое значение) градиентов параметров модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    vals, counts = torch.unique(vec, return_counts=True)
+    mode_idx = torch.argmax(counts)
+    return float(vals[mode_idx].item())
+
+
+def compute_activation_mode(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет моду (наиболее частое значение) активаций для заданных слоев модели.
+    """
+    import torch
+    mode_dict = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, tuple):
+                out_tensor = out[0].detach()
+            elif isinstance(out, torch.Tensor):
+                out_tensor = out.detach()
+            else:
+                return
+
+            vec = out_tensor.flatten()
+            if vec.numel() == 0:
+                mode_dict[name] = 0.0
+                return
+
+            vals, counts = torch.unique(vec, return_counts=True)
+            mode_idx = torch.argmax(counts)
+            mode_dict[name] = float(vals[mode_idx].item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return mode_dict
+
+
 def get_gradient_statistics(model: torch.nn.Module) -> dict:
     """
     Возвращает статистику градиентов модели (mean, std, min, max).

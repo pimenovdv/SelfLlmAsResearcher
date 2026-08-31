@@ -256,3 +256,6 @@
 - [x] Добавить функцию compute_parameter_mad в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_mad в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_mad в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_mode в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_mode в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_mode в src/experiment_utils.py и написать тесты.

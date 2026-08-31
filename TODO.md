@@ -145,6 +145,8 @@
 - [x] Добавить метрику chi_square_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику canberra_distance в src/metrics.py и написать тесты.
 - [x] Добавить метрику bray_curtis_distance в src/metrics.py и написать тесты.
+- [x] Добавить функцию compute_parameter_range в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_range в src/experiment_utils.py и написать тесты.
 
 ## Утилиты (Дополнительно)
 - [x] Добавить функцию find_modules_by_class в src/experiment_utils.py и написать тесты.

@@ -618,6 +618,28 @@ def compute_parameter_std(model: torch.nn.Module) -> float:
     return float(vec.std().item()) if vec.numel() > 1 else 0.0
 
 
+def compute_parameter_range(model: torch.nn.Module) -> float:
+    """
+    Вычисляет размах (range = max - min) всех параметров модели.
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    return float((vec.max() - vec.min()).item())
+
+
+def compute_gradient_range(model: torch.nn.Module) -> float:
+    """
+    Вычисляет размах (range = max - min) градиентов модели.
+    """
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    return float((vec.max() - vec.min()).item())
+
+
 def compute_gradient_min(model: torch.nn.Module) -> float:
     """
     Вычисляет минимальное значение градиентов параметров модели.

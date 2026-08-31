@@ -1452,6 +1452,13 @@ class TestExperimentUtils(unittest.TestCase):
         val = compute_parameter_min(model)
         self.assertTrue(isinstance(val, float))
 
+    def test_compute_parameter_range(self):
+        from src.experiment_utils import compute_parameter_range
+        import torch
+        model = torch.nn.Linear(10, 10)
+        val = compute_parameter_range(model)
+        self.assertTrue(isinstance(val, float))
+
     def test_compute_parameter_max(self):
         from src.experiment_utils import compute_parameter_max
         import torch
@@ -1466,6 +1473,15 @@ class TestExperimentUtils(unittest.TestCase):
         out = model(torch.randn(1, 10))
         out.sum().backward()
         val = compute_gradient_min(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_gradient_range(self):
+        from src.experiment_utils import compute_gradient_range
+        import torch
+        model = torch.nn.Linear(10, 10)
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        val = compute_gradient_range(model)
         self.assertTrue(isinstance(val, float))
 
     def test_compute_gradient_max(self):

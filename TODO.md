@@ -245,3 +245,6 @@
 - [x] Добавить функцию compute_parameter_sum в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_sum в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_sum в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_rms в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_rms в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_rms в src/experiment_utils.py и написать тесты.

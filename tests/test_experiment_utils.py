@@ -1367,6 +1367,36 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('layer1', mean_dict)
         self.assertAlmostEqual(mean_dict['layer1'], 5.0, places=4)
 
+    def test_compute_parameter_rms(self):
+        from src.experiment_utils import compute_parameter_rms
+        import torch
+        model = torch.nn.Linear(10, 10)
+        val = compute_parameter_rms(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_gradient_rms(self):
+        from src.experiment_utils import compute_gradient_rms
+        import torch
+        model = torch.nn.Linear(10, 10)
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        val = compute_gradient_rms(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_activation_rms(self):
+        from src.experiment_utils import compute_activation_rms
+        import torch
+        model = torch.nn.Sequential(
+            torch.nn.Linear(10, 10),
+            torch.nn.ReLU()
+        )
+        input_data = torch.randn(1, 10)
+        stats = compute_activation_rms(model, input_data, ['0', '1'])
+        self.assertIn('0', stats)
+        self.assertIn('1', stats)
+        self.assertTrue(isinstance(stats['0'], float))
+        self.assertTrue(isinstance(stats['1'], float))
+
     def test_compute_parameter_std(self):
         from src.experiment_utils import compute_parameter_std
         import torch

@@ -455,6 +455,17 @@ def compute_parameter_sum(model: torch.nn.Module) -> float:
         return 0.0
     return float(torch.cat(params).sum().item())
 
+def compute_parameter_rms(model: torch.nn.Module) -> float:
+    """
+    Вычисляет среднеквадратичное значение (RMS) всех параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    return float(torch.sqrt((vec ** 2).mean()).item())
+
 def compute_parameter_std(model: torch.nn.Module) -> float:
     """
     Вычисляет стандартное отклонение всех параметров модели.
@@ -496,6 +507,17 @@ def compute_gradient_sum(model: torch.nn.Module) -> float:
     if not grads:
         return 0.0
     return float(torch.cat(grads).sum().item())
+
+def compute_gradient_rms(model: torch.nn.Module) -> float:
+    """
+    Вычисляет среднеквадратичное значение (RMS) градиентов параметров модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    return float(torch.sqrt((vec ** 2).mean()).item())
 
 def compute_gradient_std(model: torch.nn.Module) -> float:
     """
@@ -626,6 +648,37 @@ def compute_activation_max(model: torch.nn.Module, input_data: torch.Tensor, lay
 
     for handle in handles:
         handle.remove()
+
+    return stats
+
+def compute_activation_rms(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет среднеквадратичное значение (RMS) активаций для каждого указанного слоя.
+    """
+    import torch
+    stats = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, input, output):
+            if isinstance(output, tuple):
+                out = output[0]
+            else:
+                out = output
+            vec = out.detach().flatten()
+            stats[name] = float(torch.sqrt((vec ** 2).mean()).item()) if vec.numel() > 0 else 0.0
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    try:
+        with torch.no_grad():
+            model(input_data)
+    finally:
+        for handle in handles:
+            handle.remove()
 
     return stats
 

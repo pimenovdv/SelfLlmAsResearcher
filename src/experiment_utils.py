@@ -369,6 +369,81 @@ def get_parameter_statistics(model: torch.nn.Module) -> dict:
         "max": float(vec.max().item())
     }
 
+def compute_parameter_iqr(model: torch.nn.Module) -> float:
+    """
+    Вычисляет межквартильный размах (IQR) параметров модели (75-й процентиль минус 25-й процентиль).
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.25, 0.75], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        return float(quantiles[1] - quantiles[0])
+    except RuntimeError:
+        return 0.0
+
+def compute_gradient_iqr(model: torch.nn.Module) -> float:
+    """
+    Вычисляет межквартильный размах (IQR) градиентов модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.25, 0.75], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        return float(quantiles[1] - quantiles[0])
+    except RuntimeError:
+        return 0.0
+
+def compute_activation_iqr(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет межквартильный размах (IQR) активаций для заданных слоев при проходе input_data.
+    """
+    import torch
+    stats = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, input, output):
+            if isinstance(output, tuple):
+                out = output[0]
+            else:
+                out = output
+            vec = out.detach().flatten()
+            if vec.numel() == 0:
+                stats[name] = 0.0
+                return
+            q = torch.tensor([0.25, 0.75], dtype=vec.dtype, device=vec.device)
+            try:
+                quantiles = torch.quantile(vec, q).tolist()
+                stats[name] = float(quantiles[1] - quantiles[0])
+            except RuntimeError:
+                stats[name] = 0.0
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    try:
+        with torch.no_grad():
+            model(input_data)
+    finally:
+        for handle in handles:
+            handle.remove()
+
+    return stats
+
 def compute_parameter_mean(model: torch.nn.Module) -> float:
     """
     Вычисляет среднее значение всех параметров модели.

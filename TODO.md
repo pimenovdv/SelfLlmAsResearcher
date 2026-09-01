@@ -262,3 +262,6 @@
 - [x] Добавить функцию compute_parameter_energy в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_energy в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_energy в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_abs_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_abs_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_abs_mean в src/experiment_utils.py и написать тесты.

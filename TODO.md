@@ -265,3 +265,4 @@
 - [x] Добавить функцию compute_parameter_abs_mean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_abs_mean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_abs_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_sparsity в src/experiment_utils.py и написать тесты.

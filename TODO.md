@@ -259,3 +259,6 @@
 - [x] Добавить функцию compute_parameter_mode в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_mode в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_mode в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_energy в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_energy в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_energy в src/experiment_utils.py и написать тесты.

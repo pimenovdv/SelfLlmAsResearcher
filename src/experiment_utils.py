@@ -2007,6 +2007,73 @@ def compute_activation_mode(model: torch.nn.Module, input_data: torch.Tensor, la
     return mode_dict
 
 
+def compute_parameter_energy(model: torch.nn.Module) -> float:
+    """
+    Вычисляет энергию (сумму квадратов значений) параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    return float(torch.sum(vec ** 2).item())
+
+
+def compute_gradient_energy(model: torch.nn.Module) -> float:
+    """
+    Вычисляет энергию (сумму квадратов значений) градиентов параметров модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    return float(torch.sum(vec ** 2).item())
+
+
+def compute_activation_energy(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет энергию (сумму квадратов значений) активаций для заданных слоев модели.
+    """
+    import torch
+    energy_dict = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, tuple):
+                out_tensor = out[0].detach()
+            elif isinstance(out, torch.Tensor):
+                out_tensor = out.detach()
+            else:
+                return
+
+            vec = out_tensor.flatten()
+            if vec.numel() == 0:
+                energy_dict[name] = 0.0
+                return
+
+            energy_dict[name] = float(torch.sum(vec ** 2).item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return energy_dict
+
+
 def get_gradient_statistics(model: torch.nn.Module) -> dict:
     """
     Возвращает статистику градиентов модели (mean, std, min, max).

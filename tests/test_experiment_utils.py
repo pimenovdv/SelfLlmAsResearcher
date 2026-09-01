@@ -822,6 +822,20 @@ class TestExperimentUtils(unittest.TestCase):
             if isinstance(module, torch.nn.Dropout):
                 self.assertEqual(module.p, 0.1)
 
+    def test_compute_parameter_sparsity(self):
+        from src.experiment_utils import compute_parameter_sparsity
+        import torch
+        model = torch.nn.Linear(10, 2)
+
+        # Manually set parameters to known values
+        with torch.no_grad():
+            model.weight.fill_(0.0) # 20 elements
+            model.bias.fill_(1.0)   # 2 elements
+
+        # Expected sparsity: 20 zeros out of 22 total elements = 20 / 22
+        sparsity = compute_parameter_sparsity(model)
+        self.assertAlmostEqual(sparsity, 20.0 / 22.0)
+
     def test_compute_gradient_sparsity(self):
         from src.experiment_utils import compute_gradient_sparsity
         import torch

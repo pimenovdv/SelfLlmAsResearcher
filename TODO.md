@@ -273,3 +273,6 @@
 - [x] Добавить функцию compute_parameter_geometric_mean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_geometric_mean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_geometric_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_gini в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_gini в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_gini в src/experiment_utils.py и написать тесты.

@@ -279,3 +279,6 @@
 - [x] Добавить функцию compute_parameter_outlier_ratio в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_outlier_ratio в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_outlier_ratio в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_proportion_positive в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_proportion_positive в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_proportion_positive в src/experiment_utils.py и написать тесты.

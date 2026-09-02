@@ -1861,5 +1861,50 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertAlmostEqual(stats['layer'], 1/110, places=5)
 
 
+    def test_compute_parameter_proportion_positive(self):
+        from src.experiment_utils import compute_parameter_proportion_positive
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Linear(10, 10)
+
+        model = DummyModel()
+        with torch.no_grad():
+            model.layer.weight.data.fill_(1.0)
+            model.layer.bias.data.fill_(-1.0)
+        prop = compute_parameter_proportion_positive(model)
+        self.assertAlmostEqual(prop, 100/110, places=5)
+
+    def test_compute_gradient_proportion_positive(self):
+        from src.experiment_utils import compute_gradient_proportion_positive
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Linear(10, 10)
+
+        model = DummyModel()
+        model.layer.weight.grad = torch.full((10, 10), -1.0)
+        model.layer.bias.grad = torch.full((10,), 1.0)
+        prop = compute_gradient_proportion_positive(model)
+        self.assertAlmostEqual(prop, 10/110, places=5)
+
+    def test_compute_activation_proportion_positive(self):
+        from src.experiment_utils import compute_activation_proportion_positive
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+
+        model = DummyModel()
+        input_data = torch.tensor([[1.0, 2.0, 3.0, 4.0, 5.0, -1.0, -2.0, -3.0, -4.0, -5.0]])
+        stats = compute_activation_proportion_positive(model, input_data, ['layer'])
+        self.assertAlmostEqual(stats['layer'], 0.5, places=5)
+
+
 if __name__ == '__main__':
     unittest.main()

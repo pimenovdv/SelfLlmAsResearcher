@@ -1806,6 +1806,60 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('layer', stats)
         self.assertAlmostEqual(stats['layer'], 0.0, places=5)
 
+    def test_compute_parameter_outlier_ratio(self):
+        from src.experiment_utils import compute_parameter_outlier_ratio
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Linear(10, 10)
+
+        model = DummyModel()
+        model.layer.weight.data.fill_(1.0)
+        model.layer.bias.data.fill_(1.0)
+
+        self.assertAlmostEqual(compute_parameter_outlier_ratio(model), 0.0, places=5)
+
+        model.layer.weight.data[0, 0] = 1000.0
+        ratio = compute_parameter_outlier_ratio(model)
+        self.assertAlmostEqual(ratio, 1/110, places=5)
+
+    def test_compute_gradient_outlier_ratio(self):
+        from src.experiment_utils import compute_gradient_outlier_ratio
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Linear(10, 10)
+                self.layer.weight.grad = torch.full((10, 10), 1.0)
+                self.layer.bias.grad = torch.full((10,), 1.0)
+
+        model = DummyModel()
+        self.assertAlmostEqual(compute_gradient_outlier_ratio(model), 0.0, places=5)
+
+        model.layer.weight.grad[0, 0] = 1000.0
+        ratio = compute_gradient_outlier_ratio(model)
+        self.assertAlmostEqual(ratio, 1/110, places=5)
+
+    def test_compute_activation_outlier_ratio(self):
+        from src.experiment_utils import compute_activation_outlier_ratio
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+
+        model = DummyModel()
+        input_data = torch.ones(1, 110)
+        stats = compute_activation_outlier_ratio(model, input_data, ['layer'])
+        self.assertAlmostEqual(stats['layer'], 0.0, places=5)
+
+        input_data[0, 0] = 1000.0
+        stats = compute_activation_outlier_ratio(model, input_data, ['layer'])
+        self.assertAlmostEqual(stats['layer'], 1/110, places=5)
+
 
 if __name__ == '__main__':
     unittest.main()

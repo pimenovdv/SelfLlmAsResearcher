@@ -2164,6 +2164,85 @@ def compute_activation_abs_mean(model: torch.nn.Module, input_data: torch.Tensor
     return activations
 
 
+def compute_parameter_outlier_ratio(model: torch.nn.Module, threshold: float = 3.0) -> float:
+    """
+    Вычисляет долю выбросов (значений, отклоняющихся от среднего более чем на threshold стандартных отклонений) среди параметров модели.
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+    mean = vec.mean()
+    std = vec.std()
+    if torch.isnan(std) or std == 0.0:
+        return 0.0
+    outliers = torch.sum(torch.abs(vec - mean) > threshold * std)
+    return float((outliers / vec.numel()).item())
+
+
+def compute_gradient_outlier_ratio(model: torch.nn.Module, threshold: float = 3.0) -> float:
+    """
+    Вычисляет долю выбросов среди градиентов модели.
+    """
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1:
+        return 0.0
+    mean = vec.mean()
+    std = vec.std()
+    if torch.isnan(std) or std == 0.0:
+        return 0.0
+    outliers = torch.sum(torch.abs(vec - mean) > threshold * std)
+    return float((outliers / vec.numel()).item())
+
+
+def compute_activation_outlier_ratio(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], threshold: float = 3.0) -> dict[str, float]:
+    """
+    Вычисляет долю выбросов среди активаций для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                if vec.numel() <= 1:
+                    activations[name] = 0.0
+                    return
+                mean = vec.mean()
+                std = vec.std()
+                if torch.isnan(std) or std == 0.0:
+                    activations[name] = 0.0
+                else:
+                    outliers = torch.sum(torch.abs(vec - mean) > threshold * std)
+                    activations[name] = float((outliers / vec.numel()).item())
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
 def _gini_coefficient(vec: torch.Tensor) -> float:
     """
     Вспомогательная функция для вычисления коэффициента Джини 1D тензора.

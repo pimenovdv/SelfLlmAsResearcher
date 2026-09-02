@@ -276,3 +276,6 @@
 - [x] Добавить функцию compute_parameter_gini в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_gini в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_gini в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_outlier_ratio в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_outlier_ratio в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_outlier_ratio в src/experiment_utils.py и написать тесты.

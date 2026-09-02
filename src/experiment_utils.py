@@ -2163,6 +2163,81 @@ def compute_activation_abs_mean(model: torch.nn.Module, input_data: torch.Tensor
 
     return activations
 
+
+def _gini_coefficient(vec: torch.Tensor) -> float:
+    """
+    Вспомогательная функция для вычисления коэффициента Джини 1D тензора.
+    """
+    if vec.numel() == 0:
+        return 0.0
+    vec = torch.abs(vec).flatten().to(torch.float32)
+    vec, _ = torch.sort(vec)
+    n = vec.numel()
+    if n <= 1:
+        return 0.0
+    index = torch.arange(1, n + 1, dtype=torch.float32, device=vec.device)
+    sum_vec = torch.sum(vec)
+    if sum_vec == 0:
+        return 0.0
+    gini = (torch.sum((2 * index - n - 1) * vec)) / (n * sum_vec)
+    return float(gini.item())
+
+
+def compute_parameter_gini(model: torch.nn.Module) -> float:
+    """
+    Вычисляет коэффициент Джини для всех параметров модели.
+    """
+    params = [param.flatten() for param in model.parameters()]
+    if not params:
+        return 0.0
+    all_params = torch.cat(params)
+    return _gini_coefficient(all_params)
+
+
+def compute_gradient_gini(model: torch.nn.Module) -> float:
+    """
+    Вычисляет коэффициент Джини для всех градиентов параметров модели.
+    """
+    grads = [param.grad.flatten() for param in model.parameters() if param.grad is not None]
+    if not grads:
+        return 0.0
+    all_grads = torch.cat(grads)
+    return _gini_coefficient(all_grads)
+
+
+def compute_activation_gini(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет коэффициент Джини активаций для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                activations[name] = _gini_coefficient(vec)
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
 def compute_parameter_geometric_mean(model: torch.nn.Module) -> float:
     """
     Вычисляет среднее геометрическое параметров модели (по абсолютным значениям).

@@ -1762,5 +1762,50 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(isinstance(stats['1'], float))
 
 
+    def test_compute_parameter_gini(self):
+        from src.experiment_utils import compute_parameter_gini
+        import torch
+        model = torch.nn.Linear(2, 1, bias=False)
+        # Равномерное распределение имеет Джини 0
+        model.weight.data = torch.tensor([[1.0, 1.0]])
+        gini = compute_parameter_gini(model)
+        self.assertAlmostEqual(gini, 0.0, places=5)
+
+        # Неравномерное распределение
+        model.weight.data = torch.tensor([[0.0, 1.0]])
+        gini = compute_parameter_gini(model)
+        self.assertTrue(gini > 0.0)
+
+    def test_compute_gradient_gini(self):
+        from src.experiment_utils import compute_gradient_gini
+        import torch
+        model = torch.nn.Linear(2, 1, bias=False)
+        model.weight.grad = torch.tensor([[1.0, 1.0]])
+        gini = compute_gradient_gini(model)
+        self.assertAlmostEqual(gini, 0.0, places=5)
+
+        model.weight.grad = torch.tensor([[0.0, 1.0]])
+        gini = compute_gradient_gini(model)
+        self.assertTrue(gini > 0.0)
+
+    def test_compute_activation_gini(self):
+        from src.experiment_utils import compute_activation_gini
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+
+        model = DummyModel()
+        input_data = torch.tensor([[1.0, 1.0, 1.0]])
+        layer_names = ['layer']
+        stats = compute_activation_gini(model, input_data, layer_names)
+
+        self.assertIn('layer', stats)
+        self.assertAlmostEqual(stats['layer'], 0.0, places=5)
+
+
 if __name__ == '__main__':
     unittest.main()

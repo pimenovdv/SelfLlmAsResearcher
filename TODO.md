@@ -267,3 +267,6 @@
 - [x] Добавить функцию compute_activation_abs_mean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_parameter_sparsity в src/experiment_utils.py и написать тесты.
 - [x] Удалить дубликаты функций compute_parameter_abs_mean, compute_gradient_abs_mean, compute_activation_abs_mean из src/experiment_utils.py.
+- [x] Добавить функцию compute_parameter_harmonic_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_harmonic_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_harmonic_mean в src/experiment_utils.py и написать тесты.

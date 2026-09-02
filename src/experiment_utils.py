@@ -2163,6 +2163,72 @@ def compute_activation_abs_mean(model: torch.nn.Module, input_data: torch.Tensor
 
     return activations
 
+def compute_parameter_geometric_mean(model: torch.nn.Module) -> float:
+    """
+    Вычисляет среднее геометрическое параметров модели (по абсолютным значениям).
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    vec = torch.abs(vec)
+    vec = vec[vec > 0]
+    if vec.numel() == 0:
+        return 0.0
+    return float(torch.exp(torch.mean(torch.log(vec))).item())
+
+def compute_gradient_geometric_mean(model: torch.nn.Module) -> float:
+    """
+    Вычисляет среднее геометрическое градиентов модели (по абсолютным значениям).
+    """
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    vec = torch.abs(vec)
+    vec = vec[vec > 0]
+    if vec.numel() == 0:
+        return 0.0
+    return float(torch.exp(torch.mean(torch.log(vec))).item())
+
+def compute_activation_geometric_mean(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет среднее геометрическое активаций для заданных слоев (по абсолютным значениям).
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                vec = torch.abs(vec)
+                vec = vec[vec > 0]
+                if vec.numel() > 0:
+                    activations[name] = float(torch.exp(torch.mean(torch.log(vec))).item())
+                else:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
 
 def compute_parameter_harmonic_mean(model: torch.nn.Module) -> float:
     """

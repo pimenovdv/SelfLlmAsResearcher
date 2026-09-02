@@ -1701,6 +1701,36 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(isinstance(stats['0'], float))
         self.assertTrue(isinstance(stats['1'], float))
 
+    def test_compute_parameter_harmonic_mean(self):
+        from src.experiment_utils import compute_parameter_harmonic_mean
+        import torch
+        model = torch.nn.Linear(10, 10)
+        val = compute_parameter_harmonic_mean(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_gradient_harmonic_mean(self):
+        from src.experiment_utils import compute_gradient_harmonic_mean
+        import torch
+        model = torch.nn.Linear(10, 10)
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        val = compute_gradient_harmonic_mean(model)
+        self.assertTrue(isinstance(val, float))
+
+    def test_compute_activation_harmonic_mean(self):
+        from src.experiment_utils import compute_activation_harmonic_mean
+        import torch
+        model = torch.nn.Sequential(
+            torch.nn.Linear(10, 10),
+            torch.nn.ReLU()
+        )
+        input_data = torch.randn(1, 10)
+        stats = compute_activation_harmonic_mean(model, input_data, ['0', '1'])
+        self.assertIn('0', stats)
+        self.assertIn('1', stats)
+        self.assertTrue(isinstance(stats['0'], float))
+        self.assertTrue(isinstance(stats['1'], float))
+
 
 if __name__ == '__main__':
     unittest.main()

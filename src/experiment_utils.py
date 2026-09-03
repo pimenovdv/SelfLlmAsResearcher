@@ -2441,6 +2441,72 @@ def compute_gradient_proportion_positive(model: torch.nn.Module) -> float:
     return float(positive_elements / total_elements)
 
 
+def compute_parameter_proportion_negative(model: torch.nn.Module) -> float:
+    """
+    Вычисляет долю отрицательных элементов параметров модели.
+    """
+    total_elements = 0
+    negative_elements = 0
+    for param in model.parameters():
+        total_elements += param.numel()
+        negative_elements += (param < 0).sum().item()
+    if total_elements == 0:
+        return 0.0
+    return float(negative_elements / total_elements)
+
+
+def compute_gradient_proportion_negative(model: torch.nn.Module) -> float:
+    """
+    Вычисляет долю отрицательных элементов градиентов модели.
+    """
+    total_elements = 0
+    negative_elements = 0
+    for param in model.parameters():
+        if param.grad is not None:
+            total_elements += param.grad.numel()
+            negative_elements += (param.grad < 0).sum().item()
+    if total_elements == 0:
+        return 0.0
+    return float(negative_elements / total_elements)
+
+
+def compute_activation_proportion_negative(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет долю отрицательных элементов активаций для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                if vec.numel() > 0:
+                    activations[name] = float(((vec < 0).sum().item()) / vec.numel())
+                else:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
 def compute_activation_proportion_positive(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
     """
     Вычисляет долю положительных элементов активаций для заданных слоев.

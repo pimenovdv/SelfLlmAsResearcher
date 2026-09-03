@@ -288,3 +288,6 @@
 - [x] Добавить функцию compute_parameter_proportion_zero в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_proportion_zero в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_proportion_zero в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_trimmed_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_trimmed_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_trimmed_mean в src/experiment_utils.py и написать тесты.

@@ -294,3 +294,6 @@
 - [x] Добавить функцию compute_parameter_winsorized_mean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_winsorized_mean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_winsorized_mean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_sem в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_sem в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_sem в src/experiment_utils.py и написать тесты.

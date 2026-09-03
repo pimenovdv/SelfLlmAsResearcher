@@ -2164,6 +2164,78 @@ def compute_activation_abs_mean(model: torch.nn.Module, input_data: torch.Tensor
     return activations
 
 
+def compute_parameter_sem(model: torch.nn.Module) -> float:
+    """
+    Вычисляет стандартную ошибку среднего (SEM) всех параметров модели.
+    """
+    import math
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    n = vec.numel()
+    if n <= 1:
+        return 0.0
+    std = float(vec.float().std().item())
+    return std / math.sqrt(n)
+
+
+def compute_gradient_sem(model: torch.nn.Module) -> float:
+    """
+    Вычисляет стандартную ошибку среднего (SEM) всех градиентов модели.
+    """
+    import math
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    n = vec.numel()
+    if n <= 1:
+        return 0.0
+    std = float(vec.float().std().item())
+    return std / math.sqrt(n)
+
+
+def compute_activation_sem(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет стандартную ошибку среднего (SEM) активаций для заданных слоев.
+    """
+    import math
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                n = vec.numel()
+                if n > 1:
+                    std = float(vec.float().std().item())
+                    activations[name] = std / math.sqrt(n)
+                else:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
 def compute_parameter_winsorized_mean(model: torch.nn.Module, limits: tuple[float, float] = (0.05, 0.05)) -> float:
     """
     Вычисляет винзоризованное среднее (winsorized mean) параметров модели.

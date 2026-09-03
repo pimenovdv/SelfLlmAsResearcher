@@ -2164,6 +2164,111 @@ def compute_activation_abs_mean(model: torch.nn.Module, input_data: torch.Tensor
     return activations
 
 
+def compute_parameter_winsorized_mean(model: torch.nn.Module, limits: tuple[float, float] = (0.05, 0.05)) -> float:
+    """
+    Вычисляет винзоризованное среднее (winsorized mean) параметров модели.
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    n = vec.numel()
+    if n == 0:
+        return 0.0
+
+    lower_limit, upper_limit = limits
+    k_lower = int(n * lower_limit)
+    k_upper = int(n * upper_limit)
+
+    if k_lower + k_upper >= n or n <= 2:
+        return float(vec.mean().item())
+
+    sorted_vec, _ = torch.sort(vec)
+    lower_val = sorted_vec[k_lower].item()
+    upper_val = sorted_vec[n - 1 - k_upper].item()
+
+    winsorized_vec = torch.clamp(vec, min=lower_val, max=upper_val)
+    return float(winsorized_vec.mean().item())
+
+
+def compute_gradient_winsorized_mean(model: torch.nn.Module, limits: tuple[float, float] = (0.05, 0.05)) -> float:
+    """
+    Вычисляет винзоризованное среднее (winsorized mean) градиентов параметров модели.
+    """
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    n = vec.numel()
+    if n == 0:
+        return 0.0
+
+    lower_limit, upper_limit = limits
+    k_lower = int(n * lower_limit)
+    k_upper = int(n * upper_limit)
+
+    if k_lower + k_upper >= n or n <= 2:
+        return float(vec.mean().item())
+
+    sorted_vec, _ = torch.sort(vec)
+    lower_val = sorted_vec[k_lower].item()
+    upper_val = sorted_vec[n - 1 - k_upper].item()
+
+    winsorized_vec = torch.clamp(vec, min=lower_val, max=upper_val)
+    return float(winsorized_vec.mean().item())
+
+
+def compute_activation_winsorized_mean(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], limits: tuple[float, float] = (0.05, 0.05)) -> dict[str, float]:
+    """
+    Вычисляет винзоризованное среднее (winsorized mean) активаций для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    lower_limit, upper_limit = limits
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                n = vec.numel()
+                if n == 0:
+                    activations[name] = 0.0
+                else:
+                    k_lower = int(n * lower_limit)
+                    k_upper = int(n * upper_limit)
+
+                    if k_lower + k_upper >= n or n <= 2:
+                        activations[name] = float(vec.mean().item())
+                    else:
+                        sorted_vec, _ = torch.sort(vec)
+                        lower_val = sorted_vec[k_lower].item()
+                        upper_val = sorted_vec[n - 1 - k_upper].item()
+
+                        winsorized_vec = torch.clamp(vec, min=lower_val, max=upper_val)
+                        activations[name] = float(winsorized_vec.mean().item())
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
 def compute_parameter_trimmed_mean(model: torch.nn.Module, trim_percent: float = 0.1) -> float:
     """
     Вычисляет усеченное среднее (trimmed mean) параметров модели.

@@ -1,3 +1,4 @@
+import torch
 import unittest
 from unittest.mock import patch, MagicMock
 from src.experiment_utils import load_model_and_tokenizer, clear_memory
@@ -154,7 +155,6 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(get_model_device(empty_model), torch.device("cpu"))
 
     def test_check_model_device_consistency(self):
-        import torch
         import torch.nn as nn
         from src.experiment_utils import check_model_device_consistency
         from unittest.mock import MagicMock
@@ -175,6 +175,7 @@ class TestExperimentUtils(unittest.TestCase):
         from src.experiment_utils import compute_gradient_norm
         import torch
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -204,7 +205,6 @@ class TestExperimentUtils(unittest.TestCase):
             self.assertTrue(param.requires_grad)
 
     def test_get_model_dtype(self):
-        import torch
         import torch.nn as nn
         from src.experiment_utils import get_model_dtype
         model = nn.Linear(10, 5)
@@ -218,7 +218,6 @@ class TestExperimentUtils(unittest.TestCase):
     def test_save_and_load_model_weights(self):
         import tempfile
         import os
-        import torch
         import torch.nn as nn
         from src.experiment_utils import save_model_weights, load_model_weights
         model1 = nn.Linear(10, 5)
@@ -261,7 +260,6 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('bias', device_map)
 
     def test_has_nan_parameters(self):
-        import torch
         import torch.nn as nn
         from src.experiment_utils import has_nan_parameters
 
@@ -274,7 +272,6 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(has_nan_parameters(model))
 
     def test_has_inf_parameters(self):
-        import torch
         import torch.nn as nn
         from src.experiment_utils import has_inf_parameters
 
@@ -349,7 +346,6 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(names_dropout, ['1'])
 
     def test_check_model_weights_equality(self):
-        import torch
         import torch.nn as nn
         from src.experiment_utils import check_model_weights_equality
 
@@ -365,7 +361,6 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertFalse(check_model_weights_equality(model1, model2))
 
     def test_interpolate_model_weights(self):
-        import torch
         import torch.nn as nn
         from src.experiment_utils import interpolate_model_weights
 
@@ -555,7 +550,6 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_prune_model_weights(self):
         from src.experiment_utils import prune_model_weights
-        import torch
         import torch.nn as nn
 
         model = nn.Sequential(
@@ -578,7 +572,6 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_get_parameter_statistics(self):
         from src.experiment_utils import get_parameter_statistics
-        import torch
         import torch.nn as nn
 
         model = nn.Linear(10, 2)
@@ -594,7 +587,6 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_clip_model_weights(self):
         from src.experiment_utils import clip_model_weights
-        import torch
         import torch.nn as nn
 
         model = nn.Linear(10, 2)
@@ -609,7 +601,6 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_scale_model_weights(self):
         from src.experiment_utils import scale_model_weights
-        import torch
         import torch.nn as nn
 
         model = nn.Linear(2, 2)
@@ -1126,6 +1117,7 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         from src.experiment_utils import compute_activation_norms
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1149,6 +1141,7 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         from src.experiment_utils import compute_activation_sparsity
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1169,6 +1162,7 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         from src.experiment_utils import compute_activation_statistics
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1191,6 +1185,7 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         from src.experiment_utils import compute_activation_variance
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1210,6 +1205,7 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         from src.experiment_utils import compute_activation_skewness
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1229,6 +1225,7 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         from src.experiment_utils import compute_activation_entropy
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1248,6 +1245,7 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         from src.experiment_utils import compute_activation_kurtosis
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1267,6 +1265,7 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         from src.experiment_utils import compute_activation_median
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1286,6 +1285,7 @@ class TestExperimentUtils(unittest.TestCase):
         import torch
         from src.experiment_utils import compute_activation_quantiles
 
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1305,6 +1305,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_activation_coefficient_of_variation(self):
         from src.experiment_utils import compute_activation_coefficient_of_variation
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1322,6 +1323,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_activation_range(self):
         from src.experiment_utils import compute_activation_range
+        import torch
         import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
@@ -1364,6 +1366,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_activation_mean(self):
         from src.experiment_utils import compute_activation_mean
+        import torch
         import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
@@ -1441,6 +1444,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_activation_std(self):
         from src.experiment_utils import compute_activation_std
+        import torch
         import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
@@ -1791,6 +1795,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_activation_gini(self):
         from src.experiment_utils import compute_activation_gini
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1808,6 +1813,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_parameter_outlier_ratio(self):
         from src.experiment_utils import compute_parameter_outlier_ratio
+        import torch
         import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
@@ -1827,6 +1833,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_gradient_outlier_ratio(self):
         from src.experiment_utils import compute_gradient_outlier_ratio
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1843,6 +1850,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_activation_outlier_ratio(self):
         from src.experiment_utils import compute_activation_outlier_ratio
+        import torch
         import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
@@ -1864,6 +1872,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_parameter_proportion_positive(self):
         from src.experiment_utils import compute_parameter_proportion_positive
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1879,6 +1888,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_gradient_proportion_positive(self):
         from src.experiment_utils import compute_gradient_proportion_positive
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1892,6 +1902,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_parameter_proportion_negative(self):
         from src.experiment_utils import compute_parameter_proportion_negative
+        import torch
         import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
@@ -1908,6 +1919,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_gradient_proportion_negative(self):
         from src.experiment_utils import compute_gradient_proportion_negative
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1922,6 +1934,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_activation_proportion_negative(self):
         from src.experiment_utils import compute_activation_proportion_negative
+        import torch
         import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
@@ -1938,6 +1951,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_activation_proportion_positive(self):
         from src.experiment_utils import compute_activation_proportion_positive
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1952,6 +1966,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_parameter_proportion_zero(self):
         from src.experiment_utils import compute_parameter_proportion_zero
+        import torch
         import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
@@ -1968,6 +1983,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_gradient_proportion_zero(self):
         from src.experiment_utils import compute_gradient_proportion_zero
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -1982,6 +1998,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_activation_proportion_zero(self):
         from src.experiment_utils import compute_activation_proportion_zero
+        import torch
         import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
@@ -1998,6 +2015,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_parameter_trimmed_mean(self):
         from src.experiment_utils import compute_parameter_trimmed_mean
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -2013,6 +2031,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_gradient_trimmed_mean(self):
         from src.experiment_utils import compute_gradient_trimmed_mean
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -2027,6 +2046,7 @@ class TestExperimentUtils(unittest.TestCase):
     def test_compute_activation_trimmed_mean(self):
         from src.experiment_utils import compute_activation_trimmed_mean
         import torch
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -2036,6 +2056,44 @@ class TestExperimentUtils(unittest.TestCase):
         model = DummyModel()
         input_data = torch.tensor([[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 100.0, -100.0]])
         stats = compute_activation_trimmed_mean(model, input_data, ['layer'], trim_percent=0.1)
+        self.assertAlmostEqual(stats['layer'], 1.0, places=5)
+
+    def test_compute_parameter_winsorized_mean(self):
+        from src.experiment_utils import compute_parameter_winsorized_mean
+        import torch
+        model = torch.nn.Linear(10, 1)
+        model.weight.data = torch.tensor([[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 100.0, -100.0]])
+        model.bias.data = torch.tensor([1.0])
+        stat = compute_parameter_winsorized_mean(model, limits=(0.1, 0.1))
+        # 11 values: [-100, 1, 1, 1, 1, 1, 1, 1, 1, 1, 100]
+        # k_lower=1, k_upper=1
+        # lower_val = 1, upper_val = 1
+        # winsorized: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        self.assertAlmostEqual(stat, 1.0, places=5)
+
+    def test_compute_gradient_winsorized_mean(self):
+        from src.experiment_utils import compute_gradient_winsorized_mean
+        import torch
+        model = torch.nn.Linear(10, 1)
+        model.weight.grad = torch.tensor([[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 100.0, -100.0]])
+        model.bias.grad = torch.tensor([1.0])
+        stat = compute_gradient_winsorized_mean(model, limits=(0.1, 0.1))
+        self.assertAlmostEqual(stat, 1.0, places=5)
+
+    def test_compute_activation_winsorized_mean(self):
+        from src.experiment_utils import compute_activation_winsorized_mean
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                import torch
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+        model = DummyModel()
+        import torch
+        input_data = torch.tensor([[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 100.0, -100.0]])
+        stats = compute_activation_winsorized_mean(model, input_data, ['layer'], limits=(0.1, 0.1))
         self.assertAlmostEqual(stats['layer'], 1.0, places=5)
 
 

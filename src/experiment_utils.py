@@ -2164,6 +2164,88 @@ def compute_activation_abs_mean(model: torch.nn.Module, input_data: torch.Tensor
     return activations
 
 
+def compute_parameter_trimmed_mean(model: torch.nn.Module, trim_percent: float = 0.1) -> float:
+    """
+    Вычисляет усеченное среднее (trimmed mean) параметров модели.
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    n = vec.numel()
+    if n == 0:
+        return 0.0
+    k = int(n * trim_percent)
+    if 2 * k >= n or n <= 2:
+        return float(vec.mean().item())
+    sorted_vec, _ = torch.sort(vec)
+    trimmed_vec = sorted_vec[k:n-k]
+    return float(trimmed_vec.mean().item())
+
+
+def compute_gradient_trimmed_mean(model: torch.nn.Module, trim_percent: float = 0.1) -> float:
+    """
+    Вычисляет усеченное среднее (trimmed mean) градиентов модели.
+    """
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    n = vec.numel()
+    if n == 0:
+        return 0.0
+    k = int(n * trim_percent)
+    if 2 * k >= n or n <= 2:
+        return float(vec.mean().item())
+    sorted_vec, _ = torch.sort(vec)
+    trimmed_vec = sorted_vec[k:n-k]
+    return float(trimmed_vec.mean().item())
+
+
+def compute_activation_trimmed_mean(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], trim_percent: float = 0.1) -> dict[str, float]:
+    """
+    Вычисляет усеченное среднее (trimmed mean) активаций для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                n = vec.numel()
+                if n == 0:
+                    activations[name] = 0.0
+                else:
+                    k = int(n * trim_percent)
+                    if 2 * k >= n or n <= 2:
+                        activations[name] = float(vec.mean().item())
+                    else:
+                        sorted_vec, _ = torch.sort(vec)
+                        trimmed_vec = sorted_vec[k:n-k]
+                        activations[name] = float(trimmed_vec.mean().item())
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
 def compute_parameter_proportion_zero(model: torch.nn.Module) -> float:
     """
     Вычисляет долю нулевых элементов параметров модели.

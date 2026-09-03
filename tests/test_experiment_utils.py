@@ -1995,6 +1995,49 @@ class TestExperimentUtils(unittest.TestCase):
         stats = compute_activation_proportion_zero(model, input_data, ['layer'])
         self.assertAlmostEqual(stats['layer'], 0.5, places=5)
 
+    def test_compute_parameter_trimmed_mean(self):
+        from src.experiment_utils import compute_parameter_trimmed_mean
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 1)
+        model = DummyModel()
+        with torch.no_grad():
+            model.fc.weight.fill_(1.0)
+            model.fc.weight[0, 0] = 100.0  # outlier
+            model.fc.bias.fill_(1.0)
+        val = compute_parameter_trimmed_mean(model, trim_percent=0.1)
+        self.assertAlmostEqual(val, 1.0, places=5)
+
+    def test_compute_gradient_trimmed_mean(self):
+        from src.experiment_utils import compute_gradient_trimmed_mean
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 1)
+        model = DummyModel()
+        model.fc.weight.grad = torch.ones_like(model.fc.weight)
+        model.fc.weight.grad[0, 0] = 100.0
+        model.fc.bias.grad = torch.ones_like(model.fc.bias)
+        val = compute_gradient_trimmed_mean(model, trim_percent=0.1)
+        self.assertAlmostEqual(val, 1.0, places=5)
+
+    def test_compute_activation_trimmed_mean(self):
+        from src.experiment_utils import compute_activation_trimmed_mean
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+        model = DummyModel()
+        input_data = torch.tensor([[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 100.0, -100.0]])
+        stats = compute_activation_trimmed_mean(model, input_data, ['layer'], trim_percent=0.1)
+        self.assertAlmostEqual(stats['layer'], 1.0, places=5)
+
 
 if __name__ == '__main__':
     unittest.main()

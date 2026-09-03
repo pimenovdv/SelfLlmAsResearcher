@@ -2164,6 +2164,72 @@ def compute_activation_abs_mean(model: torch.nn.Module, input_data: torch.Tensor
     return activations
 
 
+def compute_parameter_proportion_zero(model: torch.nn.Module) -> float:
+    """
+    Вычисляет долю нулевых элементов параметров модели.
+    """
+    total_elements = 0
+    zero_elements = 0
+    for param in model.parameters():
+        total_elements += param.numel()
+        zero_elements += (param == 0).sum().item()
+    if total_elements == 0:
+        return 0.0
+    return float(zero_elements / total_elements)
+
+
+def compute_gradient_proportion_zero(model: torch.nn.Module) -> float:
+    """
+    Вычисляет долю нулевых элементов градиентов модели.
+    """
+    total_elements = 0
+    zero_elements = 0
+    for param in model.parameters():
+        if param.grad is not None:
+            total_elements += param.grad.numel()
+            zero_elements += (param.grad == 0).sum().item()
+    if total_elements == 0:
+        return 0.0
+    return float(zero_elements / total_elements)
+
+
+def compute_activation_proportion_zero(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет долю нулевых элементов активаций для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                if vec.numel() > 0:
+                    activations[name] = float(((vec == 0).sum().item()) / vec.numel())
+                else:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
 def compute_parameter_outlier_ratio(model: torch.nn.Module, threshold: float = 3.0) -> float:
     """
     Вычисляет долю выбросов (значений, отклоняющихся от среднего более чем на threshold стандартных отклонений) среди параметров модели.

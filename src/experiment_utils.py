@@ -2164,6 +2164,78 @@ def compute_activation_abs_mean(model: torch.nn.Module, input_data: torch.Tensor
     return activations
 
 
+def compute_parameter_vmr(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Variance-to-Mean Ratio (VMR) всех параметров модели.
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    mean = vec.mean().item()
+    if mean == 0.0:
+        return 0.0
+    var = vec.var().item() if vec.numel() > 1 else 0.0
+    return float(var / mean)
+
+
+def compute_gradient_vmr(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Variance-to-Mean Ratio (VMR) градиентов всех параметров модели.
+    """
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    mean = vec.mean().item()
+    if mean == 0.0:
+        return 0.0
+    var = vec.var().item() if vec.numel() > 1 else 0.0
+    return float(var / mean)
+
+
+def compute_activation_vmr(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет Variance-to-Mean Ratio (VMR) активаций для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                if vec.numel() > 1:
+                    mean = vec.mean().item()
+                    if mean != 0.0:
+                        var = vec.var().item()
+                        activations[name] = float(var / mean)
+                    else:
+                        activations[name] = 0.0
+                else:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
 def compute_parameter_sem(model: torch.nn.Module) -> float:
     """
     Вычисляет стандартную ошибку среднего (SEM) всех параметров модели.

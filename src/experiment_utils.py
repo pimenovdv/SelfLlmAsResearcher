@@ -595,6 +595,21 @@ def compute_parameter_sum(model: torch.nn.Module) -> float:
         return 0.0
     return float(torch.cat(params).sum().item())
 
+def compute_parameter_crest_factor(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Crest Factor (Peak-to-Average Ratio) всех параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    rms = float(torch.sqrt((vec ** 2).mean()).item())
+    if rms < 1e-12:
+        return 0.0
+    peak = float(vec.abs().max().item())
+    return peak / rms
+
 def compute_parameter_rms(model: torch.nn.Module) -> float:
     """
     Вычисляет среднеквадратичное значение (RMS) всех параметров модели.
@@ -669,6 +684,21 @@ def compute_gradient_sum(model: torch.nn.Module) -> float:
     if not grads:
         return 0.0
     return float(torch.cat(grads).sum().item())
+
+def compute_gradient_crest_factor(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Crest Factor (Peak-to-Average Ratio) всех градиентов модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    rms = float(torch.sqrt((vec ** 2).mean()).item())
+    if rms < 1e-12:
+        return 0.0
+    peak = float(vec.abs().max().item())
+    return peak / rms
 
 def compute_gradient_rms(model: torch.nn.Module) -> float:
     """
@@ -812,6 +842,49 @@ def compute_activation_max(model: torch.nn.Module, input_data: torch.Tensor, lay
         handle.remove()
 
     return stats
+
+def compute_activation_crest_factor(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет Crest Factor (Peak-to-Average Ratio) активаций для заданных слоев.
+    """
+    import torch
+    activations = {}
+
+    def get_activation(name):
+        def hook(model, input, output):
+            vec = output.detach().flatten()
+            if vec.numel() > 0:
+                rms = float(torch.sqrt((vec ** 2).mean()).item())
+                if rms < 1e-12:
+                    activations[name] = 0.0
+                else:
+                    peak = float(vec.abs().max().item())
+                    activations[name] = peak / rms
+            else:
+                activations[name] = 0.0
+        return hook
+
+    hooks = []
+    for name, layer in model.named_modules():
+        if name in layer_names:
+            hooks.append(layer.register_forward_hook(get_activation(name)))
+
+    if not hooks:
+        return activations
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        try:
+            model(input_data)
+        except Exception:
+            pass
+    model.train(training_state)
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
 
 def compute_activation_rms(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
     """

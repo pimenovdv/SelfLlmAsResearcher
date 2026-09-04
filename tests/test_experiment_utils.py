@@ -2200,6 +2200,54 @@ class TestExperimentUtils(unittest.TestCase):
         stat = compute_gradient_snr(model)
         self.assertIsInstance(stat, float)
 
+    def test_compute_parameter_crest_factor(self):
+        from src.experiment_utils import compute_parameter_crest_factor
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Linear(2, 1, bias=False)
+        model = DummyModel()
+        model.layer.weight.data = torch.tensor([[3.0, 4.0]]) # RMS = sqrt(12.5) = 3.5355, Peak = 4.0, CF = 4.0 / 3.5355 = 1.13137
+        stat = compute_parameter_crest_factor(model)
+        self.assertAlmostEqual(stat, 1.13137, places=4)
+
+        # Test zero parameters
+        model.layer.weight.data = torch.tensor([[0.0, 0.0]])
+        stat = compute_parameter_crest_factor(model)
+        self.assertEqual(stat, 0.0)
+
+    def test_compute_gradient_crest_factor(self):
+        from src.experiment_utils import compute_gradient_crest_factor
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Linear(2, 1, bias=False)
+        model = DummyModel()
+        model.layer.weight.grad = torch.tensor([[-3.0, 4.0]]) # RMS = 3.5355, Peak = 4.0, CF = 1.13137
+        stat = compute_gradient_crest_factor(model)
+        self.assertAlmostEqual(stat, 1.13137, places=4)
+
+        model.layer.weight.grad = torch.tensor([[0.0, 0.0]])
+        stat = compute_gradient_crest_factor(model)
+        self.assertEqual(stat, 0.0)
+
+    def test_compute_activation_crest_factor(self):
+        from src.experiment_utils import compute_activation_crest_factor
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+        model = DummyModel()
+        input_data = torch.tensor([[-3.0, 4.0]]) # RMS = 3.5355, Peak = 4.0, CF = 1.13137
+        stat = compute_activation_crest_factor(model, input_data, ['layer'])
+        self.assertIn('layer', stat)
+        self.assertAlmostEqual(stat['layer'], 1.13137, places=4)
+
     def test_compute_activation_snr(self):
         from src.experiment_utils import compute_activation_snr
         import torch

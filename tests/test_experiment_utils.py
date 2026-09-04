@@ -2297,6 +2297,43 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('layer', stat)
         self.assertAlmostEqual(stat['layer'], 1.01015, places=4)
 
+    def test_compute_parameter_midrange(self):
+        from src.experiment_utils import compute_parameter_midrange
+        import torch
+        model = torch.nn.Linear(10, 10)
+        model.weight.data.fill_(10.0)
+        model.bias.data.fill_(-2.0)
+        # max = 10, min = -2, midrange = (10 + -2) / 2 = 4
+        midrange = compute_parameter_midrange(model)
+        self.assertIsInstance(midrange, float)
+        self.assertAlmostEqual(midrange, 4.0, places=4)
+
+    def test_compute_gradient_midrange(self):
+        from src.experiment_utils import compute_gradient_midrange
+        import torch
+        model = torch.nn.Linear(10, 10)
+        model.weight.grad = torch.full_like(model.weight, 5.0)
+        model.bias.grad = torch.full_like(model.bias, -1.0)
+        # max = 5, min = -1, midrange = (5 + -1) / 2 = 2
+        midrange = compute_gradient_midrange(model)
+        self.assertIsInstance(midrange, float)
+        self.assertAlmostEqual(midrange, 2.0, places=4)
+
+    def test_compute_activation_midrange(self):
+        from src.experiment_utils import compute_activation_midrange
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+        model = DummyModel()
+        input_data = torch.tensor([[-5.0, 15.0]]) # max = 15, min = -5, midrange = 5
+        stat = compute_activation_midrange(model, input_data, ['layer'])
+        self.assertIn('layer', stat)
+        self.assertAlmostEqual(stat['layer'], 5.0, places=4)
+
 
 if __name__ == '__main__':
     unittest.main()

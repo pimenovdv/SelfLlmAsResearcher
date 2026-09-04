@@ -886,6 +886,71 @@ def compute_activation_crest_factor(model: torch.nn.Module, input_data: torch.Te
 
     return activations
 
+
+def compute_parameter_midrange(model: torch.nn.Module) -> float:
+    """
+    Вычисляет полуразмах (midrange) параметров модели: (max + min) / 2.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    return float((torch.max(vec) + torch.min(vec)) / 2.0)
+
+
+def compute_gradient_midrange(model: torch.nn.Module) -> float:
+    """
+    Вычисляет полуразмах (midrange) градиентов модели: (max + min) / 2.
+    """
+    import torch
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    return float((torch.max(vec) + torch.min(vec)) / 2.0)
+
+
+def compute_activation_midrange(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет полуразмах (midrange) активаций для заданных слоев: (max + min) / 2.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                if vec.numel() > 0:
+                    activations[name] = float((torch.max(vec) + torch.min(vec)) / 2.0)
+                else:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
 def compute_parameter_form_factor(model: torch.nn.Module) -> float:
     """
     Вычисляет Form Factor (коэффициент формы) параметров модели (RMS / Mean Abs).

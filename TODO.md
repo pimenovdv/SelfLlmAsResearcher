@@ -309,3 +309,6 @@
 - [x] Добавить функцию compute_parameter_form_factor в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_form_factor в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_form_factor в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_midrange в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_midrange в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_midrange в src/experiment_utils.py и написать тесты.

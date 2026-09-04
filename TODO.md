@@ -300,3 +300,6 @@
 - [x] Добавить функцию compute_parameter_vmr в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_vmr в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_vmr в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_snr в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_snr в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_snr в src/experiment_utils.py и написать тесты.

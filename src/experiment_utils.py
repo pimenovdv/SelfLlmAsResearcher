@@ -2164,6 +2164,77 @@ def compute_activation_abs_mean(model: torch.nn.Module, input_data: torch.Tensor
     return activations
 
 
+def compute_parameter_snr(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Signal-to-Noise Ratio (SNR) параметров модели (mean / std).
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+    std = vec.std().item()
+    if std == 0:
+        return 0.0
+    return float(vec.mean().item() / std)
+
+def compute_gradient_snr(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Signal-to-Noise Ratio (SNR) градиентов модели.
+    """
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1:
+        return 0.0
+    std = vec.std().item()
+    if std == 0:
+        return 0.0
+    return float(vec.mean().item() / std)
+
+def compute_activation_snr(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет Signal-to-Noise Ratio (SNR) активаций для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                if vec.numel() > 1:
+                    std = vec.std().item()
+                    if std == 0:
+                        activations[name] = 0.0
+                    else:
+                        activations[name] = float(vec.mean().item() / std)
+                else:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
 def compute_parameter_vmr(model: torch.nn.Module) -> float:
     """
     Вычисляет Variance-to-Mean Ratio (VMR) всех параметров модели.

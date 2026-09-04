@@ -2136,6 +2136,46 @@ class TestExperimentUtils(unittest.TestCase):
         stats = compute_activation_sem(model, input_data, ['layer'])
         self.assertTrue(stats['layer'] > 0.0)
 
+    def test_compute_parameter_vmr(self):
+        from src.experiment_utils import compute_parameter_vmr
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Linear(10, 1)
+        model = DummyModel()
+        model.layer.weight.data = torch.tensor([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]])
+        model.layer.bias.data = torch.tensor([11.0])
+        stat = compute_parameter_vmr(model)
+        self.assertIsInstance(stat, float)
+
+    def test_compute_gradient_vmr(self):
+        from src.experiment_utils import compute_gradient_vmr
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Linear(10, 1)
+        model = DummyModel()
+        model.layer.weight.grad = torch.tensor([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]])
+        model.layer.bias.grad = torch.tensor([11.0])
+        stat = compute_gradient_vmr(model)
+        self.assertIsInstance(stat, float)
+
+    def test_compute_activation_vmr(self):
+        from src.experiment_utils import compute_activation_vmr
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+        model = DummyModel()
+        input_data = torch.tensor([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0]])
+        stats = compute_activation_vmr(model, input_data, ['layer'])
+        self.assertIsInstance(stats['layer'], float)
+
 
 if __name__ == '__main__':
     unittest.main()

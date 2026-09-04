@@ -2262,6 +2262,41 @@ class TestExperimentUtils(unittest.TestCase):
         stats = compute_activation_snr(model, input_data, ['layer'])
         self.assertIsInstance(stats['layer'], float)
 
+    def test_compute_parameter_form_factor(self):
+        from src.experiment_utils import compute_parameter_form_factor
+        import torch
+        model = torch.nn.Linear(10, 10)
+        model.weight.data.fill_(2.0)
+        model.bias.data.fill_(-2.0)
+        ff = compute_parameter_form_factor(model)
+        self.assertIsInstance(ff, float)
+        self.assertAlmostEqual(ff, 1.0, places=4)
+
+    def test_compute_gradient_form_factor(self):
+        from src.experiment_utils import compute_gradient_form_factor
+        import torch
+        model = torch.nn.Linear(10, 10)
+        model.weight.grad = torch.full_like(model.weight, 3.0)
+        model.bias.grad = torch.full_like(model.bias, -3.0)
+        ff = compute_gradient_form_factor(model)
+        self.assertIsInstance(ff, float)
+        self.assertAlmostEqual(ff, 1.0, places=4)
+
+    def test_compute_activation_form_factor(self):
+        from src.experiment_utils import compute_activation_form_factor
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+        model = DummyModel()
+        input_data = torch.tensor([[-3.0, 4.0]]) # Mean abs = 3.5, RMS = 3.5355, FF = 1.01015
+        stat = compute_activation_form_factor(model, input_data, ['layer'])
+        self.assertIn('layer', stat)
+        self.assertAlmostEqual(stat['layer'], 1.01015, places=4)
+
 
 if __name__ == '__main__':
     unittest.main()

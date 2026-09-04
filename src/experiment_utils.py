@@ -886,6 +886,80 @@ def compute_activation_crest_factor(model: torch.nn.Module, input_data: torch.Te
 
     return activations
 
+def compute_parameter_form_factor(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Form Factor (коэффициент формы) параметров модели (RMS / Mean Abs).
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0: return 0.0
+    abs_mean = vec.abs().mean()
+    if abs_mean == 0: return 0.0
+    rms = torch.sqrt((vec ** 2).mean())
+    return float((rms / abs_mean).item())
+
+def compute_gradient_form_factor(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Form Factor (коэффициент формы) градиентов модели (RMS / Mean Abs).
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0: return 0.0
+    abs_mean = vec.abs().mean()
+    if abs_mean == 0: return 0.0
+    rms = torch.sqrt((vec ** 2).mean())
+    return float((rms / abs_mean).item())
+
+def compute_activation_form_factor(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет Form Factor (коэффициент формы) активаций для заданных слоев (RMS / Mean Abs).
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, tuple):
+                out = output[0]
+            else:
+                out = output
+
+            if out.numel() > 0:
+                vec = out.detach().flatten()
+                abs_mean = vec.abs().mean()
+                if abs_mean > 0:
+                    rms = torch.sqrt((vec ** 2).mean())
+                    activations[name] = float((rms / abs_mean).item())
+                else:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
 def compute_activation_rms(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
     """
     Вычисляет среднеквадратичное значение (RMS) активаций для каждого указанного слоя.

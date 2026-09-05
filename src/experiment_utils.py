@@ -887,6 +887,88 @@ def compute_activation_crest_factor(model: torch.nn.Module, input_data: torch.Te
     return activations
 
 
+def compute_parameter_interdecile_range(model: torch.nn.Module) -> float:
+    """
+    Вычисляет интердецильный размах (IDR) параметров модели (90-й процентиль минус 10-й процентиль).
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.10, 0.90], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        return float(quantiles[1] - quantiles[0])
+    except RuntimeError:
+        return 0.0
+
+
+def compute_gradient_interdecile_range(model: torch.nn.Module) -> float:
+    """
+    Вычисляет интердецильный размах (IDR) градиентов модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.10, 0.90], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        return float(quantiles[1] - quantiles[0])
+    except RuntimeError:
+        return 0.0
+
+
+def compute_activation_interdecile_range(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет интердецильный размах (IDR) активаций для заданных слоев при проходе input_data.
+    """
+    import torch
+    stats = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, input, output):
+            if isinstance(output, tuple):
+                out = output[0]
+            else:
+                out = output
+            vec = out.detach().flatten()
+            if vec.numel() == 0:
+                stats[name] = 0.0
+                return
+            q = torch.tensor([0.10, 0.90], dtype=vec.dtype, device=vec.device)
+            try:
+                quantiles = torch.quantile(vec, q).tolist()
+                stats[name] = float(quantiles[1] - quantiles[0])
+            except RuntimeError:
+                stats[name] = 0.0
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    try:
+        with torch.no_grad():
+            model(input_data)
+    finally:
+        if training_state:
+            model.train()
+        for handle in handles:
+            handle.remove()
+
+    return stats
+
+
 def compute_parameter_midrange(model: torch.nn.Module) -> float:
     """
     Вычисляет полуразмах (midrange) параметров модели: (max + min) / 2.

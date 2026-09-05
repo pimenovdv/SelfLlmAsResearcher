@@ -312,3 +312,6 @@
 - [x] Добавить функцию compute_parameter_midrange в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_midrange в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_midrange в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_interdecile_range в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_interdecile_range в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_interdecile_range в src/experiment_utils.py и написать тесты.

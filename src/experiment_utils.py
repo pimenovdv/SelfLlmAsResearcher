@@ -380,8 +380,8 @@ def compute_parameter_mad(model: torch.nn.Module) -> float:
     vec = torch.cat(params)
     if vec.numel() <= 1:
         return 0.0
-    mean_val = vec.mean()
-    mad = torch.abs(vec - mean_val).mean()
+    med_val = vec.median()
+    mad = torch.abs(vec - med_val).median()
     return float(mad.item())
 
 def compute_gradient_mad(model: torch.nn.Module) -> float:
@@ -395,8 +395,8 @@ def compute_gradient_mad(model: torch.nn.Module) -> float:
     vec = torch.cat(grads)
     if vec.numel() <= 1:
         return 0.0
-    mean_val = vec.mean()
-    mad = torch.abs(vec - mean_val).mean()
+    med_val = vec.median()
+    mad = torch.abs(vec - med_val).median()
     return float(mad.item())
 
 def compute_activation_mad(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
@@ -417,8 +417,8 @@ def compute_activation_mad(model: torch.nn.Module, input_data: torch.Tensor, lay
             if vec.numel() <= 1:
                 stats[name] = 0.0
                 return
-            mean_val = vec.mean()
-            mad = torch.abs(vec - mean_val).mean()
+            med_val = vec.median()
+            mad = torch.abs(vec - med_val).median()
             stats[name] = float(mad.item())
         return fn
 

@@ -2368,5 +2368,41 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(stat['layer'], float)
 
 
+    def test_compute_parameter_mean_absolute_deviation(self):
+        from src.experiment_utils import compute_parameter_mean_absolute_deviation
+        import torch
+        model = torch.nn.Linear(10, 10)
+        model.weight.data = torch.linspace(0, 10, 100).reshape(10, 10)
+        model.bias.data.fill_(0.0)
+        mad = compute_parameter_mean_absolute_deviation(model)
+        self.assertIsInstance(mad, float)
+
+
+    def test_compute_gradient_mean_absolute_deviation(self):
+        from src.experiment_utils import compute_gradient_mean_absolute_deviation
+        import torch
+        model = torch.nn.Linear(10, 10)
+        model.weight.grad = torch.linspace(0, 10, 100).reshape(10, 10)
+        model.bias.grad = torch.zeros(10)
+        mad = compute_gradient_mean_absolute_deviation(model)
+        self.assertIsInstance(mad, float)
+
+
+    def test_compute_activation_mean_absolute_deviation(self):
+        from src.experiment_utils import compute_activation_mean_absolute_deviation
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer = torch.nn.Identity()
+            def forward(self, x):
+                return self.layer(x)
+        model = DummyModel()
+        input_data = torch.linspace(0, 10, 100).unsqueeze(0)
+        stat = compute_activation_mean_absolute_deviation(model, input_data, ['layer'])
+        self.assertIn('layer', stat)
+        self.assertIsInstance(stat['layer'], float)
+
+
 if __name__ == '__main__':
     unittest.main()

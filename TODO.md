@@ -317,3 +317,6 @@
 - [x] Добавить функцию compute_activation_interdecile_range в src/experiment_utils.py и написать тесты.
 - [x] Исправить расчет MAD (Median Absolute Deviation) вместо среднего в src/experiment_utils.py
 - [x] Добавить функции compute_parameter_mean_absolute_deviation, compute_gradient_mean_absolute_deviation, compute_activation_mean_absolute_deviation в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_interquartile_range в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_interquartile_range в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_interquartile_range в src/experiment_utils.py и написать тесты.

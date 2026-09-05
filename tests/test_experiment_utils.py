@@ -2435,6 +2435,46 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('fc', iqr_dict)
         self.assertIsInstance(iqr_dict['fc'], float)
 
+    def test_compute_parameter_quartile_coefficient_of_dispersion(self):
+        from src.experiment_utils import compute_parameter_quartile_coefficient_of_dispersion
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+        model = DummyModel()
+        qcd = compute_parameter_quartile_coefficient_of_dispersion(model)
+        self.assertIsInstance(qcd, float)
+
+    def test_compute_gradient_quartile_coefficient_of_dispersion(self):
+        from src.experiment_utils import compute_gradient_quartile_coefficient_of_dispersion
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+        model = DummyModel()
+        # Simulate gradients
+        for p in model.parameters():
+            p.grad = torch.randn_like(p)
+        qcd = compute_gradient_quartile_coefficient_of_dispersion(model)
+        self.assertIsInstance(qcd, float)
+
+    def test_compute_activation_quartile_coefficient_of_dispersion(self):
+        from src.experiment_utils import compute_activation_quartile_coefficient_of_dispersion
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        input_data = torch.randn(1, 10)
+        qcd_dict = compute_activation_quartile_coefficient_of_dispersion(model, input_data, ['fc'])
+        self.assertIn('fc', qcd_dict)
+        self.assertIsInstance(qcd_dict['fc'], float)
+
 
 if __name__ == '__main__':
     unittest.main()

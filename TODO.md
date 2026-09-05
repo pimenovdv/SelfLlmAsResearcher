@@ -320,3 +320,6 @@
 - [x] Добавить функцию compute_parameter_interquartile_range в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_interquartile_range в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_interquartile_range в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_quartile_coefficient_of_dispersion в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_quartile_coefficient_of_dispersion в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_quartile_coefficient_of_dispersion в src/experiment_utils.py и написать тесты.

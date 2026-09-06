@@ -2475,6 +2475,47 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('fc', qcd_dict)
         self.assertIsInstance(qcd_dict['fc'], float)
 
+    def test_compute_parameter_coefficient_of_range(self):
+        from src.experiment_utils import compute_parameter_coefficient_of_range
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+        model = DummyModel()
+        cor = compute_parameter_coefficient_of_range(model)
+        self.assertIsInstance(cor, float)
+
+    def test_compute_gradient_coefficient_of_range(self):
+        from src.experiment_utils import compute_gradient_coefficient_of_range
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        loss = model(torch.randn(1, 10)).sum()
+        loss.backward()
+        cor = compute_gradient_coefficient_of_range(model)
+        self.assertIsInstance(cor, float)
+
+    def test_compute_activation_coefficient_of_range(self):
+        from src.experiment_utils import compute_activation_coefficient_of_range
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        input_data = torch.randn(1, 10)
+        cor_dict = compute_activation_coefficient_of_range(model, input_data, ['fc'])
+        self.assertIn('fc', cor_dict)
+        self.assertIsInstance(cor_dict['fc'], float)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -887,6 +887,85 @@ def compute_activation_crest_factor(model: torch.nn.Module, input_data: torch.Te
     return activations
 
 
+def compute_parameter_coefficient_of_range(model: torch.nn.Module) -> float:
+    """
+    Вычисляет коэффициент размаха (Coefficient of Range) параметров модели ((Max - Min) / (Max + Min)).
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    max_val = vec.max().item()
+    min_val = vec.min().item()
+    if max_val + min_val == 0:
+        return 0.0
+    return float((max_val - min_val) / (max_val + min_val))
+
+
+def compute_gradient_coefficient_of_range(model: torch.nn.Module) -> float:
+    """
+    Вычисляет коэффициент размаха (Coefficient of Range) градиентов модели ((Max - Min) / (Max + Min)).
+    """
+    import torch
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    max_val = vec.max().item()
+    min_val = vec.min().item()
+    if max_val + min_val == 0:
+        return 0.0
+    return float((max_val - min_val) / (max_val + min_val))
+
+
+def compute_activation_coefficient_of_range(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет коэффициент размаха (Coefficient of Range) активаций для заданных слоев ((Max - Min) / (Max + Min)).
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                if vec.numel() == 0:
+                    activations[name] = 0.0
+                else:
+                    max_val = vec.max().item()
+                    min_val = vec.min().item()
+                    if max_val + min_val == 0:
+                        activations[name] = 0.0
+                    else:
+                        activations[name] = float((max_val - min_val) / (max_val + min_val))
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
 def compute_parameter_quartile_coefficient_of_dispersion(model: torch.nn.Module) -> float:
     """
     Вычисляет квартильный коэффициент дисперсии (Quartile Coefficient of Dispersion) параметров модели ((Q3 - Q1) / (Q3 + Q1)).

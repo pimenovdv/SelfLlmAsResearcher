@@ -3653,3 +3653,79 @@ def compute_activation_harmonic_mean(model: torch.nn.Module, input_data: torch.T
         hook.remove()
 
     return activations
+
+def compute_parameter_robust_coefficient_of_variation(model: torch.nn.Module) -> float:
+    """
+    Вычисляет робастный коэффициент вариации параметров модели (MAD / Median).
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+    med_val = vec.median()
+    if med_val == 0:
+        return 0.0
+    mad = torch.abs(vec - med_val).median()
+    return float((mad / torch.abs(med_val)).item())
+
+def compute_gradient_robust_coefficient_of_variation(model: torch.nn.Module) -> float:
+    """
+    Вычисляет робастный коэффициент вариации градиентов модели (MAD / Median).
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1:
+        return 0.0
+    med_val = vec.median()
+    if med_val == 0:
+        return 0.0
+    mad = torch.abs(vec - med_val).median()
+    return float((mad / torch.abs(med_val)).item())
+
+def compute_activation_robust_coefficient_of_variation(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет робастный коэффициент вариации активаций для заданных слоев (MAD / Median).
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                if vec.numel() <= 1:
+                    activations[name] = 0.0
+                else:
+                    med_val = vec.median()
+                    if med_val == 0:
+                        activations[name] = 0.0
+                    else:
+                        mad = torch.abs(vec - med_val).median()
+                        activations[name] = float((mad / torch.abs(med_val)).item())
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

@@ -3786,3 +3786,81 @@ def compute_activation_robust_coefficient_of_variation(model: torch.nn.Module, i
         hook.remove()
 
     return activations
+
+def compute_parameter_trimean(model: torch.nn.Module) -> float:
+    """
+    Вычисляет trimean параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.25, 0.5, 0.75], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        return float((quantiles[0] + 2 * quantiles[1] + quantiles[2]) / 4)
+    except RuntimeError:
+        return 0.0
+
+def compute_gradient_trimean(model: torch.nn.Module) -> float:
+    """
+    Вычисляет trimean градиентов модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.25, 0.5, 0.75], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        return float((quantiles[0] + 2 * quantiles[1] + quantiles[2]) / 4)
+    except RuntimeError:
+        return 0.0
+
+def compute_activation_trimean(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет trimean активаций для заданных слоев.
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                if vec.numel() == 0:
+                    activations[name] = 0.0
+                else:
+                    q = torch.tensor([0.25, 0.5, 0.75], dtype=vec.dtype, device=vec.device)
+                    try:
+                        quantiles = torch.quantile(vec, q).tolist()
+                        activations[name] = float((quantiles[0] + 2 * quantiles[1] + quantiles[2]) / 4)
+                    except RuntimeError:
+                        activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

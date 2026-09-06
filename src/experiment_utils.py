@@ -886,6 +886,63 @@ def compute_activation_crest_factor(model: torch.nn.Module, input_data: torch.Te
 
     return activations
 
+def compute_parameter_total_variation(model: torch.nn.Module) -> float:
+    """
+    Вычисляет total variation (полную вариацию) параметров модели.
+    """
+    tv = 0.0
+    for param in model.parameters():
+        if param.numel() > 1:
+            flat = param.data.flatten()
+            tv += torch.sum(torch.abs(flat[1:] - flat[:-1])).item()
+    return float(tv)
+
+def compute_gradient_total_variation(model: torch.nn.Module) -> float:
+    """
+    Вычисляет total variation (полную вариацию) градиентов модели.
+    """
+    tv = 0.0
+    for param in model.parameters():
+        if param.grad is not None and param.grad.numel() > 1:
+            flat = param.grad.flatten()
+            tv += torch.sum(torch.abs(flat[1:] - flat[:-1])).item()
+    return float(tv)
+
+def compute_activation_total_variation(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет total variation (полную вариацию) активаций для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(model, input, output):
+            vec = output.detach()
+            if vec.numel() > 1:
+                flat = vec.flatten()
+                tv = torch.sum(torch.abs(flat[1:] - flat[:-1])).item()
+                activations[name] = float(tv)
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
 
 def compute_parameter_coefficient_of_range(model: torch.nn.Module) -> float:
     """

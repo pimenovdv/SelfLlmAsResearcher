@@ -2589,5 +2589,64 @@ class TestExperimentUtils(unittest.TestCase):
         assert isinstance(vals['fc'], float)
         assert vals['fc'] >= 0.0
 
+    def test_compute_parameter_total_variation(self):
+        import torch
+        from src.experiment_utils import compute_parameter_total_variation
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2)
+                self.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+                self.fc.bias.data = torch.tensor([5.0, 6.0])
+            def forward(self, x):
+                return self.fc(x)
+
+        model = DummyModel()
+        val = compute_parameter_total_variation(model)
+        assert isinstance(val, float)
+        assert val >= 0.0
+
+    def test_compute_gradient_total_variation(self):
+        import torch
+        from src.experiment_utils import compute_gradient_total_variation
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2)
+                self.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+                self.fc.bias.data = torch.tensor([5.0, 6.0])
+            def forward(self, x):
+                return self.fc(x)
+
+        model = DummyModel()
+        x = torch.randn(2, 2)
+        y = model(x)
+        loss = y.sum()
+        loss.backward()
+
+        val = compute_gradient_total_variation(model)
+        assert isinstance(val, float)
+        assert val >= 0.0
+
+    def test_compute_activation_total_variation(self):
+        import torch
+        from src.experiment_utils import compute_activation_total_variation
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2)
+                self.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+                self.fc.bias.data = torch.tensor([5.0, 6.0])
+            def forward(self, x):
+                return self.fc(x)
+
+        model = DummyModel()
+        x = torch.tensor([[1.0, 2.0]])
+        vals = compute_activation_total_variation(model, x, ['fc'])
+        assert isinstance(vals, dict)
+        assert 'fc' in vals
+        assert isinstance(vals['fc'], float)
+        assert vals['fc'] >= 0.0
+
 if __name__ == '__main__':
     unittest.main()

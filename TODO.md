@@ -326,3 +326,7 @@
 - [x] Добавить функцию compute_parameter_coefficient_of_range в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_coefficient_of_range в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_coefficient_of_range в src/experiment_utils.py и написать тесты.
+
+- [x] Добавить функцию compute_parameter_robust_coefficient_of_variation в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_robust_coefficient_of_variation в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_robust_coefficient_of_variation в src/experiment_utils.py и написать тесты.

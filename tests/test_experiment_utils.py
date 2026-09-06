@@ -2517,5 +2517,77 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(cor_dict['fc'], float)
 
 
+
+    def test_compute_parameter_robust_coefficient_of_variation(self):
+        import torch
+        from src.experiment_utils import compute_parameter_robust_coefficient_of_variation
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2)
+                # Set weights so that median is non-zero
+                self.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+                self.fc.bias.data = torch.tensor([5.0, 6.0])
+
+            def forward(self, x):
+                return self.fc(x)
+
+        model = DummyModel()
+        val = compute_parameter_robust_coefficient_of_variation(model)
+        assert isinstance(val, float)
+        # Median of [1,2,3,4,5,6] is 3.5.
+        # Differences: [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5]
+        # Abs diffs: [0.5, 0.5, 1.5, 1.5, 2.5, 2.5]
+        # MAD (median of abs diffs) is 1.5
+        # robust CV = 1.5 / 3.5 = 0.42857...
+        assert val >= 0.0
+
+    def test_compute_gradient_robust_coefficient_of_variation(self):
+        import torch
+        from src.experiment_utils import compute_gradient_robust_coefficient_of_variation
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2)
+                self.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+                self.fc.bias.data = torch.tensor([5.0, 6.0])
+
+            def forward(self, x):
+                return self.fc(x)
+
+        model = DummyModel()
+        x = torch.tensor([[1.0, 1.0]])
+        out = model(x)
+        loss = out.sum()
+        loss.backward()
+
+        val = compute_gradient_robust_coefficient_of_variation(model)
+        assert isinstance(val, float)
+        assert val >= 0.0
+
+    def test_compute_activation_robust_coefficient_of_variation(self):
+        import torch
+        from src.experiment_utils import compute_activation_robust_coefficient_of_variation
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2)
+                self.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+                self.fc.bias.data = torch.tensor([5.0, 6.0])
+
+            def forward(self, x):
+                return self.fc(x)
+
+        model = DummyModel()
+        x = torch.tensor([[1.0, 2.0]])
+        vals = compute_activation_robust_coefficient_of_variation(model, x, ['fc'])
+        assert isinstance(vals, dict)
+        assert 'fc' in vals
+        assert isinstance(vals['fc'], float)
+        assert vals['fc'] >= 0.0
+
 if __name__ == '__main__':
     unittest.main()

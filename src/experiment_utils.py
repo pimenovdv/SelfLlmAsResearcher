@@ -4198,3 +4198,179 @@ def compute_activation_bowley_skewness(model: torch.nn.Module, input_data: torch
         hook.remove()
 
     return activations
+
+
+def compute_parameter_moors_kurtosis(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Moors Kurtosis (основанный на октилях) для параметров модели.
+    """
+    params = [p.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.125, 0.25, 0.375, 0.625, 0.75, 0.875], dtype=vec.dtype, device=vec.device)
+    try:
+        e1, q1, e3, e5, q3, e7 = torch.quantile(vec, q).tolist()
+    except RuntimeError:
+        return 0.0
+    denominator = q3 - q1
+    if denominator == 0.0:
+        return 0.0
+    return float(((e7 - e5) + (e3 - e1)) / denominator)
+
+def compute_gradient_moors_kurtosis(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Moors Kurtosis (основанный на октилях) для градиентов модели.
+    """
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.125, 0.25, 0.375, 0.625, 0.75, 0.875], dtype=vec.dtype, device=vec.device)
+    try:
+        e1, q1, e3, e5, q3, e7 = torch.quantile(vec, q).tolist()
+    except RuntimeError:
+        return 0.0
+    denominator = q3 - q1
+    if denominator == 0.0:
+        return 0.0
+    return float(((e7 - e5) + (e3 - e1)) / denominator)
+
+def compute_activation_moors_kurtosis(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет Moors Kurtosis для активаций заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, tuple):
+                output = output[0]
+            if not isinstance(output, torch.Tensor):
+                activations[name] = 0.0
+                return
+            vec = output.detach().flatten()
+            if vec.numel() > 0:
+                q = torch.tensor([0.125, 0.25, 0.375, 0.625, 0.75, 0.875], dtype=vec.dtype, device=vec.device)
+                try:
+                    e1, q1, e3, e5, q3, e7 = torch.quantile(vec, q).tolist()
+                    denominator = q3 - q1
+                    if denominator == 0.0:
+                        activations[name] = 0.0
+                    else:
+                        activations[name] = float(((e7 - e5) + (e3 - e1)) / denominator)
+                except RuntimeError:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+
+def compute_parameter_crows_siddiqui_kurtosis(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Crow-Siddiqui Kurtosis для параметров модели.
+    """
+    params = [p.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.025, 0.25, 0.75, 0.975], dtype=vec.dtype, device=vec.device)
+    try:
+        q_025, q_25, q_75, q_975 = torch.quantile(vec, q).tolist()
+    except RuntimeError:
+        return 0.0
+    denominator = q_75 - q_25
+    if denominator == 0.0:
+        return 0.0
+    return float((q_975 - q_025) / denominator)
+
+def compute_gradient_crows_siddiqui_kurtosis(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Crow-Siddiqui Kurtosis для градиентов модели.
+    """
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.025, 0.25, 0.75, 0.975], dtype=vec.dtype, device=vec.device)
+    try:
+        q_025, q_25, q_75, q_975 = torch.quantile(vec, q).tolist()
+    except RuntimeError:
+        return 0.0
+    denominator = q_75 - q_25
+    if denominator == 0.0:
+        return 0.0
+    return float((q_975 - q_025) / denominator)
+
+def compute_activation_crows_siddiqui_kurtosis(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет Crow-Siddiqui Kurtosis для активаций заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, tuple):
+                output = output[0]
+            if not isinstance(output, torch.Tensor):
+                activations[name] = 0.0
+                return
+            vec = output.detach().flatten()
+            if vec.numel() > 0:
+                q = torch.tensor([0.025, 0.25, 0.75, 0.975], dtype=vec.dtype, device=vec.device)
+                try:
+                    q_025, q_25, q_75, q_975 = torch.quantile(vec, q).tolist()
+                    denominator = q_75 - q_25
+                    if denominator == 0.0:
+                        activations[name] = 0.0
+                    else:
+                        activations[name] = float((q_975 - q_025) / denominator)
+                except RuntimeError:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

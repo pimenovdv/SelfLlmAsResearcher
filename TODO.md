@@ -348,3 +348,9 @@
 - [x] Добавить функцию compute_parameter_pearsons_median_skewness в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_pearsons_median_skewness в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_pearsons_median_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_moors_kurtosis в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_moors_kurtosis в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_moors_kurtosis в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_crows_siddiqui_kurtosis в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_crows_siddiqui_kurtosis в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_crows_siddiqui_kurtosis в src/experiment_utils.py и написать тесты.

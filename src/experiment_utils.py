@@ -3939,3 +3939,92 @@ def compute_activation_midhinge(model: torch.nn.Module, input_data: torch.Tensor
         hook.remove()
 
     return activations
+
+def compute_parameter_kelly_skewness(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Kelly skewness параметров модели.
+    Kelly skewness = (P90 + P10 - 2 * P50) / (P90 - P10)
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.10, 0.50, 0.90], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        p10, p50, p90 = quantiles
+        denominator = p90 - p10
+        if denominator == 0:
+            return 0.0
+        return float((p90 + p10 - 2.0 * p50) / denominator)
+    except RuntimeError:
+        return 0.0
+
+def compute_gradient_kelly_skewness(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Kelly skewness градиентов параметров модели.
+    """
+    import torch
+    grads = [p.grad.detach().flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.10, 0.50, 0.90], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        p10, p50, p90 = quantiles
+        denominator = p90 - p10
+        if denominator == 0:
+            return 0.0
+        return float((p90 + p10 - 2.0 * p50) / denominator)
+    except RuntimeError:
+        return 0.0
+
+def compute_activation_kelly_skewness(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет Kelly skewness активаций для заданных слоев модели.
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(model, input, output):
+            vec = output.detach().flatten()
+            if vec.numel() > 0:
+                q = torch.tensor([0.10, 0.50, 0.90], dtype=vec.dtype, device=vec.device)
+                try:
+                    quantiles = torch.quantile(vec, q).tolist()
+                    p10, p50, p90 = quantiles
+                    denominator = p90 - p10
+                    if denominator == 0:
+                        activations[name] = 0.0
+                    else:
+                        activations[name] = float((p90 + p10 - 2.0 * p50) / denominator)
+                except RuntimeError:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

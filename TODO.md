@@ -342,3 +342,6 @@
 - [x] Добавить функцию compute_parameter_kelly_skewness в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_kelly_skewness в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_kelly_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_bowley_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_bowley_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_bowley_skewness в src/experiment_utils.py и написать тесты.

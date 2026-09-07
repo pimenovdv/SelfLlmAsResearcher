@@ -3864,3 +3864,78 @@ def compute_activation_trimean(model: torch.nn.Module, input_data: torch.Tensor,
         hook.remove()
 
     return activations
+
+def compute_parameter_midhinge(model: torch.nn.Module) -> float:
+    """
+    Вычисляет midhinge параметров модели ((Q1 + Q3) / 2).
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.25, 0.75], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        return float(quantiles[0] + quantiles[1]) / 2.0
+    except RuntimeError:
+        return 0.0
+
+def compute_gradient_midhinge(model: torch.nn.Module) -> float:
+    """
+    Вычисляет midhinge градиентов модели ((Q1 + Q3) / 2).
+    """
+    import torch
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    q = torch.tensor([0.25, 0.75], dtype=vec.dtype, device=vec.device)
+    try:
+        quantiles = torch.quantile(vec, q).tolist()
+        return float(quantiles[0] + quantiles[1]) / 2.0
+    except RuntimeError:
+        return 0.0
+
+def compute_activation_midhinge(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет midhinge активаций для заданных слоев модели ((Q1 + Q3) / 2).
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(model, input, output):
+            vec = output.detach().flatten()
+            if vec.numel() > 0:
+                q = torch.tensor([0.25, 0.75], dtype=vec.dtype, device=vec.device)
+                try:
+                    quantiles = torch.quantile(vec, q).tolist()
+                    activations[name] = float(quantiles[0] + quantiles[1]) / 2.0
+                except RuntimeError:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

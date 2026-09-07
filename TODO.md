@@ -336,3 +336,6 @@
 - [x] Добавить функцию compute_parameter_trimean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_trimean в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_trimean в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_midhinge в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_midhinge в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_midhinge в src/experiment_utils.py и написать тесты.

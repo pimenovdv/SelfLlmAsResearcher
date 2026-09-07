@@ -886,6 +886,87 @@ def compute_activation_crest_factor(model: torch.nn.Module, input_data: torch.Te
 
     return activations
 
+def compute_parameter_pearsons_median_skewness(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Pearson's median skewness параметров модели.
+    Pearson's median skewness = 3 * (Mean - Median) / Standard Deviation
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+
+    std = torch.std(vec)
+    if std == 0.0:
+        return 0.0
+
+    mean = torch.mean(vec)
+    median = torch.median(vec)
+    return float(3.0 * (mean - median) / std)
+
+def compute_gradient_pearsons_median_skewness(model: torch.nn.Module) -> float:
+    """
+    Вычисляет Pearson's median skewness градиентов параметров модели.
+    """
+    import torch
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+
+    std = torch.std(vec)
+    if std == 0.0:
+        return 0.0
+
+    mean = torch.mean(vec)
+    median = torch.median(vec)
+    return float(3.0 * (mean - median) / std)
+
+def compute_activation_pearsons_median_skewness(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет Pearson's median skewness активаций для заданных слоев модели.
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(model, input, output):
+            vec = output.detach().flatten()
+            if vec.numel() > 0:
+                std = torch.std(vec)
+                if std > 0.0:
+                    mean = torch.mean(vec)
+                    median = torch.median(vec)
+                    activations[name] = float(3.0 * (mean - median) / std)
+                else:
+                    activations[name] = 0.0
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
 def compute_parameter_total_variation(model: torch.nn.Module) -> float:
     """
     Вычисляет total variation (полную вариацию) параметров модели.

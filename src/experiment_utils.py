@@ -4573,3 +4573,79 @@ def compute_activation_bimodality_coefficient(model: torch.nn.Module, input_data
         hook.remove()
 
     return activations
+
+def compute_parameter_renyi_entropy(model: torch.nn.Module, alpha: float = 2.0, bins: int = 256) -> float:
+    """
+    Вычисляет энтропию Реньи для параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1 or alpha == 1.0:
+        return 0.0
+    hist = torch.histc(vec, bins=bins)
+    p = hist / hist.sum()
+    p = p[p > 0]
+    entropy = (1.0 / (1.0 - alpha)) * torch.log2(torch.sum(p ** alpha))
+    return float(entropy.item())
+
+def compute_gradient_renyi_entropy(model: torch.nn.Module, alpha: float = 2.0, bins: int = 256) -> float:
+    """
+    Вычисляет энтропию Реньи для градиентов параметров модели.
+    """
+    import torch
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1 or alpha == 1.0:
+        return 0.0
+    hist = torch.histc(vec, bins=bins)
+    p = hist / hist.sum()
+    p = p[p > 0]
+    entropy = (1.0 / (1.0 - alpha)) * torch.log2(torch.sum(p ** alpha))
+    return float(entropy.item())
+
+def compute_activation_renyi_entropy(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], alpha: float = 2.0, bins: int = 256) -> dict[str, float]:
+    """
+    Вычисляет энтропию Реньи активаций для заданных слоев.
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(model, input, output):
+            if isinstance(output, tuple):
+                out = output[0]
+            else:
+                out = output
+            vec = out.detach().flatten()
+            if vec.numel() <= 1 or alpha == 1.0:
+                activations[name] = 0.0
+            else:
+                hist = torch.histc(vec, bins=bins)
+                p = hist / hist.sum()
+                p = p[p > 0]
+                entropy = (1.0 / (1.0 - alpha)) * torch.log2(torch.sum(p ** alpha))
+                activations[name] = float(entropy.item())
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

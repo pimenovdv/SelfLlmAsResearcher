@@ -3045,6 +3045,50 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('fc', res)
         self.assertIsInstance(res['fc'], float)
 
+
+    def test_compute_parameter_bimodality_coefficient(self):
+        from src.experiment_utils import compute_parameter_bimodality_coefficient
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        res = compute_parameter_bimodality_coefficient(model)
+        self.assertIsInstance(res, float)
+
+    def test_compute_gradient_bimodality_coefficient(self):
+        from src.experiment_utils import compute_gradient_bimodality_coefficient
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        res = compute_gradient_bimodality_coefficient(model)
+        self.assertIsInstance(res, float)
+
+    def test_compute_activation_bimodality_coefficient(self):
+        from src.experiment_utils import compute_activation_bimodality_coefficient
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(2, 10)
+        res = compute_activation_bimodality_coefficient(model, x, ['fc'])
+        self.assertIn('fc', res)
+        self.assertIsInstance(res['fc'], float)
+
 if __name__ == '__main__':
 
     unittest.main()

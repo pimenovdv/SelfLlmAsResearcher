@@ -357,3 +357,6 @@
 - [x] Добавить функцию compute_parameter_jarque_bera в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_jarque_bera в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_jarque_bera в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_bimodality_coefficient в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_bimodality_coefficient в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_bimodality_coefficient в src/experiment_utils.py и написать тесты.

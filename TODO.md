@@ -354,3 +354,6 @@
 - [x] Добавить функцию compute_parameter_crows_siddiqui_kurtosis в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_crows_siddiqui_kurtosis в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_crows_siddiqui_kurtosis в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_jarque_bera в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_jarque_bera в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_jarque_bera в src/experiment_utils.py и написать тесты.

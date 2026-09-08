@@ -4374,3 +4374,101 @@ def compute_activation_crows_siddiqui_kurtosis(model: torch.nn.Module, input_dat
         hook.remove()
 
     return activations
+
+
+def compute_parameter_jarque_bera(model: torch.nn.Module) -> float:
+    """
+    Вычисляет статистику критерия Харке-Бера (Jarque-Bera) для параметров модели.
+    JB = (n / 6) * (S^2 + (1/4) * (K - 3)^2)
+    где n - количество параметров, S - асимметрия, K - коэффициент эксцесса.
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    n = vec.numel()
+    if n <= 1:
+        return 0.0
+
+    mean = vec.mean()
+    std = vec.std(unbiased=False)
+
+    if std == 0.0:
+        return 0.0
+
+    z = (vec - mean) / std
+    S = torch.mean(z ** 3).item()
+    K = torch.mean(z ** 4).item()
+
+    jb = (n / 6.0) * (S ** 2 + 0.25 * (K - 3.0) ** 2)
+    return float(jb)
+
+
+def compute_gradient_jarque_bera(model: torch.nn.Module) -> float:
+    """
+    Вычисляет статистику критерия Харке-Бера (Jarque-Bera) для градиентов модели.
+    """
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    n = vec.numel()
+    if n <= 1:
+        return 0.0
+
+    mean = vec.mean()
+    std = vec.std(unbiased=False)
+
+    if std == 0.0:
+        return 0.0
+
+    z = (vec - mean) / std
+    S = torch.mean(z ** 3).item()
+    K = torch.mean(z ** 4).item()
+
+    jb = (n / 6.0) * (S ** 2 + 0.25 * (K - 3.0) ** 2)
+    return float(jb)
+
+
+def compute_activation_jarque_bera(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет статистику критерия Харке-Бера (Jarque-Bera) для активаций заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(model, input, output):
+            vec = output.detach().flatten()
+            n = vec.numel()
+            if n <= 1:
+                activations[name] = 0.0
+                return
+            mean = vec.mean()
+            std = vec.std(unbiased=False)
+            if std == 0.0:
+                activations[name] = 0.0
+                return
+            z = (vec - mean) / std
+            S = torch.mean(z ** 3).item()
+            K = torch.mean(z ** 4).item()
+            jb = (n / 6.0) * (S ** 2 + 0.25 * (K - 3.0) ** 2)
+            activations[name] = float(jb)
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

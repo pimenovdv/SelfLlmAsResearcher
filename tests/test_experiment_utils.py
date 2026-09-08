@@ -3089,6 +3089,44 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('fc', res)
         self.assertIsInstance(res['fc'], float)
 
+
+    def test_compute_parameter_hoover_index(self):
+        from src.experiment_utils import compute_parameter_hoover_index
+        import torch
+        model = torch.nn.Linear(2, 1, bias=False)
+        model.weight.data = torch.tensor([[1.0, 1.0]])
+        val = compute_parameter_hoover_index(model)
+        self.assertAlmostEqual(val, 0.0)
+
+        model.weight.data = torch.tensor([[1.0, 0.0]])
+        val2 = compute_parameter_hoover_index(model)
+        self.assertAlmostEqual(val2, 0.5)
+
+    def test_compute_gradient_hoover_index(self):
+        from src.experiment_utils import compute_gradient_hoover_index
+        import torch
+        model = torch.nn.Linear(2, 1, bias=False)
+        model.weight.grad = torch.tensor([[1.0, 1.0]])
+        val = compute_gradient_hoover_index(model)
+        self.assertAlmostEqual(val, 0.0)
+
+    def test_compute_activation_hoover_index(self):
+        from src.experiment_utils import compute_activation_hoover_index
+        import torch
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 1)
+            def forward(self, x):
+                return self.fc(x)
+
+        model = DummyModel()
+        input_data = torch.randn(1, 2)
+        res = compute_activation_hoover_index(model, input_data, ['fc'])
+        self.assertIn('fc', res)
+        self.assertIsInstance(res['fc'], float)
+
 if __name__ == '__main__':
 
     unittest.main()

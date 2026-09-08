@@ -360,3 +360,6 @@
 - [x] Добавить функцию compute_parameter_bimodality_coefficient в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_bimodality_coefficient в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_bimodality_coefficient в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_hoover_index в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_hoover_index в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_hoover_index в src/experiment_utils.py и написать тесты.

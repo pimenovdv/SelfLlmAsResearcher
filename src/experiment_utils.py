@@ -4573,3 +4573,82 @@ def compute_activation_bimodality_coefficient(model: torch.nn.Module, input_data
         hook.remove()
 
     return activations
+
+
+def _theil_index(vec: torch.Tensor) -> float:
+    """
+    Вспомогательная функция для вычисления индекса Тейла 1D тензора.
+    """
+    if vec.numel() == 0:
+        return 0.0
+    vec = torch.abs(vec).flatten().to(torch.float32)
+    n = vec.numel()
+    mean_val = torch.mean(vec)
+    if mean_val == 0:
+        return 0.0
+
+    vec_safe = vec[vec > 0]
+    if vec_safe.numel() == 0:
+        return 0.0
+
+    theil = torch.sum((vec_safe / mean_val) * torch.log(vec_safe / mean_val)) / n
+    return float(theil.item())
+
+
+def compute_parameter_theil_index(model: torch.nn.Module) -> float:
+    """
+    Вычисляет индекс Тейла для всех параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    return _theil_index(vec)
+
+
+def compute_gradient_theil_index(model: torch.nn.Module) -> float:
+    """
+    Вычисляет индекс Тейла для всех градиентов параметров модели.
+    """
+    import torch
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    return _theil_index(vec)
+
+
+def compute_activation_theil_index(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет индекс Тейла активаций для заданных слоев.
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.detach().flatten()
+                activations[name] = _theil_index(vec)
+            else:
+                activations[name] = 0.0
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

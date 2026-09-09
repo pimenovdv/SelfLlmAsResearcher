@@ -3089,6 +3089,48 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('fc', res)
         self.assertIsInstance(res['fc'], float)
 
+    def test_compute_parameter_theil_index(self):
+        from src.experiment_utils import compute_parameter_theil_index
+        import torch
+        model = torch.nn.Linear(10, 10)
+        res = compute_parameter_theil_index(model)
+        self.assertIsInstance(res, float)
+        self.assertTrue(res >= 0.0)
+
+    def test_compute_gradient_theil_index(self):
+        from src.experiment_utils import compute_gradient_theil_index
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(2, 10)
+        out = model(x)
+        loss = out.sum()
+        loss.backward()
+        res = compute_gradient_theil_index(model)
+        self.assertIsInstance(res, float)
+        self.assertTrue(res >= 0.0)
+
+    def test_compute_activation_theil_index(self):
+        from src.experiment_utils import compute_activation_theil_index
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(2, 10)
+        res = compute_activation_theil_index(model, x, ['fc'])
+        self.assertIn('fc', res)
+        self.assertIsInstance(res['fc'], float)
+        self.assertTrue(res['fc'] >= 0.0)
+
 if __name__ == '__main__':
 
     unittest.main()

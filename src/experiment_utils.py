@@ -4573,3 +4573,70 @@ def compute_activation_bimodality_coefficient(model: torch.nn.Module, input_data
         hook.remove()
 
     return activations
+
+def compute_parameter_dispersion_index(model: torch.nn.Module) -> float:
+    """
+    Вычисляет индекс дисперсии (Dispersion Index / Variance-to-Mean Ratio) для параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+    mean = vec.mean()
+    if mean == 0.0:
+        return 0.0
+    var = vec.var(unbiased=False)
+    return float((var / torch.abs(mean)).item())
+
+def compute_gradient_dispersion_index(model: torch.nn.Module) -> float:
+    """
+    Вычисляет индекс дисперсии (Dispersion Index) для градиентов модели.
+    """
+    import torch
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1:
+        return 0.0
+    mean = vec.mean()
+    if mean == 0.0:
+        return 0.0
+    var = vec.var(unbiased=False)
+    return float((var / torch.abs(mean)).item())
+
+def compute_activation_dispersion_index(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет индекс дисперсии (Dispersion Index) для активаций заданных слоев.
+    """
+    import torch
+    activations = {}
+    hooks = []
+    def get_hook(name):
+        def hook(model, input, output):
+            vec = output.detach().flatten()
+            if vec.numel() <= 1:
+                activations[name] = 0.0
+                return
+            mean = vec.mean()
+            if mean == 0.0:
+                activations[name] = 0.0
+                return
+            var = vec.var(unbiased=False)
+            activations[name] = float((var / torch.abs(mean)).item())
+        return hook
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+    if training_state:
+        model.train()
+    for hook in hooks:
+        hook.remove()
+    return activations

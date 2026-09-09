@@ -886,6 +886,92 @@ def compute_activation_crest_factor(model: torch.nn.Module, input_data: torch.Te
 
     return activations
 
+
+def compute_parameter_empirical_rule(model: torch.nn.Module) -> float:
+    """
+    Вычисляет долю параметров, попадающих в интервал [mean - std, mean + std] (Empirical Rule).
+    """
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    n = vec.numel()
+    if n == 0:
+        return 0.0
+
+    mean = vec.mean()
+    std = vec.std(unbiased=False)
+
+    if std == 0.0:
+        return 1.0
+
+    in_range = ((vec >= mean - std) & (vec <= mean + std)).sum().item()
+    return float(in_range / n)
+
+
+def compute_gradient_empirical_rule(model: torch.nn.Module) -> float:
+    """
+    Вычисляет долю градиентов, попадающих в интервал [mean - std, mean + std] (Empirical Rule).
+    """
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    n = vec.numel()
+    if n == 0:
+        return 0.0
+
+    mean = vec.mean()
+    std = vec.std(unbiased=False)
+
+    if std == 0.0:
+        return 1.0
+
+    in_range = ((vec >= mean - std) & (vec <= mean + std)).sum().item()
+    return float(in_range / n)
+
+
+def compute_activation_empirical_rule(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет долю активаций, попадающих в интервал [mean - std, mean + std] (Empirical Rule) для заданных слоев.
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(model, input, output):
+            vec = output.detach().flatten()
+            n = vec.numel()
+            if n == 0:
+                activations[name] = 0.0
+                return
+            mean = vec.mean()
+            std = vec.std(unbiased=False)
+            if std == 0.0:
+                activations[name] = 1.0
+                return
+
+            in_range = ((vec >= mean - std) & (vec <= mean + std)).sum().item()
+            activations[name] = float(in_range / n)
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
 def compute_parameter_pearsons_median_skewness(model: torch.nn.Module) -> float:
     """
     Вычисляет Pearson's median skewness параметров модели.

@@ -3046,6 +3046,52 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(res['fc'], float)
 
 
+    def test_compute_parameter_empirical_rule(self):
+        import torch
+        from src.experiment_utils import compute_parameter_empirical_rule
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        val = compute_parameter_empirical_rule(model)
+        self.assertIsInstance(val, float)
+
+    def test_compute_gradient_empirical_rule(self):
+        import torch
+        from src.experiment_utils import compute_gradient_empirical_rule
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(2, 10)
+        y = model(x)
+        y.sum().backward()
+        val = compute_gradient_empirical_rule(model)
+        self.assertIsInstance(val, float)
+
+    def test_compute_activation_empirical_rule(self):
+        import torch
+        from src.experiment_utils import compute_activation_empirical_rule
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(2, 10)
+        res = compute_activation_empirical_rule(model, x, ['fc'])
+        self.assertIsInstance(res, dict)
+        self.assertIn('fc', res)
+        self.assertIsInstance(res['fc'], float)
+
+
     def test_compute_parameter_bimodality_coefficient(self):
         from src.experiment_utils import compute_parameter_bimodality_coefficient
         import torch

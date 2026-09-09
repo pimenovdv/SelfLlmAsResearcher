@@ -360,6 +360,9 @@
 - [x] Добавить функцию compute_parameter_bimodality_coefficient в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_bimodality_coefficient в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_bimodality_coefficient в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_pearsons_mode_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_pearsons_mode_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_pearsons_mode_skewness в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_parameter_renyi_entropy в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_renyi_entropy в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_renyi_entropy в src/experiment_utils.py и написать тесты.

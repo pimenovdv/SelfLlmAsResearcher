@@ -98,6 +98,24 @@ def check_model_device_consistency(model: torch.nn.Module) -> bool:
     devices = {param.device for param in model.parameters()}
     return len(devices) <= 1
 
+def compute_parameter_gearys_kurtosis(model: torch.nn.Module) -> float:
+    """
+    Вычисляет коэффициент эксцесса Гири (Geary's kurtosis) параметров модели.
+    """
+    import torch
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+    mean = vec.mean()
+    m1 = torch.abs(vec - mean).mean()
+    m2 = ((vec - mean) ** 2).mean()
+    if m2 == 0:
+        return 0.0
+    return float((m1 / torch.sqrt(m2)).item())
+
 def compute_gradient_norm(model: torch.nn.Module) -> float:
     """
     Вычисляет L2 норму градиентов всех параметров модели.
@@ -398,6 +416,24 @@ def compute_gradient_mad(model: torch.nn.Module) -> float:
     med_val = vec.median()
     mad = torch.abs(vec - med_val).median()
     return float(mad.item())
+
+def compute_gradient_gearys_kurtosis(model: torch.nn.Module) -> float:
+    """
+    Вычисляет коэффициент эксцесса Гири (Geary's kurtosis) градиентов модели.
+    """
+    import torch
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1:
+        return 0.0
+    mean = vec.mean()
+    m1 = torch.abs(vec - mean).mean()
+    m2 = ((vec - mean) ** 2).mean()
+    if m2 == 0:
+        return 0.0
+    return float((m1 / torch.sqrt(m2)).item())
 
 def compute_activation_mad(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
     """
@@ -880,6 +916,48 @@ def compute_activation_crest_factor(model: torch.nn.Module, input_data: torch.Te
         except Exception:
             pass
     model.train(training_state)
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations
+
+def compute_activation_gearys_kurtosis(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет коэффициент эксцесса Гири (Geary's kurtosis) активаций модели.
+    """
+    import torch
+    activations = {}
+    hooks = []
+
+    def get_activation(name):
+        def hook(model, input, output):
+            vec = output.detach().flatten()
+            if vec.numel() <= 1:
+                activations[name] = 0.0
+            else:
+                mean = vec.mean()
+                m1 = torch.abs(vec - mean).mean()
+                m2 = ((vec - mean) ** 2).mean()
+                if m2 == 0:
+                    activations[name] = 0.0
+                else:
+                    activations[name] = float((m1 / torch.sqrt(m2)).item())
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_activation(name)))
+
+    if not hooks:
+        return activations
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+    if training_state:
+        model.train()
 
     for hook in hooks:
         hook.remove()

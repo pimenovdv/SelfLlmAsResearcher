@@ -171,6 +171,13 @@ class TestExperimentUtils(unittest.TestCase):
 
         self.assertFalse(check_model_device_consistency(mock_model))
 
+    def test_compute_parameter_gearys_kurtosis(self):
+        import torch
+        from src.experiment_utils import compute_parameter_gearys_kurtosis
+        model = torch.nn.Linear(10, 10)
+        res = compute_parameter_gearys_kurtosis(model)
+        self.assertTrue(isinstance(res, float))
+
     def test_compute_gradient_norm(self):
         from src.experiment_utils import compute_gradient_norm
         import torch
@@ -1630,6 +1637,21 @@ class TestExperimentUtils(unittest.TestCase):
         val = compute_gradient_mad(model)
         self.assertTrue(isinstance(val, float))
 
+    def test_compute_gradient_gearys_kurtosis(self):
+        import torch
+        from src.experiment_utils import compute_gradient_gearys_kurtosis
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        res = compute_gradient_gearys_kurtosis(model)
+        self.assertTrue(isinstance(res, float))
+
     def test_compute_activation_mad(self):
         from src.experiment_utils import compute_activation_mad
         import torch
@@ -3088,6 +3110,21 @@ class TestExperimentUtils(unittest.TestCase):
         res = compute_activation_bimodality_coefficient(model, x, ['fc'])
         self.assertIn('fc', res)
         self.assertIsInstance(res['fc'], float)
+
+    def test_compute_activation_gearys_kurtosis(self):
+        import torch
+        from src.experiment_utils import compute_activation_gearys_kurtosis
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        input_data = torch.randn(1, 10)
+        res = compute_activation_gearys_kurtosis(model, input_data, ['fc'])
+        self.assertIn('fc', res)
+        self.assertTrue(isinstance(res['fc'], float))
 
 if __name__ == '__main__':
 

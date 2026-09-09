@@ -363,3 +363,6 @@
 - [x] Добавить функцию compute_parameter_dispersion_index в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_dispersion_index в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_dispersion_index в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_pearsons_mode_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_pearsons_mode_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_pearsons_mode_skewness в src/experiment_utils.py и написать тесты.

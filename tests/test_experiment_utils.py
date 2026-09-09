@@ -2860,6 +2860,49 @@ class TestExperimentUtils(unittest.TestCase):
         assert 'fc' in vals
         assert isinstance(vals['fc'], float)
 
+    def test_compute_parameter_pearsons_mode_skewness(self):
+        from src.experiment_utils import compute_parameter_pearsons_mode_skewness
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        res = compute_parameter_pearsons_mode_skewness(model)
+        self.assertIsInstance(res, float)
+
+    def test_compute_gradient_pearsons_mode_skewness(self):
+        from src.experiment_utils import compute_gradient_pearsons_mode_skewness
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        res = compute_gradient_pearsons_mode_skewness(model)
+        self.assertIsInstance(res, float)
+
+    def test_compute_activation_pearsons_mode_skewness(self):
+        from src.experiment_utils import compute_activation_pearsons_mode_skewness
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(2, 10)
+        res = compute_activation_pearsons_mode_skewness(model, x, ['fc'])
+        self.assertIn('fc', res)
+        self.assertIsInstance(res['fc'], float)
+
     def test_compute_parameter_pearsons_median_skewness(self):
         import torch
         from src.experiment_utils import compute_parameter_pearsons_median_skewness

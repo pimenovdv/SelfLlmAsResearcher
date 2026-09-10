@@ -3177,6 +3177,44 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('fc', res)
         self.assertIsInstance(res['fc'], float)
 
+
+    def test_compute_parameter_hoyer_sparsity(self):
+        import torch
+        from src.experiment_utils import compute_parameter_hoyer_sparsity
+        model = torch.nn.Linear(10, 10)
+        hoyer = compute_parameter_hoyer_sparsity(model)
+        self.assertIsInstance(hoyer, float)
+
+    def test_compute_gradient_hoyer_sparsity(self):
+        import torch
+        from src.experiment_utils import compute_gradient_hoyer_sparsity
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(2, 10)
+        out = model(x)
+        out.sum().backward()
+        hoyer = compute_gradient_hoyer_sparsity(model)
+        self.assertIsInstance(hoyer, float)
+
+    def test_compute_activation_hoyer_sparsity(self):
+        import torch
+        from src.experiment_utils import compute_activation_hoyer_sparsity
+        model = torch.nn.Sequential(
+            torch.nn.Linear(10, 10),
+            torch.nn.ReLU()
+        )
+        x = torch.randn(2, 10)
+        hoyer_dict = compute_activation_hoyer_sparsity(model, x, ["0", "1"])
+        self.assertIn("0", hoyer_dict)
+        self.assertIn("1", hoyer_dict)
+        self.assertIsInstance(hoyer_dict["0"], float)
+        self.assertIsInstance(hoyer_dict["1"], float)
+
 if __name__ == '__main__':
 
     unittest.main()

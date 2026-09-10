@@ -3215,6 +3215,39 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(hoyer_dict["0"], float)
         self.assertIsInstance(hoyer_dict["1"], float)
 
+
+    def test_compute_parameter_tsallis_entropy(self):
+        import torch
+        from src.experiment_utils import compute_parameter_tsallis_entropy
+        model = torch.nn.Linear(10, 10)
+        tsallis = compute_parameter_tsallis_entropy(model)
+        self.assertIsInstance(tsallis, float)
+
+    def test_compute_gradient_tsallis_entropy(self):
+        import torch
+        from src.experiment_utils import compute_gradient_tsallis_entropy
+        model = torch.nn.Linear(10, 10)
+        x = torch.randn(2, 10)
+        out = model(x)
+        out.sum().backward()
+        tsallis = compute_gradient_tsallis_entropy(model)
+        self.assertIsInstance(tsallis, float)
+
+    def test_compute_activation_tsallis_entropy(self):
+        import torch
+        from src.experiment_utils import compute_activation_tsallis_entropy
+        model = torch.nn.Sequential(
+            torch.nn.Linear(10, 10),
+            torch.nn.ReLU(),
+            torch.nn.Linear(10, 10)
+        )
+        x = torch.randn(2, 10)
+        tsallis_dict = compute_activation_tsallis_entropy(model, x, ["0", "2"])
+        self.assertIn("0", tsallis_dict)
+        self.assertIn("2", tsallis_dict)
+        self.assertIsInstance(tsallis_dict["0"], float)
+        self.assertIsInstance(tsallis_dict["2"], float)
+
 if __name__ == '__main__':
 
     unittest.main()

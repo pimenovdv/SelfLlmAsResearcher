@@ -369,3 +369,6 @@
 - [x] Добавить функцию compute_parameter_hoyer_sparsity в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_hoyer_sparsity в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_hoyer_sparsity в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_tsallis_entropy в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_tsallis_entropy в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_tsallis_entropy в src/experiment_utils.py и написать тесты.

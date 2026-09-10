@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлены функции для расчета энтропии Реньи (compute_parameter_renyi_entropy, compute_gradient_renyi_entropy, compute_activation_renyi_entropy) в `src/experiment_utils.py` и написаны тесты к ним. TODO.md обновлен.
+Добавлены функции `compute_kl_divergence_between_models`, `compute_js_divergence_between_models`, и `compute_pearson_correlation_between_models` в `src/experiment_utils.py` с тестами. `TODO.md` обновлен.
 
 **План действий на следующий этап:**
-1. Ожидание новых задач от пользователя или продолжение добавления статистических метрик (например, Shannon entropy, если не реализовано, или другие divergence метрики).
+1. Ожидание новых задач от пользователя или продолжение добавления метрик расстояния/сходства между моделями (например, Spearman correlation или Wasserstein distance).

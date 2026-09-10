@@ -3272,6 +3272,32 @@ class TestExperimentUtils(unittest.TestCase):
         renyi_dict = compute_activation_renyi_entropy(model, inp, [""])
         self.assertIsInstance(renyi_dict, dict)
 
+
+    def test_compute_kl_divergence_between_models(self):
+        from src.experiment_utils import compute_kl_divergence_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        dist = compute_kl_divergence_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+
+    def test_compute_js_divergence_between_models(self):
+        from src.experiment_utils import compute_js_divergence_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        dist = compute_js_divergence_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+
+    def test_compute_pearson_correlation_between_models(self):
+        from src.experiment_utils import compute_pearson_correlation_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        corr = compute_pearson_correlation_between_models(model1, model2)
+        self.assertIsInstance(corr, float)
+
 if __name__ == '__main__':
 
     unittest.main()

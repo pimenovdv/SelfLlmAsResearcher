@@ -363,3 +363,6 @@
 - [x] Добавить функцию compute_parameter_pearsons_mode_skewness в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_pearsons_mode_skewness в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_pearsons_mode_skewness в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_parameter_gearys_kurtosis в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_gradient_gearys_kurtosis в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_activation_gearys_kurtosis в src/experiment_utils.py и написать тесты.

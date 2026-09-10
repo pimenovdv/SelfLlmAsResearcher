@@ -3248,6 +3248,30 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(tsallis_dict["0"], float)
         self.assertIsInstance(tsallis_dict["2"], float)
 
+    def test_compute_parameter_renyi_entropy(self):
+        import torch
+        from src.experiment_utils import compute_parameter_renyi_entropy
+        model = torch.nn.Linear(10, 10)
+        renyi = compute_parameter_renyi_entropy(model)
+        self.assertIsInstance(renyi, float)
+
+    def test_compute_gradient_renyi_entropy(self):
+        import torch
+        from src.experiment_utils import compute_gradient_renyi_entropy
+        model = torch.nn.Linear(10, 10)
+        loss = model(torch.randn(10, 10)).sum()
+        loss.backward()
+        renyi = compute_gradient_renyi_entropy(model)
+        self.assertIsInstance(renyi, float)
+
+    def test_compute_activation_renyi_entropy(self):
+        import torch
+        from src.experiment_utils import compute_activation_renyi_entropy
+        model = torch.nn.Linear(10, 10)
+        inp = torch.randn(10, 10)
+        renyi_dict = compute_activation_renyi_entropy(model, inp, [""])
+        self.assertIsInstance(renyi_dict, dict)
+
 if __name__ == '__main__':
 
     unittest.main()

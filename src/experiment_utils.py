@@ -4907,3 +4907,85 @@ def compute_activation_tsallis_entropy(model: torch.nn.Module, input_data: torch
         handle.remove()
 
     return tsallis_dict
+
+def compute_parameter_renyi_entropy(model: torch.nn.Module, alpha: float = 2.0, bins: int = 256) -> float:
+    """
+    Вычисляет энтропию Реньи для параметров модели.
+    """
+    import torch
+    if alpha == 1.0:
+        raise ValueError("alpha cannot be 1.0 for Renyi entropy.")
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() <= 1:
+        return 0.0
+
+    hist = torch.histc(vec, bins=bins)
+    p = hist / hist.sum()
+    p = p[p > 0]
+    renyi = (1.0 / (1.0 - alpha)) * torch.log(torch.sum(p ** alpha))
+    return float(renyi.item())
+
+def compute_gradient_renyi_entropy(model: torch.nn.Module, alpha: float = 2.0, bins: int = 256) -> float:
+    """
+    Вычисляет энтропию Реньи для градиентов модели.
+    """
+    import torch
+    if alpha == 1.0:
+        raise ValueError("alpha cannot be 1.0 for Renyi entropy.")
+    grads = [p.grad.data.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() <= 1:
+        return 0.0
+
+    hist = torch.histc(vec, bins=bins)
+    p = hist / hist.sum()
+    p = p[p > 0]
+    renyi = (1.0 / (1.0 - alpha)) * torch.log(torch.sum(p ** alpha))
+    return float(renyi.item())
+
+def compute_activation_renyi_entropy(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], alpha: float = 2.0, bins: int = 256) -> dict[str, float]:
+    """
+    Вычисляет энтропию Реньи активаций для заданных слоев.
+    """
+    import torch
+    if alpha == 1.0:
+        raise ValueError("alpha cannot be 1.0 for Renyi entropy.")
+    renyi_dict = {}
+    handles = []
+
+    def hook(name):
+        def fn(module, inp, out):
+            if isinstance(out, tuple):
+                out = out[0]
+            vec = out.data.flatten()
+            if vec.numel() <= 1:
+                renyi_dict[name] = 0.0
+                return
+            hist = torch.histc(vec, bins=bins)
+            p = hist / hist.sum()
+            p = p[p > 0]
+            renyi = (1.0 / (1.0 - alpha)) * torch.log(torch.sum(p ** alpha))
+            renyi_dict[name] = float(renyi.item())
+        return fn
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            handles.append(module.register_forward_hook(hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for handle in handles:
+        handle.remove()
+
+    return renyi_dict

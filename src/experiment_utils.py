@@ -4730,3 +4730,92 @@ def compute_activation_gearys_kurtosis(model: torch.nn.Module, input_data: torch
         hook.remove()
 
     return activations
+
+def compute_parameter_hoyer_sparsity(model: torch.nn.Module) -> float:
+    """
+    Вычисляет разреженность Хойера (Hoyer's Sparsity) всех параметров модели.
+    """
+    import torch
+    import math
+    params = [p.data.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    n = vec.numel()
+    if n <= 1:
+        return 0.0
+
+    l1_norm = torch.norm(vec, p=1)
+    l2_norm = torch.norm(vec, p=2)
+
+    if l2_norm == 0.0:
+        return 0.0
+
+    hoyer = (math.sqrt(n) - (l1_norm / l2_norm)) / (math.sqrt(n) - 1.0)
+    return float(hoyer.item())
+
+def compute_gradient_hoyer_sparsity(model: torch.nn.Module) -> float:
+    """
+    Вычисляет разреженность Хойера (Hoyer's Sparsity) градиентов параметров модели.
+    """
+    import torch
+    import math
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    n = vec.numel()
+    if n <= 1:
+        return 0.0
+
+    l1_norm = torch.norm(vec, p=1)
+    l2_norm = torch.norm(vec, p=2)
+
+    if l2_norm == 0.0:
+        return 0.0
+
+    hoyer = (math.sqrt(n) - (l1_norm / l2_norm)) / (math.sqrt(n) - 1.0)
+    return float(hoyer.item())
+
+def compute_activation_hoyer_sparsity(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    """
+    Вычисляет разреженность Хойера (Hoyer's Sparsity) активаций для заданных слоев.
+    """
+    import torch
+    import math
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(module, input, output):
+            if isinstance(output, torch.Tensor):
+                vec = output.flatten()
+                n = vec.numel()
+                if n <= 1:
+                    activations[name] = 0.0
+                else:
+                    l1_norm = torch.norm(vec, p=1)
+                    l2_norm = torch.norm(vec, p=2)
+                    if l2_norm == 0.0:
+                        activations[name] = 0.0
+                    else:
+                        hoyer = (math.sqrt(n) - (l1_norm / l2_norm)) / (math.sqrt(n) - 1.0)
+                        activations[name] = float(hoyer.item())
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

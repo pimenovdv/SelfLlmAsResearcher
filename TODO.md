@@ -375,3 +375,6 @@
 - [x] Добавить функцию compute_parameter_renyi_entropy в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_gradient_renyi_entropy в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_activation_renyi_entropy в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_kl_divergence_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_js_divergence_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_pearson_correlation_between_models в src/experiment_utils.py и написать тесты.

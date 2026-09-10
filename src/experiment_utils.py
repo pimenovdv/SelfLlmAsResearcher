@@ -4989,3 +4989,96 @@ def compute_activation_renyi_entropy(model: torch.nn.Module, input_data: torch.T
         handle.remove()
 
     return renyi_dict
+def compute_kl_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет KL-дивергенцию между весами двух моделей,
+    преобразуя их в вероятностные распределения (через абсолютные значения и нормализацию).
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    p = p + 1e-12
+    q = q + 1e-12
+
+    kl = torch.sum(p * torch.log(p / q))
+    return float(kl.item())
+
+def compute_js_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет Jensen-Shannon divergence между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    m = 0.5 * (p + q)
+
+    p = p + 1e-12
+    q = q + 1e-12
+    m = m + 1e-12
+
+    kl_p_m = torch.sum(p * torch.log(p / m))
+    kl_q_m = torch.sum(q * torch.log(q / m))
+
+    js = 0.5 * (kl_p_m + kl_q_m)
+    return float(js.item())
+
+def compute_pearson_correlation_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет Pearson correlation coefficient между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.shape != vec2.shape:
+        return 0.0
+
+    mean1 = vec1.mean()
+    mean2 = vec2.mean()
+
+    vec1_centered = vec1 - mean1
+    vec2_centered = vec2 - mean2
+
+    numerator = torch.sum(vec1_centered * vec2_centered)
+    denominator = torch.sqrt(torch.sum(vec1_centered ** 2) * torch.sum(vec2_centered ** 2))
+
+    if denominator == 0.0:
+        return 0.0
+
+    corr = numerator / denominator
+    return float(corr.item())

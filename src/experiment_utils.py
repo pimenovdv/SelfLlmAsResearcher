@@ -4666,3 +4666,67 @@ def compute_activation_bimodality_coefficient(model: torch.nn.Module, input_data
         hook.remove()
 
     return activations
+
+def compute_parameter_gearys_kurtosis(model: torch.nn.Module) -> float:
+    params = [p.flatten() for p in model.parameters() if p.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    if vec.numel() == 0:
+        return 0.0
+    std = vec.std(unbiased=False)
+    if std == 0.0:
+        return 0.0
+    mean = vec.mean()
+    mad = torch.mean(torch.abs(vec - mean))
+    return float((mad / std).item())
+
+def compute_gradient_gearys_kurtosis(model: torch.nn.Module) -> float:
+    grads = [p.grad.flatten() for p in model.parameters() if p.grad is not None and p.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    if vec.numel() == 0:
+        return 0.0
+    std = vec.std(unbiased=False)
+    if std == 0.0:
+        return 0.0
+    mean = vec.mean()
+    mad = torch.mean(torch.abs(vec - mean))
+    return float((mad / std).item())
+
+def compute_activation_gearys_kurtosis(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str]) -> dict[str, float]:
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(model, input, output):
+            vec = output.flatten()
+            if vec.numel() == 0:
+                activations[name] = 0.0
+            else:
+                std = vec.std(unbiased=False)
+                if std == 0.0:
+                    activations[name] = 0.0
+                else:
+                    mean = vec.mean()
+                    mad = torch.mean(torch.abs(vec - mean))
+                    activations[name] = float((mad / std).item())
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    return activations

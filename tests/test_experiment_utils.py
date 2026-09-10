@@ -3132,6 +3132,51 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('fc', res)
         self.assertIsInstance(res['fc'], float)
 
+    def test_compute_parameter_gearys_kurtosis(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import compute_parameter_gearys_kurtosis
+        class DummyModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = nn.Linear(10, 10)
+        model = DummyModel()
+        val = compute_parameter_gearys_kurtosis(model)
+        self.assertIsInstance(val, float)
+
+    def test_compute_gradient_gearys_kurtosis(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import compute_gradient_gearys_kurtosis
+        class DummyModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(2, 10)
+        loss = model(x).sum()
+        loss.backward()
+        val = compute_gradient_gearys_kurtosis(model)
+        self.assertIsInstance(val, float)
+
+    def test_compute_activation_gearys_kurtosis(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import compute_activation_gearys_kurtosis
+        class DummyModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(2, 10)
+        res = compute_activation_gearys_kurtosis(model, x, ['fc'])
+        self.assertIn('fc', res)
+        self.assertIsInstance(res['fc'], float)
+
 if __name__ == '__main__':
 
     unittest.main()

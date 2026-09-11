@@ -3351,6 +3351,22 @@ class TestExperimentUtils(unittest.TestCase):
         r2 = compute_r2_score_between_models(model1, model2)
         self.assertIsInstance(r2, float)
 
+    def test_compute_mean_absolute_percentage_error_between_models(self):
+        from src.experiment_utils import compute_mean_absolute_percentage_error_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        mape = compute_mean_absolute_percentage_error_between_models(model1, model2)
+        self.assertIsInstance(mape, float)
+
+    def test_compute_symmetric_mean_absolute_percentage_error_between_models(self):
+        from src.experiment_utils import compute_symmetric_mean_absolute_percentage_error_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        smape = compute_symmetric_mean_absolute_percentage_error_between_models(model1, model2)
+        self.assertIsInstance(smape, float)
+
 if __name__ == '__main__':
 
     unittest.main()

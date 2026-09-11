@@ -5151,3 +5151,51 @@ def compute_wasserstein_distance_between_models(model1: torch.nn.Module, model2:
         return float(dist.item())
     else:
         return 0.0
+
+
+def compute_mean_squared_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет среднеквадратичную ошибку (MSE) между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.numel() == vec2.numel():
+        mse = torch.mean((vec1 - vec2) ** 2)
+        return float(mse.item())
+    else:
+        return 0.0
+
+
+def compute_mean_absolute_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет среднюю абсолютную ошибку (MAE) между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.numel() == vec2.numel():
+        mae = torch.mean(torch.abs(vec1 - vec2))
+        return float(mae.item())
+    else:
+        return 0.0

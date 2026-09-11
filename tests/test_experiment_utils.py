@@ -3316,6 +3316,24 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(dist, float)
         self.assertGreaterEqual(dist, 0.0)
 
+    def test_compute_mean_squared_error_between_models(self):
+        from src.experiment_utils import compute_mean_squared_error_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        mse = compute_mean_squared_error_between_models(model1, model2)
+        self.assertIsInstance(mse, float)
+        self.assertGreaterEqual(mse, 0.0)
+
+    def test_compute_mean_absolute_error_between_models(self):
+        from src.experiment_utils import compute_mean_absolute_error_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        mae = compute_mean_absolute_error_between_models(model1, model2)
+        self.assertIsInstance(mae, float)
+        self.assertGreaterEqual(mae, 0.0)
+
 if __name__ == '__main__':
 
     unittest.main()

@@ -5287,3 +5287,53 @@ def compute_symmetric_mean_absolute_percentage_error_between_models(model1: torc
         return float(smape.item())
     else:
         return 0.0
+
+
+def compute_huber_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, delta: float = 1.0) -> float:
+    """
+    Вычисляет потерю Хьюбера (Huber Loss) между весами двух моделей.
+    """
+    import torch
+    import torch.nn.functional as F
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.numel() == vec2.numel():
+        return float(F.huber_loss(vec1, vec2, reduction='mean', delta=delta).item())
+    else:
+        return 0.0
+
+
+def compute_log_cosh_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет ошибку Log-Cosh между весами двух моделей.
+    """
+    import torch
+    import math
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.numel() == vec2.numel():
+        diff = vec1 - vec2
+        log_cosh = diff + torch.nn.functional.softplus(-2.0 * diff) - math.log(2.0)
+        return float(torch.mean(log_cosh).item())
+    else:
+        return 0.0

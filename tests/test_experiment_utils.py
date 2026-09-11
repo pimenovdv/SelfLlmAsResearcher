@@ -3367,6 +3367,22 @@ class TestExperimentUtils(unittest.TestCase):
         smape = compute_symmetric_mean_absolute_percentage_error_between_models(model1, model2)
         self.assertIsInstance(smape, float)
 
+    def test_compute_huber_loss_between_models(self):
+        from src.experiment_utils import compute_huber_loss_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        huber = compute_huber_loss_between_models(model1, model2)
+        self.assertIsInstance(huber, float)
+
+    def test_compute_log_cosh_error_between_models(self):
+        from src.experiment_utils import compute_log_cosh_error_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        log_cosh = compute_log_cosh_error_between_models(model1, model2)
+        self.assertIsInstance(log_cosh, float)
+
 if __name__ == '__main__':
 
     unittest.main()

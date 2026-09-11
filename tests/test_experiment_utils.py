@@ -3334,6 +3334,23 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(mae, float)
         self.assertGreaterEqual(mae, 0.0)
 
+    def test_compute_root_mean_squared_error_between_models(self):
+        from src.experiment_utils import compute_root_mean_squared_error_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        rmse = compute_root_mean_squared_error_between_models(model1, model2)
+        self.assertIsInstance(rmse, float)
+        self.assertGreaterEqual(rmse, 0.0)
+
+    def test_compute_r2_score_between_models(self):
+        from src.experiment_utils import compute_r2_score_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        r2 = compute_r2_score_between_models(model1, model2)
+        self.assertIsInstance(r2, float)
+
 if __name__ == '__main__':
 
     unittest.main()

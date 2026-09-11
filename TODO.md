@@ -382,3 +382,5 @@
 - [x] Добавить функцию compute_wasserstein_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_mean_squared_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_mean_absolute_error_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_root_mean_squared_error_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_r2_score_between_models в src/experiment_utils.py и написать тесты.

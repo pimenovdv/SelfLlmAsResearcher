@@ -5153,6 +5153,45 @@ def compute_wasserstein_distance_between_models(model1: torch.nn.Module, model2:
         return 0.0
 
 
+def compute_root_mean_squared_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет корень из среднеквадратичной ошибки (RMSE) между весами двух моделей.
+    """
+    import math
+    mse = compute_mean_squared_error_between_models(model1, model2)
+    return float(math.sqrt(mse))
+
+
+def compute_r2_score_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет коэффициент детерминации (R^2) между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.numel() != vec2.numel():
+        return 0.0
+
+    mean_vec1 = torch.mean(vec1)
+    ss_tot = torch.sum((vec1 - mean_vec1) ** 2)
+    ss_res = torch.sum((vec1 - vec2) ** 2)
+
+    if ss_tot.item() == 0.0:
+        return 0.0
+
+    r2 = 1 - (ss_res / ss_tot)
+    return float(r2.item())
+
 def compute_mean_squared_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет среднеквадратичную ошибку (MSE) между весами двух моделей.

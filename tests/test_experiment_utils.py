@@ -3298,6 +3298,24 @@ class TestExperimentUtils(unittest.TestCase):
         corr = compute_pearson_correlation_between_models(model1, model2)
         self.assertIsInstance(corr, float)
 
+    def test_compute_spearman_correlation_between_models(self):
+        from src.experiment_utils import compute_spearman_correlation_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        corr = compute_spearman_correlation_between_models(model1, model2)
+        self.assertIsInstance(corr, float)
+        self.assertTrue(-1.0 <= corr <= 1.0)
+
+    def test_compute_wasserstein_distance_between_models(self):
+        from src.experiment_utils import compute_wasserstein_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        dist = compute_wasserstein_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+
 if __name__ == '__main__':
 
     unittest.main()

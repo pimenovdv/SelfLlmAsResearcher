@@ -5082,3 +5082,72 @@ def compute_pearson_correlation_between_models(model1: torch.nn.Module, model2: 
 
     corr = numerator / denominator
     return float(corr.item())
+
+def compute_spearman_correlation_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет Spearman rank correlation coefficient между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.shape != vec2.shape:
+        return 0.0
+
+    def get_ranks(x):
+        sorted_indices = torch.argsort(x)
+        ranks = torch.empty_like(sorted_indices, dtype=torch.float32)
+        ranks[sorted_indices] = torch.arange(len(x), dtype=torch.float32, device=x.device)
+        return ranks
+
+    rank1 = get_ranks(vec1)
+    rank2 = get_ranks(vec2)
+
+    mean1 = rank1.mean()
+    mean2 = rank2.mean()
+
+    vec1_centered = rank1 - mean1
+    vec2_centered = rank2 - mean2
+
+    numerator = torch.sum(vec1_centered * vec2_centered)
+    denominator = torch.sqrt(torch.sum(vec1_centered ** 2) * torch.sum(vec2_centered ** 2))
+
+    if denominator == 0.0:
+        return 0.0
+
+    corr = numerator / denominator
+    return float(corr.item())
+
+def compute_wasserstein_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет 1D Wasserstein distance (L1 distance between sorted elements) между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.numel() == vec2.numel():
+        sorted1, _ = torch.sort(vec1)
+        sorted2, _ = torch.sort(vec2)
+        dist = torch.mean(torch.abs(sorted1 - sorted2))
+        return float(dist.item())
+    else:
+        return 0.0

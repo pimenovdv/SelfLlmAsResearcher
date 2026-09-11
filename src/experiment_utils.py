@@ -5238,3 +5238,52 @@ def compute_mean_absolute_error_between_models(model1: torch.nn.Module, model2: 
         return float(mae.item())
     else:
         return 0.0
+
+def compute_mean_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет среднюю абсолютную процентную ошибку (MAPE) между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.numel() == vec2.numel():
+        epsilon = 1e-8
+        mape = torch.mean(torch.abs((vec1 - vec2) / torch.clamp(torch.abs(vec1), min=epsilon)))
+        return float(mape.item())
+    else:
+        return 0.0
+
+
+def compute_symmetric_mean_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет симметричную среднюю абсолютную процентную ошибку (SMAPE) между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.numel() == vec2.numel():
+        epsilon = 1e-8
+        smape = torch.mean(2.0 * torch.abs(vec1 - vec2) / (torch.abs(vec1) + torch.abs(vec2) + epsilon))
+        return float(smape.item())
+    else:
+        return 0.0

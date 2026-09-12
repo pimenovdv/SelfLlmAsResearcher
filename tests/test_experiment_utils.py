@@ -3383,6 +3383,20 @@ class TestExperimentUtils(unittest.TestCase):
         log_cosh = compute_log_cosh_error_between_models(model1, model2)
         self.assertIsInstance(log_cosh, float)
 
+    def test_compute_minkowski_distance_between_models(self):
+        from src.experiment_utils import compute_minkowski_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(2.0)
+            model2.bias.fill_(2.0)
+        dist = compute_minkowski_distance_between_models(model1, model2, p=3.0)
+        self.assertIsInstance(dist, float)
+        self.assertGreater(dist, 0.0)
+
 if __name__ == '__main__':
 
     unittest.main()

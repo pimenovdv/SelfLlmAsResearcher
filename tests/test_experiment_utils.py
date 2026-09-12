@@ -3426,6 +3426,46 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(dist, float)
         self.assertGreaterEqual(dist, 0.0)
 
+
+    def test_compute_chebyshev_distance_between_models(self):
+        from src.experiment_utils import compute_chebyshev_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+
+        dist = compute_chebyshev_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 0.0, places=4)
+
+        with torch.no_grad():
+            model2.weight.fill_(2.0)
+            model2.bias.fill_(2.0)
+
+        dist = compute_chebyshev_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 1.0, places=4)
+
+    def test_compute_jaccard_similarity_between_models(self):
+        from src.experiment_utils import compute_jaccard_similarity_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(2.0)
+            model2.bias.fill_(2.0)
+
+        sim = compute_jaccard_similarity_between_models(model1, model2)
+        self.assertIsInstance(sim, float)
+        self.assertGreaterEqual(sim, 0.0)
+        self.assertLessEqual(sim, 1.0)
+
 if __name__ == '__main__':
 
     unittest.main()

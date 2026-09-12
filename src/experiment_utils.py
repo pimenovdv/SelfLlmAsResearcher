@@ -5422,6 +5422,30 @@ def compute_chebyshev_distance_between_models(model1: torch.nn.Module, model2: t
 
     return float(torch.max(torch.abs(vec1 - vec2)).item())
 
+def compute_canberra_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет расстояние Канберры (Canberra Distance) между распределениями абсолютных значений весов двух моделей.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    numerator = torch.abs(p - q)
+    denominator = torch.abs(p) + torch.abs(q) + 1e-8
+
+    return float(torch.sum(numerator / denominator).item())
+
 def compute_jaccard_similarity_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет индекс Жаккара между распределениями абсолютных значений весов двух моделей.

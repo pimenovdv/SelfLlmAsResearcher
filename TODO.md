@@ -393,3 +393,4 @@
 - [x] Добавить функцию compute_hellinger_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_chebyshev_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_jaccard_similarity_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_canberra_distance_between_models в src/experiment_utils.py и написать тесты.

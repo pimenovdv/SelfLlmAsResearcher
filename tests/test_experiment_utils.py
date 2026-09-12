@@ -3466,6 +3466,22 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertGreaterEqual(sim, 0.0)
         self.assertLessEqual(sim, 1.0)
 
+    def test_compute_canberra_distance_between_models(self):
+        import torch
+        from src.experiment_utils import compute_canberra_distance_between_models
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(2.0)
+            model2.bias.fill_(2.0)
+
+        dist = compute_canberra_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+
 if __name__ == '__main__':
 
     unittest.main()

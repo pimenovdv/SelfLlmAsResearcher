@@ -5016,6 +5016,36 @@ def compute_kl_divergence_between_models(model1: torch.nn.Module, model2: torch.
     kl = torch.sum(p * torch.log(p / q))
     return float(kl.item())
 
+def compute_tsallis_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, alpha: float = 2.0) -> float:
+    """
+    Вычисляет дивергенцию Тсаллиса (Tsallis divergence) между весами двух моделей.
+    """
+    if alpha == 1.0:
+        raise ValueError("alpha cannot be 1.0")
+
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    p = p + 1e-12
+    q = q + 1e-12
+
+    divergence = (1.0 / (alpha - 1.0)) * (torch.sum((p ** alpha) * (q ** (1.0 - alpha))) - 1.0)
+    return float(divergence.item())
+
+
 def compute_jeffreys_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет Jeffreys divergence (симметризованную KL-дивергенцию) между весами двух моделей,

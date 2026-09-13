@@ -399,3 +399,4 @@
 - [x] Добавить функцию compute_total_variation_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_renyi_divergence_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_jeffreys_divergence_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_tsallis_divergence_between_models в src/experiment_utils.py и написать тесты.

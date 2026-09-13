@@ -5514,3 +5514,51 @@ def compute_jaccard_similarity_between_models(model1: torch.nn.Module, model2: t
     union = torch.max(p, q).sum()
 
     return float((intersection / union).item())
+
+def compute_total_variation_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет Total Variation Distance (TVD) между распределениями абсолютных значений весов двух моделей.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    return float((0.5 * torch.sum(torch.abs(p - q))).item())
+
+def compute_renyi_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, alpha: float = 2.0) -> float:
+    """
+    Вычисляет дивергенцию Реньи (Renyi Divergence) между распределениями абсолютных значений весов двух моделей.
+    """
+    if alpha == 1.0:
+        raise ValueError("alpha cannot be 1.0")
+
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    term = torch.pow(p, alpha) * torch.pow(q + 1e-12, 1.0 - alpha)
+    divergence = (1.0 / (alpha - 1.0)) * torch.log2(torch.sum(term) + 1e-12)
+
+    return float(divergence.item())

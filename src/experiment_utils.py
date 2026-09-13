@@ -5446,6 +5446,27 @@ def compute_canberra_distance_between_models(model1: torch.nn.Module, model2: to
 
     return float(torch.sum(numerator / denominator).item())
 
+def compute_bray_curtis_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет расстояние Брея-Кертиса (Bray-Curtis Distance) между распределениями абсолютных значений весов двух моделей.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    numerator = torch.sum(torch.abs(vec1 - vec2))
+    denominator = torch.sum(torch.abs(vec1) + torch.abs(vec2)) + 1e-8
+
+    return float((numerator / denominator).item())
+
 def compute_jaccard_similarity_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет индекс Жаккара между распределениями абсолютных значений весов двух моделей.

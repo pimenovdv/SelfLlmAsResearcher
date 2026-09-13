@@ -5016,6 +5016,36 @@ def compute_kl_divergence_between_models(model1: torch.nn.Module, model2: torch.
     kl = torch.sum(p * torch.log(p / q))
     return float(kl.item())
 
+def compute_jeffreys_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет Jeffreys divergence (симметризованную KL-дивергенцию) между весами двух моделей,
+    преобразуя их в вероятностные распределения (через абсолютные значения и нормализацию).
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    p = p + 1e-12
+    q = q + 1e-12
+
+    kl_pq = torch.sum(p * torch.log(p / q))
+    kl_qp = torch.sum(q * torch.log(q / p))
+
+    jeffreys = kl_pq + kl_qp
+    return float(jeffreys.item())
+
 def compute_js_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет Jensen-Shannon divergence между весами двух моделей.

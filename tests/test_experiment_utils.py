@@ -3483,6 +3483,23 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertGreaterEqual(dist, 0.0)
 
 
+    def test_compute_chi_square_distance_between_models(self):
+        import torch
+        from src.experiment_utils import compute_chi_square_distance_between_models
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(2.0)
+            model2.bias.fill_(2.0)
+
+        dist = compute_chi_square_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+
+
     def test_compute_bray_curtis_distance_between_models(self):
         import torch
         from src.experiment_utils import compute_bray_curtis_distance_between_models

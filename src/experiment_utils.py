@@ -5622,3 +5622,10 @@ def compute_renyi_divergence_between_models(model1: torch.nn.Module, model2: tor
     divergence = (1.0 / (alpha - 1.0)) * torch.log2(torch.sum(term) + 1e-12)
 
     return float(divergence.item())
+
+def compute_cosine_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет косинусное расстояние (Cosine Distance) между весами двух моделей.
+    Равно 1.0 - cosine_similarity.
+    """
+    return 1.0 - compute_cosine_similarity_between_models(model1, model2)

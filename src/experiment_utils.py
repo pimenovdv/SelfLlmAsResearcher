@@ -5657,3 +5657,57 @@ def compute_l0_distance_between_models(model1: torch.nn.Module, model2: torch.nn
         return 0.0
 
     return float(torch.sum(torch.abs(vec1 - vec2) > 1e-7).item())
+
+def compute_signal_to_noise_ratio_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет Signal-to-Noise Ratio (SNR) между весами двух моделей,
+    где model1 - сигнал, а model2 - зашумленный сигнал.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    noise = vec2 - vec1
+    signal_power = torch.mean(vec1 ** 2)
+    noise_power = torch.mean(noise ** 2)
+
+    if noise_power == 0:
+        return float('inf')
+
+    snr = 10 * torch.log10(signal_power / noise_power)
+    return float(snr.item())
+
+def compute_peak_signal_to_noise_ratio_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет Peak Signal-to-Noise Ratio (PSNR) между весами двух моделей,
+    где model1 - сигнал, а model2 - зашумленный сигнал.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    noise = vec2 - vec1
+    mse = torch.mean(noise ** 2)
+
+    if mse == 0:
+        return float('inf')
+
+    max_val = torch.max(torch.abs(vec1))
+    psnr = 20 * torch.log10(max_val) - 10 * torch.log10(mse)
+    return float(psnr.item())

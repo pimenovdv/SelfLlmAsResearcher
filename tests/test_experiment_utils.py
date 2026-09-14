@@ -3588,6 +3588,54 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(dist, float)
         self.assertAlmostEqual(dist, 0.0, places=5)
 
+
+    def test_compute_angular_distance_between_models(self):
+        import torch
+        from src.experiment_utils import compute_angular_distance_between_models
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+
+        dist = compute_angular_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertAlmostEqual(dist, 0.0, places=5)
+
+        with torch.no_grad():
+            model2.weight.fill_(-1.0)
+            model2.bias.fill_(-1.0)
+
+        dist2 = compute_angular_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist2, 1.0, places=5)
+
+    def test_compute_l0_distance_between_models(self):
+        import torch
+        from src.experiment_utils import compute_l0_distance_between_models
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+
+        dist = compute_l0_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertEqual(dist, 0.0)
+
+        with torch.no_grad():
+            model2.bias.fill_(0.0)
+
+        dist2 = compute_l0_distance_between_models(model1, model2)
+        self.assertGreater(dist2, 0.0)
+        self.assertEqual(dist2, 5.0)  # 5 bias elements changed
+
 if __name__ == '__main__':
+
 
     unittest.main()

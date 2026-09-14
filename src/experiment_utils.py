@@ -5769,3 +5769,31 @@ def compute_mean_squared_logarithmic_error_between_models(model1: torch.nn.Modul
     vec2 = torch.clamp(vec2, min=0.0)
     msle = torch.mean((torch.log1p(vec1) - torch.log1p(vec2)) ** 2)
     return float(msle.item())
+
+def compute_fractional_bias_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет дробное смещение (Fractional Bias) между весами двух моделей.
+    FB = 2 * (mean(A) - mean(B)) / (mean(A) + mean(B))
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    mean1 = torch.mean(vec1)
+    mean2 = torch.mean(vec2)
+
+    denominator = mean1 + mean2
+    if denominator == 0.0:
+        return 0.0
+
+    fb = 2.0 * (mean1 - mean2) / denominator
+    return float(fb.item())

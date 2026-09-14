@@ -408,3 +408,4 @@
 - [x] Добавить функцию compute_normalized_root_mean_squared_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_relative_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_mean_squared_logarithmic_error_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_fractional_bias_between_models в src/experiment_utils.py и написать тесты.

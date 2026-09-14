@@ -3742,6 +3742,22 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(val, float)
         self.assertGreaterEqual(val, 0.0)
 
+    def test_compute_fractional_bias_between_models(self):
+        import torch
+        from src.experiment_utils import compute_fractional_bias_between_models
+        class DummyModel(torch.nn.Module):
+            def __init__(self, val):
+                super().__init__()
+                self.weight = torch.nn.Parameter(torch.ones(10, 10) * val)
+            def forward(self, x):
+                return x @ self.weight.t()
+
+        model1 = DummyModel(3.0)
+        model2 = DummyModel(1.0)
+        val = compute_fractional_bias_between_models(model1, model2)
+        self.assertIsInstance(val, float)
+        self.assertAlmostEqual(val, 1.0)
+
 if __name__ == '__main__':
 
 

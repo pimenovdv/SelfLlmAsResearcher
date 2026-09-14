@@ -3635,6 +3635,66 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertGreater(dist2, 0.0)
         self.assertEqual(dist2, 5.0)  # 5 bias elements changed
 
+    def test_compute_signal_to_noise_ratio_between_models(self):
+        import torch
+        from src.experiment_utils import compute_signal_to_noise_ratio_between_models
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.weight = torch.nn.Parameter(torch.randn(10, 10))
+                self.bias = torch.nn.Parameter(torch.randn(10))
+            def forward(self, x):
+                return x @ self.weight.t() + self.bias
+
+        model1 = DummyModel()
+        model2 = DummyModel()
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+
+        snr = compute_signal_to_noise_ratio_between_models(model1, model2)
+        self.assertIsInstance(snr, float)
+        self.assertEqual(snr, float('inf'))
+
+        with torch.no_grad():
+            model2.weight.fill_(1.1)
+
+        snr2 = compute_signal_to_noise_ratio_between_models(model1, model2)
+        self.assertIsInstance(snr2, float)
+        self.assertLess(snr2, float('inf'))
+
+    def test_compute_peak_signal_to_noise_ratio_between_models(self):
+        import torch
+        from src.experiment_utils import compute_peak_signal_to_noise_ratio_between_models
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.weight = torch.nn.Parameter(torch.randn(10, 10))
+                self.bias = torch.nn.Parameter(torch.randn(10))
+            def forward(self, x):
+                return x @ self.weight.t() + self.bias
+
+        model1 = DummyModel()
+        model2 = DummyModel()
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+
+        psnr = compute_peak_signal_to_noise_ratio_between_models(model1, model2)
+        self.assertIsInstance(psnr, float)
+        self.assertEqual(psnr, float('inf'))
+
+        with torch.no_grad():
+            model2.weight.fill_(1.1)
+
+        psnr2 = compute_peak_signal_to_noise_ratio_between_models(model1, model2)
+        self.assertIsInstance(psnr2, float)
+        self.assertLess(psnr2, float('inf'))
+
 if __name__ == '__main__':
 
 

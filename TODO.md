@@ -403,3 +403,5 @@
 - [x] Добавить функцию compute_cosine_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_angular_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_l0_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_signal_to_noise_ratio_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_peak_signal_to_noise_ratio_between_models в src/experiment_utils.py и написать тесты.

@@ -5629,3 +5629,31 @@ def compute_cosine_distance_between_models(model1: torch.nn.Module, model2: torc
     Равно 1.0 - cosine_similarity.
     """
     return 1.0 - compute_cosine_similarity_between_models(model1, model2)
+
+
+def compute_angular_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет угловое расстояние (Angular Distance) между весами двух моделей.
+    """
+    import math
+    cosine_sim = compute_cosine_similarity_between_models(model1, model2)
+    cosine_sim = max(-1.0, min(1.0, cosine_sim))
+    return float(math.acos(cosine_sim) / math.pi)
+
+def compute_l0_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет L0 расстояние между весами двух моделей (количество отличающихся параметров).
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    return float(torch.sum(torch.abs(vec1 - vec2) > 1e-7).item())

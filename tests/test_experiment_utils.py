@@ -3695,6 +3695,53 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(psnr2, float)
         self.assertLess(psnr2, float('inf'))
 
+    def test_compute_normalized_root_mean_squared_error_between_models(self):
+        import torch
+        from src.experiment_utils import compute_normalized_root_mean_squared_error_between_models
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.weight = torch.nn.Parameter(torch.randn(10, 10))
+            def forward(self, x):
+                return x @ self.weight.t()
+
+        model1 = DummyModel()
+        model2 = DummyModel()
+        val = compute_normalized_root_mean_squared_error_between_models(model1, model2)
+        self.assertIsInstance(val, float)
+
+    def test_compute_relative_error_between_models(self):
+        import torch
+        from src.experiment_utils import compute_relative_error_between_models
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.weight = torch.nn.Parameter(torch.randn(10, 10))
+            def forward(self, x):
+                return x @ self.weight.t()
+
+        model1 = DummyModel()
+        model2 = DummyModel()
+        val = compute_relative_error_between_models(model1, model2)
+        self.assertIsInstance(val, float)
+        self.assertGreaterEqual(val, 0.0)
+
+    def test_compute_mean_squared_logarithmic_error_between_models(self):
+        import torch
+        from src.experiment_utils import compute_mean_squared_logarithmic_error_between_models
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.weight = torch.nn.Parameter(torch.abs(torch.randn(10, 10)))
+            def forward(self, x):
+                return x @ self.weight.t()
+
+        model1 = DummyModel()
+        model2 = DummyModel()
+        val = compute_mean_squared_logarithmic_error_between_models(model1, model2)
+        self.assertIsInstance(val, float)
+        self.assertGreaterEqual(val, 0.0)
+
 if __name__ == '__main__':
 
 

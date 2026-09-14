@@ -405,3 +405,6 @@
 - [x] Добавить функцию compute_l0_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_signal_to_noise_ratio_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_peak_signal_to_noise_ratio_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_normalized_root_mean_squared_error_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_relative_error_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_mean_squared_logarithmic_error_between_models в src/experiment_utils.py и написать тесты.

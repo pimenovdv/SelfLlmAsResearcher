@@ -5711,3 +5711,61 @@ def compute_peak_signal_to_noise_ratio_between_models(model1: torch.nn.Module, m
     max_val = torch.max(torch.abs(vec1))
     psnr = 20 * torch.log10(max_val) - 10 * torch.log10(mse)
     return float(psnr.item())
+
+
+def compute_normalized_root_mean_squared_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет нормализованную среднеквадратичную ошибку (NRMSE) между весами двух моделей.
+    """
+    rmse = compute_root_mean_squared_error_between_models(model1, model2)
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    if not params1:
+        return 0.0
+    vec1 = torch.cat(params1)
+    if vec1.numel() == 0:
+        return 0.0
+    diff = torch.max(vec1) - torch.min(vec1)
+    if diff == 0:
+        return 0.0
+    return float(rmse / diff.item())
+
+
+def compute_relative_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет относительную ошибку (Relative Error) между весами двух моделей.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+    norm_diff = torch.norm(vec1 - vec2)
+    norm1 = torch.norm(vec1)
+    if norm1 == 0:
+        return float('inf') if norm_diff != 0 else 0.0
+    return float((norm_diff / norm1).item())
+
+
+def compute_mean_squared_logarithmic_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет среднеквадратичную логарифмическую ошибку (MSLE) между весами двух моделей.
+    Ограничивает значения снизу (например, нулем) перед логарифмированием для избежания NaN.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+    vec1 = torch.clamp(vec1, min=0.0)
+    vec2 = torch.clamp(vec2, min=0.0)
+    msle = torch.mean((torch.log1p(vec1) - torch.log1p(vec2)) ** 2)
+    return float(msle.item())

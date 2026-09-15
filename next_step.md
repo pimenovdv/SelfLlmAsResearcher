@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлена метрика Concordance Correlation Coefficient. `TODO.md` обновлен.
+Добавлена метрика Symmetric KL Divergence between models. `TODO.md` обновлен.
 
 **План действий на следующий этап:**
 1. Ожидание новых задач от пользователя.

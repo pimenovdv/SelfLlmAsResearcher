@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Создан файл `docs/api_reference.md` с описанием всех метрик и функций из `src/experiment_utils.py`. `TODO.md` обновлен.
+Реализованы функции `compute_cross_entropy_between_models` и `compute_perplexity_between_models` в `src/experiment_utils.py` и добавлены тесты. `TODO.md` обновлен.
 
 **План действий на следующий этап:**
 1. Ожидание новых задач от пользователя.

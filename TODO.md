@@ -412,6 +412,8 @@
 - [x] Добавить функцию compute_index_of_agreement_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_concordance_correlation_coefficient_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_symmetric_kl_divergence_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_cross_entropy_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_perplexity_between_models в src/experiment_utils.py и написать тесты.
 
 ## Документация
 - [x] Создать файл docs/api_reference.md для описания всех добавленных метрик и утилит из src/experiment_utils.py.

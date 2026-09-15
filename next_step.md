@@ -1,7 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Добавлена метрика Symmetric KL Divergence between models. `TODO.md` обновлен.
+Создан файл `docs/api_reference.md` с описанием всех метрик и функций из `src/experiment_utils.py`. `TODO.md` обновлен.
 
 **План действий на следующий этап:**
 1. Ожидание новых задач от пользователя.

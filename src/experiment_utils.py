@@ -5797,3 +5797,30 @@ def compute_fractional_bias_between_models(model1: torch.nn.Module, model2: torc
 
     fb = 2.0 * (mean1 - mean2) / denominator
     return float(fb.item())
+
+def compute_index_of_agreement_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Index of Agreement (d) between the weights of two models.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    mean1 = torch.mean(vec1)
+    numerator = torch.sum((vec2 - vec1) ** 2)
+    denominator = torch.sum((torch.abs(vec2 - mean1) + torch.abs(vec1 - mean1)) ** 2)
+
+    if denominator == 0.0:
+        if numerator == 0.0:
+            return 1.0
+        return 0.0
+
+    return (1.0 - numerator / denominator).item()

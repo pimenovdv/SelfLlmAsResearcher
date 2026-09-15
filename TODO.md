@@ -409,3 +409,4 @@
 - [x] Добавить функцию compute_relative_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_mean_squared_logarithmic_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_fractional_bias_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_index_of_agreement_between_models в src/experiment_utils.py и написать тесты.

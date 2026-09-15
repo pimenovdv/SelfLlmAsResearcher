@@ -3758,6 +3758,32 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(val, float)
         self.assertAlmostEqual(val, 1.0)
 
+    def test_compute_index_of_agreement_between_models(self):
+        import torch
+        from src.experiment_utils import compute_index_of_agreement_between_models
+        class DummyModel(torch.nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.fc = torch.nn.Linear(1, 1, bias=False)
+                self.fc.weight.data = torch.tensor([[w]], dtype=torch.float32)
+            def forward(self, x):
+                return self.fc(x)
+
+        model1 = DummyModel(2.0)
+        model2 = DummyModel(3.0)
+
+        # vec1 = [2.0], vec2 = [3.0]
+        # mean1 = 2.0
+        # num = (3 - 2)^2 = 1
+        # den = (|3 - 2| + |2 - 2|)^2 = 1^2 = 1
+        # d = 1 - 1/1 = 0.0
+        val = compute_index_of_agreement_between_models(model1, model2)
+        self.assertAlmostEqual(val, 0.0, places=4)
+
+        # Identical models
+        val_ident = compute_index_of_agreement_between_models(model1, model1)
+        self.assertAlmostEqual(val_ident, 1.0, places=4)
+
 if __name__ == '__main__':
 
 

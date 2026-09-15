@@ -5912,3 +5912,60 @@ def compute_symmetric_kl_divergence_between_models(model1: torch.nn.Module, mode
     kl_qp = torch.sum(q * torch.log(q / p))
 
     return (kl_pq + kl_qp).item()
+
+def compute_cross_entropy_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет кросс-энтропию между весами двух моделей,
+    преобразуя их в вероятностные распределения (через абсолютные значения и нормализацию).
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.sum() == 0.0 and vec2.sum() == 0.0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    p = p + 1e-12
+    q = q + 1e-12
+
+    ce = -torch.sum(p * torch.log(q))
+    return float(ce.item())
+
+def compute_perplexity_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет перплексию между весами двух моделей на основе кросс-энтропии.
+    """
+    import math
+    import torch
+
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.sum() == 0.0 and vec2.sum() == 0.0:
+        return 0.0
+
+    ce = compute_cross_entropy_between_models(model1, model2)
+    if ce > 88.0:
+        return float('inf')
+    return float(math.exp(ce))

@@ -3784,6 +3784,30 @@ class TestExperimentUtils(unittest.TestCase):
         val_ident = compute_index_of_agreement_between_models(model1, model1)
         self.assertAlmostEqual(val_ident, 1.0, places=4)
 
+
+    def test_compute_concordance_correlation_coefficient_between_models(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import compute_concordance_correlation_coefficient_between_models
+
+        class DummyModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = nn.Linear(10, 10)
+
+        m1 = DummyModel()
+        m2 = DummyModel()
+
+        m2.load_state_dict(m1.state_dict())
+        ccc = compute_concordance_correlation_coefficient_between_models(m1, m2)
+        self.assertTrue(abs(ccc - 1.0) < 1e-5)
+
+        m3 = DummyModel()
+        m4 = DummyModel()
+        for p in m3.parameters(): p.data.fill_(0.0)
+        for p in m4.parameters(): p.data.fill_(0.0)
+        self.assertEqual(compute_concordance_correlation_coefficient_between_models(m3, m4), 0.0)
+
 if __name__ == '__main__':
 
 

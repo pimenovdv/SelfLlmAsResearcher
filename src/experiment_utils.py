@@ -5824,3 +5824,45 @@ def compute_index_of_agreement_between_models(model1: torch.nn.Module, model2: t
         return 0.0
 
     return (1.0 - numerator / denominator).item()
+
+
+def compute_concordance_correlation_coefficient_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Concordance Correlation Coefficient (CCC) between the parameters of two models.
+
+    Args:
+        model1 (nn.Module): The first PyTorch model.
+        model2 (nn.Module): The second PyTorch model.
+
+    Returns:
+        float: The CCC between the models. Returns 0.0 if any model has no parameters or standard deviation is 0.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.shape != vec2.shape:
+        raise ValueError("Models must have the same parameter shapes.")
+
+    mu1 = torch.mean(vec1)
+    mu2 = torch.mean(vec2)
+
+    var1 = torch.var(vec1, unbiased=False)
+    var2 = torch.var(vec2, unbiased=False)
+
+    covar = torch.mean((vec1 - mu1) * (vec2 - mu2))
+
+    denominator = var1 + var2 + (mu1 - mu2)**2
+    if denominator == 0.0:
+        return 0.0
+
+    ccc = (2.0 * covar) / denominator
+    return ccc.item()

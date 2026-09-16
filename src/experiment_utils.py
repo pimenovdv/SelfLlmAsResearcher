@@ -5969,3 +5969,56 @@ def compute_perplexity_between_models(model1: torch.nn.Module, model2: torch.nn.
     if ce > 88.0:
         return float('inf')
     return float(math.exp(ce))
+
+def compute_kendall_tau_correlation_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет Kendall rank correlation coefficient (Kendall's tau) между весами двух моделей.
+    """
+    import torch
+    import math
+
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.shape != vec2.shape:
+        return 0.0
+
+    try:
+        import scipy.stats as stats
+        tau, _ = stats.kendalltau(vec1.detach().cpu().numpy(), vec2.detach().cpu().numpy())
+        if math.isnan(tau):
+            return 0.0
+        return float(tau)
+    except ImportError:
+        # Fallback for very small models if scipy is not installed (O(N^2) complexity)
+        n = vec1.numel()
+        if n < 2:
+            return 0.0
+
+        # We only run this on very small models to avoid hanging, or just return 0.0 for large ones
+        if n > 10000:
+            import warnings
+            warnings.warn("Scipy is not installed and model is too large for O(N^2) Kendall tau. Returning 0.0")
+            return 0.0
+
+        concordant = 0
+        discordant = 0
+        for i in range(n):
+            for j in range(i+1, n):
+                sign1 = torch.sign(vec1[i] - vec1[j])
+                sign2 = torch.sign(vec2[i] - vec2[j])
+                if sign1 * sign2 > 0:
+                    concordant += 1
+                elif sign1 * sign2 < 0:
+                    discordant += 1
+
+        return float((concordant - discordant) / (n * (n - 1) / 2))

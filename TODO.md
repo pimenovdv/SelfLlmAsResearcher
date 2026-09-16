@@ -417,3 +417,4 @@
 
 ## Документация
 - [x] Создать файл docs/api_reference.md для описания всех добавленных метрик и утилит из src/experiment_utils.py.
+- [x] Добавить функцию compute_kendall_tau_correlation_between_models в src/experiment_utils.py и написать тесты.

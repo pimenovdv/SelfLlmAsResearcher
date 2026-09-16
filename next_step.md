@@ -1,8 +1,7 @@
 # Следующий шаг (Next Step)
 
 **Статус:**
-Документация для `compute_cross_entropy_between_models` и `compute_perplexity_between_models` добавлена в `docs/api_reference.md`.
-Все задачи из `TODO.md` выполнены.
+Реализована функция `compute_kendall_tau_correlation_between_models` в `src/experiment_utils.py` и написаны тесты для нее. Задача добавлена в `TODO.md`.
 
 **План действий на следующий этап:**
 1. Ожидание новых задач от пользователя.

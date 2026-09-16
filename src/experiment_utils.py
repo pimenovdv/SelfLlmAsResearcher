@@ -6022,3 +6022,36 @@ def compute_kendall_tau_correlation_between_models(model1: torch.nn.Module, mode
                     discordant += 1
 
         return float((concordant - discordant) / (n * (n - 1) / 2))
+
+
+def compute_kolmogorov_smirnov_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет статистику Колмогорова-Смирнова между весами двух моделей.
+    """
+    import torch
+
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    v1_sorted, _ = torch.sort(vec1)
+    v2_sorted, _ = torch.sort(vec2)
+
+    all_vals, _ = torch.sort(torch.cat([v1_sorted, v2_sorted]))
+
+    n1 = v1_sorted.numel()
+    cdf1 = torch.searchsorted(v1_sorted, all_vals, side='right').float() / n1
+
+    n2 = v2_sorted.numel()
+    cdf2 = torch.searchsorted(v2_sorted, all_vals, side='right').float() / n2
+
+    ks_stat = torch.max(torch.abs(cdf1 - cdf2)).item()
+    return float(ks_stat)

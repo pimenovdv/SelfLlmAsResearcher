@@ -1166,6 +1166,16 @@ Returns:
 
 ---
 
+### `compute_cross_entropy_between_models(model1: torch.nn.modules.module.Module, model2: torch.nn.modules.module.Module) -> float`
+Вычисляет кросс-энтропию между весами двух моделей, преобразуя их в вероятностные распределения (через абсолютные значения и нормализацию).
+
+---
+
+### `compute_perplexity_between_models(model1: torch.nn.modules.module.Module, model2: torch.nn.modules.module.Module) -> float`
+Вычисляет перплексию между весами двух моделей на основе кросс-энтропии.
+
+---
+
 ### `compute_symmetric_mean_absolute_percentage_error_between_models(model1: torch.nn.modules.module.Module, model2: torch.nn.modules.module.Module) -> float`
 Вычисляет симметричную среднюю абсолютную процентную ошибку (SMAPE) между весами двух моделей.
 

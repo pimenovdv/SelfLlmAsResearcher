@@ -3881,6 +3881,24 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(compute_perplexity_between_models(m3, m4), 0.0)
 
 
+
+    def test_compute_kuiper_statistic_between_models(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import compute_kuiper_statistic_between_models
+
+        class DummyModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = nn.Linear(10, 10)
+
+        m1 = DummyModel()
+        m2 = DummyModel()
+
+        m2.load_state_dict(m1.state_dict())
+        kuiper = compute_kuiper_statistic_between_models(m1, m2)
+        self.assertAlmostEqual(kuiper, 0.0, places=4)
+
     def test_compute_kolmogorov_smirnov_statistic_between_models(self):
         import torch
         import torch.nn as nn

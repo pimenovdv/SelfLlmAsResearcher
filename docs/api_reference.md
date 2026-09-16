@@ -1405,3 +1405,18 @@ Args:
     set_to_none: Если True, устанавливает градиенты в None вместо нулей.
 
 ---
+
+### `compute_kendall_tau_correlation_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет Kendall rank correlation coefficient (Kendall's tau) между весами двух моделей.
+
+---
+
+### `compute_kuiper_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет статистику Кипера (Kuiper statistic) между весами двух моделей.
+
+---
+
+### `compute_kolmogorov_smirnov_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет статистику Колмогорова-Смирнова между весами двух моделей.
+
+---

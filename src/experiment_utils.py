@@ -6089,3 +6089,34 @@ def compute_kuiper_statistic_between_models(model1: torch.nn.Module, model2: tor
     d_minus = torch.max(cdf2 - cdf1).item()
 
     return float(d_plus + d_minus)
+
+def compute_mann_whitney_u_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет статистику U Манна-Уитни (Mann-Whitney U statistic) между весами двух моделей.
+    """
+    import torch
+
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    n1 = vec1.numel()
+    n2 = vec2.numel()
+
+    all_vals = torch.cat([vec1, vec2])
+    _, indices = torch.sort(all_vals)
+    _, rank_indices = torch.sort(indices)
+    ranks = rank_indices.float() + 1.0
+
+    R1 = ranks[:n1].sum().item()
+    U1 = R1 - (n1 * (n1 + 1)) / 2.0
+
+    return float(U1)

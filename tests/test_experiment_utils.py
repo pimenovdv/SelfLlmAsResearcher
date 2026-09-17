@@ -3951,6 +3951,34 @@ class TestExperimentUtils(unittest.TestCase):
         for p in m4.parameters(): p.data.fill_(0.0)
         self.assertEqual(compute_kendall_tau_correlation_between_models(m3, m4), 0.0)
 
+
+    def test_compute_mann_whitney_u_statistic_between_models(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import compute_mann_whitney_u_statistic_between_models
+
+        class DummyModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = nn.Linear(1, 10, bias=False)
+
+        m1 = DummyModel()
+        m2 = DummyModel()
+
+        with torch.no_grad():
+            m1.fc.weight.fill_(1.0)
+            m2.fc.weight.fill_(0.0)
+
+        u1 = compute_mann_whitney_u_statistic_between_models(m1, m2)
+        self.assertEqual(u1, 100.0)
+
+        with torch.no_grad():
+            m1.fc.weight.fill_(0.0)
+            m2.fc.weight.fill_(1.0)
+
+        u1_neg = compute_mann_whitney_u_statistic_between_models(m1, m2)
+        self.assertEqual(u1_neg, 0.0)
+
 if __name__ == '__main__':
 
 

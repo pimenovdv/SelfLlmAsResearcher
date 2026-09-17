@@ -1420,3 +1420,8 @@ Args:
 Вычисляет статистику Колмогорова-Смирнова между весами двух моделей.
 
 ---
+
+### `compute_mann_whitney_u_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет статистику U Манна-Уитни (Mann-Whitney U statistic) между весами двух моделей.
+
+---

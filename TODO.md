@@ -416,6 +416,7 @@
 - [x] Добавить функцию compute_perplexity_between_models в src/experiment_utils.py и написать тесты.
 
 ## Документация
+- [x] Добавить функцию compute_paired_t_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Создать файл docs/api_reference.md для описания всех добавленных метрик и утилит из src/experiment_utils.py.
 - [x] Добавить функцию compute_kendall_tau_correlation_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_kuiper_statistic_between_models в src/experiment_utils.py и написать тесты.

@@ -6158,3 +6158,35 @@ def compute_welch_t_statistic_between_models(model1: torch.nn.Module, model2: to
 
     t_stat = (mean1 - mean2) / denominator
     return t_stat.item()
+
+def compute_paired_t_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет парный t-критерий (Paired t-statistic) между весами двух моделей.
+    """
+    import torch
+
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    n = vec1.numel()
+    if n <= 1:
+        return 0.0
+
+    diff = vec1 - vec2
+    mean_diff = diff.mean()
+    var_diff = diff.var(unbiased=True)
+
+    if var_diff == 0.0:
+        return 0.0
+
+    t_stat = mean_diff / torch.sqrt(var_diff / n)
+    return float(t_stat.item())

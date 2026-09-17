@@ -4065,6 +4065,42 @@ class TestExperimentUtils(unittest.TestCase):
 
         self.assertEqual(compute_kruskal_wallis_statistic_between_models([m1]), 0.0)
 
+    def test_compute_anova_statistic_between_models(self):
+        from src.experiment_utils import compute_anova_statistic_between_models
+        import torch
+        import torch.nn as nn
+        class DummyModel(nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.fc = nn.Linear(1, 3, bias=False)
+                self.fc.weight.data = torch.tensor(w, dtype=torch.float32).view(-1, 1)
+            def forward(self, x):
+                return self.fc(x)
+
+        m1 = DummyModel([1.0, 2.0, 3.0])
+        m2 = DummyModel([4.0, 5.0, 6.0])
+        m3 = DummyModel([7.0, 8.0, 9.0])
+        self.assertGreaterEqual(compute_anova_statistic_between_models([m1, m2, m3]), 0.0)
+        self.assertEqual(compute_anova_statistic_between_models([m1]), 0.0)
+
+    def test_compute_friedman_statistic_between_models(self):
+        from src.experiment_utils import compute_friedman_statistic_between_models
+        import torch
+        import torch.nn as nn
+        class DummyModel(nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.fc = nn.Linear(1, 3, bias=False)
+                self.fc.weight.data = torch.tensor(w, dtype=torch.float32).view(-1, 1)
+            def forward(self, x):
+                return self.fc(x)
+
+        m1 = DummyModel([1.0, 2.0, 3.0])
+        m2 = DummyModel([4.0, 5.0, 6.0])
+        m3 = DummyModel([7.0, 8.0, 9.0])
+        self.assertGreaterEqual(compute_friedman_statistic_between_models([m1, m2, m3]), 0.0)
+        self.assertEqual(compute_friedman_statistic_between_models([m1]), 0.0)
+
 if __name__ == '__main__':
 
 

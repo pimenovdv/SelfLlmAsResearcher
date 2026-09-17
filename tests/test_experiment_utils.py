@@ -3997,6 +3997,29 @@ class TestExperimentUtils(unittest.TestCase):
         u1_neg = compute_mann_whitney_u_statistic_between_models(m1, m2)
         self.assertEqual(u1_neg, 0.0)
 
+    def test_compute_paired_t_statistic_between_models(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import compute_paired_t_statistic_between_models
+
+        class DummyModel(nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.fc = nn.Linear(2, 2, bias=False)
+                self.fc.weight.data = torch.tensor(w, dtype=torch.float32)
+            def forward(self, x):
+                return self.fc(x)
+
+        m1 = DummyModel([[1.0, 2.0], [3.0, 4.0]])
+        m2 = DummyModel([[1.1, 1.9], [3.2, 3.8]])
+
+        t_stat = compute_paired_t_statistic_between_models(m1, m2)
+        self.assertIsInstance(t_stat, float)
+
+        m3 = DummyModel([[1.0, 2.0], [3.0, 4.0]])
+        m4 = DummyModel([[1.0, 2.0], [3.0, 4.0]])
+        self.assertEqual(compute_paired_t_statistic_between_models(m3, m4), 0.0)
+
 if __name__ == '__main__':
 
 

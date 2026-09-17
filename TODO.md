@@ -420,3 +420,4 @@
 - [x] Добавить функцию compute_kendall_tau_correlation_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_kuiper_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_kolmogorov_smirnov_statistic_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_mann_whitney_u_statistic_between_models в src/experiment_utils.py и написать тесты.

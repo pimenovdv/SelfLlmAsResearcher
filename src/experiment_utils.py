@@ -6120,3 +6120,41 @@ def compute_mann_whitney_u_statistic_between_models(model1: torch.nn.Module, mod
     U1 = R1 - (n1 * (n1 + 1)) / 2.0
 
     return float(U1)
+
+
+def compute_welch_t_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет t-статистику Уэлча (Welch's t-statistic) между весами двух моделей.
+    """
+    import torch
+
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    n1 = vec1.numel()
+    n2 = vec2.numel()
+
+    if n1 <= 1 or n2 <= 1:
+        return 0.0
+
+    mean1 = vec1.mean()
+    mean2 = vec2.mean()
+    var1 = vec1.var(unbiased=True)
+    var2 = vec2.var(unbiased=True)
+
+    denominator = torch.sqrt((var1 / n1) + (var2 / n2))
+
+    if denominator == 0.0:
+        return 0.0
+
+    t_stat = (mean1 - mean2) / denominator
+    return t_stat.item()

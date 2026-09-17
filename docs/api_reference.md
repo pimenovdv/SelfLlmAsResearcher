@@ -1425,3 +1425,8 @@ Args:
 Вычисляет статистику U Манна-Уитни (Mann-Whitney U statistic) между весами двух моделей.
 
 ---
+
+### `compute_welch_t_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет t-статистику Уэлча (Welch's t-statistic) между весами двух моделей.
+
+---

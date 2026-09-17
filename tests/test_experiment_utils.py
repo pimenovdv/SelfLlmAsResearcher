@@ -3952,6 +3952,24 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(compute_kendall_tau_correlation_between_models(m3, m4), 0.0)
 
 
+
+    def test_compute_welch_t_statistic_between_models(self):
+        from src.experiment_utils import compute_welch_t_statistic_between_models
+        import torch
+        class MultiModel(torch.nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2, bias=False)
+                self.fc.weight.data = torch.tensor(w, dtype=torch.float32)
+            def forward(self, x):
+                return self.fc(x)
+
+        mm1 = MultiModel([[1.0, 2.0], [3.0, 4.0]])
+        mm2 = MultiModel([[5.0, 6.0], [7.0, 8.0]])
+
+        t_stat = compute_welch_t_statistic_between_models(mm1, mm2)
+        self.assertIsInstance(t_stat, float)
+
     def test_compute_mann_whitney_u_statistic_between_models(self):
         import torch
         import torch.nn as nn

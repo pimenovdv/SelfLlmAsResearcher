@@ -6296,3 +6296,57 @@ def compute_paired_t_statistic_between_models(model1: torch.nn.Module, model2: t
 
     t_stat = mean_diff / torch.sqrt(var_diff / n)
     return float(t_stat.item())
+
+def compute_anova_statistic_between_models(models: list[torch.nn.Module]) -> float:
+    """Computes the ANOVA F-statistic between multiple models."""
+    if len(models) < 2:
+        return 0.0
+    all_params = []
+    for model in models:
+        params = [p.view(-1) for p in model.parameters() if p.numel() > 0]
+        if not params:
+            return 0.0
+        all_params.append(torch.cat(params))
+    k = len(models)
+    n_i = [p.numel() for p in all_params]
+    N = sum(n_i)
+    if N <= k:
+        return 0.0
+    all_data = torch.cat(all_params)
+    grand_mean = all_data.mean()
+    ssb = sum(n * (p.mean() - grand_mean)**2 for n, p in zip(n_i, all_params))
+    ssw = sum(torch.sum((p - p.mean())**2) for p in all_params)
+    df1 = k - 1
+    df2 = N - k
+    if ssw == 0.0:
+        return 0.0
+    msb = ssb / df1
+    msw = ssw / df2
+    f_stat = msb / msw
+    return float(f_stat.item())
+
+def compute_friedman_statistic_between_models(models: list[torch.nn.Module]) -> float:
+    """Computes the Friedman chi-squared statistic between multiple models."""
+    if len(models) < 2:
+        return 0.0
+    all_params = []
+    for model in models:
+        params = [p.view(-1) for p in model.parameters() if p.numel() > 0]
+        if not params:
+            return 0.0
+        all_params.append(torch.cat(params))
+    k = len(models)
+    n = all_params[0].numel()
+    for p in all_params:
+        if p.numel() != n:
+            return 0.0
+    if n == 0 or k < 2:
+        return 0.0
+    data = torch.stack(all_params, dim=1)
+    ranks = torch.argsort(torch.argsort(data, dim=1), dim=1) + 1.0
+    R_j = ranks.sum(dim=0)
+    term1 = 12.0 / (n * k * (k + 1))
+    term2 = torch.sum(R_j**2)
+    term3 = 3.0 * n * (k + 1)
+    q_stat = term1 * term2 - term3
+    return float(q_stat.item())

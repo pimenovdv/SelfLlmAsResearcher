@@ -6159,6 +6159,112 @@ def compute_welch_t_statistic_between_models(model1: torch.nn.Module, model2: to
     t_stat = (mean1 - mean2) / denominator
     return t_stat.item()
 
+
+def compute_wilcoxon_signed_rank_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет W-статистику Уилкоксона (Wilcoxon signed-rank statistic) между весами двух моделей.
+    """
+    import torch
+
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    diff = vec1 - vec2
+    diff = diff[diff != 0]
+    if diff.numel() == 0:
+        return 0.0
+
+    abs_diff = torch.abs(diff)
+    sorted_abs, sorted_idx = torch.sort(abs_diff)
+
+    ranks = torch.zeros_like(abs_diff, dtype=torch.float32)
+    current_rank = 1.0
+    i = 0
+    while i < len(sorted_abs):
+        j = i
+        while j < len(sorted_abs) and sorted_abs[j] == sorted_abs[i]:
+            j += 1
+        avg_rank = (current_rank + current_rank + (j - i) - 1) / 2.0
+        ranks[sorted_idx[i:j]] = avg_rank
+        current_rank += (j - i)
+        i = j
+
+    w_plus = torch.sum(ranks[diff > 0]).item()
+    w_minus = torch.sum(ranks[diff < 0]).item()
+
+    return float(min(w_plus, w_minus))
+
+
+def compute_kruskal_wallis_statistic_between_models(models: list[torch.nn.Module]) -> float:
+    """
+    Вычисляет H-статистику Краскела-Уоллиса (Kruskal-Wallis H-statistic) между весами нескольких моделей.
+    """
+    import torch
+
+    if len(models) < 2:
+        return 0.0
+
+    vecs = []
+    for m in models:
+        params = [p.flatten() for p in m.parameters()]
+        if params:
+            vecs.append(torch.cat(params))
+
+    if not vecs:
+        return 0.0
+
+    all_vals = torch.cat(vecs)
+    if all_vals.numel() == 0:
+        return 0.0
+
+    n_total = all_vals.numel()
+    if n_total <= 1:
+        return 0.0
+
+    sorted_vals, sorted_idx = torch.sort(all_vals)
+    ranks = torch.zeros_like(all_vals, dtype=torch.float32)
+
+    current_rank = 1.0
+    i = 0
+    while i < len(sorted_vals):
+        j = i
+        while j < len(sorted_vals) and sorted_vals[j] == sorted_vals[i]:
+            j += 1
+        avg_rank = (current_rank + current_rank + (j - i) - 1) / 2.0
+        ranks[sorted_idx[i:j]] = avg_rank
+        current_rank += (j - i)
+        i = j
+
+    offset = 0
+    h_stat = 0.0
+    for v in vecs:
+        n_i = v.numel()
+        if n_i > 0:
+            group_ranks = ranks[offset:offset+n_i]
+            r_sum = group_ranks.sum().item()
+            h_stat += (r_sum ** 2) / n_i
+        offset += n_i
+
+    h_stat = (12.0 / (n_total * (n_total + 1))) * h_stat - 3.0 * (n_total + 1)
+
+    unique_vals, counts = torch.unique(all_vals, return_counts=True)
+    tie_correction = 1.0 - torch.sum(counts ** 3 - counts).item() / (n_total ** 3 - n_total)
+
+    if tie_correction > 0:
+        h_stat /= tie_correction
+
+    return float(h_stat)
+
+
 def compute_paired_t_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет парный t-критерий (Paired t-statistic) между весами двух моделей.

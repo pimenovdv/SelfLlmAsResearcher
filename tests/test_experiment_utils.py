@@ -4020,6 +4020,51 @@ class TestExperimentUtils(unittest.TestCase):
         m4 = DummyModel([[1.0, 2.0], [3.0, 4.0]])
         self.assertEqual(compute_paired_t_statistic_between_models(m3, m4), 0.0)
 
+    def test_compute_wilcoxon_signed_rank_statistic_between_models(self):
+        from src.experiment_utils import compute_wilcoxon_signed_rank_statistic_between_models
+        import torch
+        import torch.nn as nn
+        class DummyModel(nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.fc = nn.Linear(2, 2, bias=False)
+                self.fc.weight.data = torch.tensor(w, dtype=torch.float32)
+            def forward(self, x):
+                return self.fc(x)
+
+        m1 = DummyModel([[1.1, 1.9], [3.2, 3.8]])
+        m2 = DummyModel([[1.0, 2.0], [3.0, 4.0]])
+
+        w_stat = compute_wilcoxon_signed_rank_statistic_between_models(m1, m2)
+        self.assertIsInstance(w_stat, float)
+        self.assertGreaterEqual(w_stat, 0.0)
+
+        m3 = DummyModel([[1.0, 2.0], [3.0, 4.0]])
+        m4 = DummyModel([[1.0, 2.0], [3.0, 4.0]])
+        self.assertEqual(compute_wilcoxon_signed_rank_statistic_between_models(m3, m4), 0.0)
+
+    def test_compute_kruskal_wallis_statistic_between_models(self):
+        from src.experiment_utils import compute_kruskal_wallis_statistic_between_models
+        import torch
+        import torch.nn as nn
+        class DummyModel(nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.fc = nn.Linear(1, 3, bias=False)
+                self.fc.weight.data = torch.tensor(w, dtype=torch.float32)
+            def forward(self, x):
+                return self.fc(x)
+
+        m1 = DummyModel([[1.0], [2.0], [3.0]])
+        m2 = DummyModel([[4.0], [5.0], [6.0]])
+        m3 = DummyModel([[7.0], [8.0], [9.0]])
+
+        h_stat = compute_kruskal_wallis_statistic_between_models([m1, m2, m3])
+        self.assertIsInstance(h_stat, float)
+        self.assertGreaterEqual(h_stat, 0.0)
+
+        self.assertEqual(compute_kruskal_wallis_statistic_between_models([m1]), 0.0)
+
 if __name__ == '__main__':
 
 

@@ -423,3 +423,5 @@
 - [x] Добавить функцию compute_kolmogorov_smirnov_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_mann_whitney_u_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_welch_t_statistic_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_wilcoxon_signed_rank_statistic_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_kruskal_wallis_statistic_between_models в src/experiment_utils.py и написать тесты.

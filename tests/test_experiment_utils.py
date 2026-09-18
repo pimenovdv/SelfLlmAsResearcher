@@ -4152,6 +4152,25 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(compute_glass_delta_between_models(m1, m2), float)
         self.assertEqual(compute_glass_delta_between_models(m1, m1), 0.0)
 
+
+    def test_compute_f_statistic_between_models(self):
+        from src.experiment_utils import compute_f_statistic_between_models
+        import torch
+        import torch.nn as nn
+        class DummyModel(nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.fc = nn.Linear(1, 3, bias=False)
+                self.fc.weight.data = torch.tensor(w, dtype=torch.float32).view(-1, 1)
+            def forward(self, x):
+                return self.fc(x)
+
+        m1 = DummyModel([1.0, 2.0, 3.0])
+        m2 = DummyModel([1.0, 2.0, 5.0])
+        self.assertIsInstance(compute_f_statistic_between_models(m1, m2), float)
+        self.assertGreaterEqual(compute_f_statistic_between_models(m1, m2), 0.0)
+
+
 if __name__ == '__main__':
 
 

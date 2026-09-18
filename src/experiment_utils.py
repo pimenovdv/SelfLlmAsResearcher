@@ -6453,3 +6453,28 @@ def compute_glass_delta_between_models(model1: torch.nn.Module, model2: torch.nn
 
     glass_delta = (mean1 - mean2) / std2
     return float(glass_delta.item())
+
+def compute_f_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the F-statistic (ratio of variances) between the parameters of two models.
+    """
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() < 2 or vec2.numel() < 2:
+        return 0.0
+
+    var1 = vec1.var(unbiased=True)
+    var2 = vec2.var(unbiased=True)
+
+    if var2 <= 0.0:
+        return 0.0
+
+    f_stat = var1 / var2
+    return float(f_stat.item())

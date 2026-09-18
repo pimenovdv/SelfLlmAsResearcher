@@ -6325,6 +6325,40 @@ def compute_anova_statistic_between_models(models: list[torch.nn.Module]) -> flo
     f_stat = msb / msw
     return float(f_stat.item())
 
+def compute_cohens_d_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes Cohen's d between the parameters of two models."""
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.numel() > 0]
+    params2 = [p.view(-1) for p in model2.parameters() if p.numel() > 0]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    n1 = vec1.numel()
+    n2 = vec2.numel()
+
+    if n1 < 2 or n2 < 2:
+        return 0.0
+
+    mean1 = vec1.mean()
+    mean2 = vec2.mean()
+
+    var1 = vec1.var(unbiased=True)
+    var2 = vec2.var(unbiased=True)
+
+    pooled_var = ((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2)
+
+    if pooled_var <= 0.0:
+        return 0.0
+
+    pooled_std = torch.sqrt(pooled_var)
+    cohens_d = (mean1 - mean2) / pooled_std
+
+    return float(cohens_d.item())
+
 def compute_friedman_statistic_between_models(models: list[torch.nn.Module]) -> float:
     """Computes the Friedman chi-squared statistic between multiple models."""
     if len(models) < 2:

@@ -6478,3 +6478,43 @@ def compute_f_statistic_between_models(model1: torch.nn.Module, model2: torch.nn
 
     f_stat = var1 / var2
     return float(f_stat.item())
+
+def compute_levenes_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes Levene's test statistic for equality of variances between the parameters of two models.
+    Uses the median as the center.
+    """
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    n1 = vec1.numel()
+    n2 = vec2.numel()
+
+    if n1 < 2 or n2 < 2:
+        return 0.0
+
+    med1 = vec1.median()
+    med2 = vec2.median()
+
+    z1 = torch.abs(vec1 - med1)
+    z2 = torch.abs(vec2 - med2)
+
+    mean_z1 = z1.mean()
+    mean_z2 = z2.mean()
+
+    z_grand_mean = (mean_z1 * n1 + mean_z2 * n2) / (n1 + n2)
+
+    numerator = (n1 + n2 - 2) * (n1 * (mean_z1 - z_grand_mean)**2 + n2 * (mean_z2 - z_grand_mean)**2)
+    denominator = torch.sum((z1 - mean_z1)**2) + torch.sum((z2 - mean_z2)**2)
+
+    if denominator <= 0.0:
+        return 0.0
+
+    levene_stat = numerator / denominator
+    return float(levene_stat.item())

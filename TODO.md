@@ -429,3 +429,4 @@
 - [x] Добавить функцию compute_friedman_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_cohens_d_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_hedges_g_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_glass_delta_between_models в src/experiment_utils.py и написать тесты.

@@ -6425,3 +6425,31 @@ def compute_hedges_g_between_models(model1: torch.nn.Module, model2: torch.nn.Mo
     hedges_g = cohens_d * correction
 
     return float(hedges_g.item())
+
+
+def compute_glass_delta_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет Glass's delta (дельта Гласса) между весами двух моделей.
+    В качестве контрольной группы (знаменатель) используются веса второй модели (model2).
+    """
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() < 2:
+        return 0.0
+
+    mean1 = vec1.mean()
+    mean2 = vec2.mean()
+    std2 = vec2.std(unbiased=True)
+
+    if std2 <= 0.0:
+        return 0.0
+
+    glass_delta = (mean1 - mean2) / std2
+    return float(glass_delta.item())

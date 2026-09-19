@@ -4265,6 +4265,24 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(stat, float)
         self.assertGreaterEqual(stat, 0.0)
 
+    def test_compute_mean_bias_error_between_models(self):
+        import torch
+        from src.experiment_utils import compute_mean_bias_error_between_models
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+
+            def forward(self, x):
+                return self.fc(x)
+
+        model1 = DummyModel()
+        model2 = DummyModel()
+
+        stat = compute_mean_bias_error_between_models(model1, model2)
+        self.assertIsInstance(stat, float)
+
 if __name__ == '__main__':
 
 

@@ -6610,3 +6610,25 @@ def compute_explained_variance_score_between_models(model1, model2) -> float:
 
     explained_variance = 1.0 - (var_diff / var_true)
     return float(explained_variance.item())
+
+
+def compute_max_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Maximum Error between the parameters of two models.
+    Max Error = max(|vec1 - vec2|)
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    max_error = torch.max(torch.abs(vec1 - vec2))
+    return float(max_error.item())

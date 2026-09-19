@@ -436,3 +436,4 @@
 - [x] Добавить функцию compute_bartletts_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_median_absolute_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_explained_variance_score_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_max_error_between_models в src/experiment_utils.py и написать тесты.

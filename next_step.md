@@ -1,1 +1,1 @@
-Ожидание новых задач от пользователя. Реализована функция для вычисления Bartlett's statistic (compute_bartletts_statistic_between_models) в src/experiment_utils.py и написаны соответствующие тесты.
+Ожидание новых задач от пользователя. Реализована функция для вычисления Median Absolute Error (compute_median_absolute_error_between_models) в src/experiment_utils.py и написаны соответствующие тесты.

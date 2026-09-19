@@ -6518,3 +6518,43 @@ def compute_levenes_statistic_between_models(model1: torch.nn.Module, model2: to
 
     levene_stat = numerator / denominator
     return float(levene_stat.item())
+
+
+def compute_bartletts_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes Bartlett\'s test statistic for equality of variances between the parameters of two models.
+    """
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    n1 = vec1.numel()
+    n2 = vec2.numel()
+
+    if n1 < 2 or n2 < 2:
+        return 0.0
+
+    var1 = torch.var(vec1, unbiased=True)
+    var2 = torch.var(vec2, unbiased=True)
+
+    if var1 <= 0.0 or var2 <= 0.0:
+        return 0.0
+
+    N = n1 + n2
+    k = 2
+
+    sp2 = ((n1 - 1) * var1 + (n2 - 1) * var2) / (N - k)
+
+    if sp2 <= 0.0:
+        return 0.0
+
+    num = (N - k) * torch.log(sp2) - ((n1 - 1) * torch.log(var1) + (n2 - 1) * torch.log(var2))
+    den = 1 + (1 / (3 * (k - 1))) * ((1 / (n1 - 1)) + (1 / (n2 - 1)) - (1 / (N - k)))
+
+    bartlett_stat = num / den
+    return float(bartlett_stat.item())

@@ -6581,3 +6581,32 @@ def compute_median_absolute_error_between_models(model1, model2) -> float:
     med_abs_error = diff.median()
 
     return float(med_abs_error.item())
+
+
+def compute_explained_variance_score_between_models(model1, model2) -> float:
+    """
+    Computes the Explained Variance Score between the parameters of two models.
+    Explained Variance = 1 - (Var(vec1 - vec2) / Var(vec1))
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    diff = vec1 - vec2
+    var_diff = diff.var(unbiased=False)
+    var_true = vec1.var(unbiased=False)
+
+    if var_true == 0.0:
+        return 1.0 if var_diff == 0.0 else 0.0
+
+    explained_variance = 1.0 - (var_diff / var_true)
+    return float(explained_variance.item())

@@ -6558,3 +6558,26 @@ def compute_bartletts_statistic_between_models(model1: torch.nn.Module, model2: 
 
     bartlett_stat = num / den
     return float(bartlett_stat.item())
+
+
+def compute_median_absolute_error_between_models(model1, model2) -> float:
+    """
+    Computes the Median Absolute Error between the parameters of two models.
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    diff = torch.abs(vec1 - vec2)
+    med_abs_error = diff.median()
+
+    return float(med_abs_error.item())

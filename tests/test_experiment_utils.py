@@ -4208,6 +4208,25 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(compute_levenes_statistic_between_models(m1, m2), float)
         self.assertGreaterEqual(compute_levenes_statistic_between_models(m1, m2), 0.0)
 
+    def test_compute_median_absolute_error_between_models(self):
+        import torch
+        from src.experiment_utils import compute_median_absolute_error_between_models
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+
+            def forward(self, x):
+                return self.fc(x)
+
+        model1 = DummyModel()
+        model2 = DummyModel()
+
+        stat = compute_median_absolute_error_between_models(model1, model2)
+        self.assertIsInstance(stat, float)
+        self.assertGreaterEqual(stat, 0.0)
+
 if __name__ == '__main__':
 
 

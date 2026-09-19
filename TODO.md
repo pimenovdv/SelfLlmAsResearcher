@@ -432,3 +432,5 @@
 - [x] Добавить функцию compute_glass_delta_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_f_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_levenes_statistic_between_models в src/experiment_utils.py и написать тесты.
+
+- [x] Добавить функцию compute_bartletts_statistic_between_models в src/experiment_utils.py и написать тесты.

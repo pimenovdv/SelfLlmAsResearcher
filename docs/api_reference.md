@@ -1430,3 +1430,102 @@ Args:
 Вычисляет t-статистику Уэлча (Welch's t-statistic) между весами двух моделей.
 
 ---
+### `compute_wilcoxon_signed_rank_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет W-статистику Уилкоксона (Wilcoxon signed-rank statistic) между весами двух моделей.
+
+---
+
+### `compute_kruskal_wallis_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет H-статистику Краскела-Уоллиса (Kruskal-Wallis H-statistic) между весами нескольких моделей.
+
+---
+
+### `compute_paired_t_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет парный t-критерий (Paired t-statistic) между весами двух моделей.
+
+---
+
+### `compute_anova_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the ANOVA F-statistic between multiple models.
+
+---
+
+### `compute_cohens_d_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes Cohen's d between the parameters of two models.
+
+---
+
+### `compute_friedman_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Friedman chi-squared statistic between multiple models.
+
+---
+
+### `compute_hedges_g_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes Hedges' g between the parameters of two models.
+
+---
+
+### `compute_glass_delta_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет Glass's delta (дельта Гласса) между весами двух моделей.
+    В качестве контрольной группы (знаменатель) используются веса второй модели (model2).
+
+---
+
+### `compute_f_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the F-statistic (ratio of variances) between the parameters of two models.
+
+---
+
+### `compute_levenes_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes Levene's test statistic for equality of variances between the parameters of two models.
+    Uses the median as the center.
+
+---
+
+### `compute_bartletts_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes Bartlett\'s test statistic for equality of variances between the parameters of two models.
+
+---
+
+### `compute_median_absolute_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Median Absolute Error between the parameters of two models.
+
+---
+
+### `compute_explained_variance_score_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Explained Variance Score between the parameters of two models.
+    Explained Variance = 1 - (Var(vec1 - vec2) / Var(vec1))
+
+---
+
+### `compute_max_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Maximum Error between the parameters of two models.
+    Max Error = max(|vec1 - vec2|)
+
+---
+
+### `compute_mean_bias_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Mean Bias Error (MBE) between the parameters of two models.
+    MBE = mean(vec1 - vec2)
+
+---
+
+### `compute_mean_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Mean Percentage Error (MPE) between the parameters of two models.
+
+---
+
+### `compute_median_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Median Percentage Error (MdPE) between the parameters of two models.
+
+---
+
+### `compute_root_mean_squared_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Root Mean Squared Percentage Error (RMSPE) between the parameters of two models.
+
+---
+
+### `compute_symmetric_median_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Symmetric Median Absolute Percentage Error (SMdAPE) between the parameters of two models.
+
+---

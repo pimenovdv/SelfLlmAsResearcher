@@ -438,3 +438,4 @@
 - [x] Добавить функцию compute_explained_variance_score_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_max_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_mean_bias_error_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_mean_percentage_error_between_models в src/experiment_utils.py и написать тесты.

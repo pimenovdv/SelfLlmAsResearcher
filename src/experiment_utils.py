@@ -6720,3 +6720,25 @@ def compute_root_mean_squared_percentage_error_between_models(model1: torch.nn.M
     epsilon = 1e-8
     rmspe = torch.sqrt(torch.mean(((vec1 - vec2) / torch.clamp(torch.abs(vec1), min=epsilon)) ** 2))
     return float(rmspe.item())
+
+
+def compute_symmetric_median_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Symmetric Median Absolute Percentage Error (SMdAPE) between the parameters of two models.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    epsilon = 1e-8
+    smape = torch.median(2.0 * torch.abs(vec1 - vec2) / (torch.abs(vec1) + torch.abs(vec2) + epsilon))
+    return float(smape.item())

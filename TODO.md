@@ -441,3 +441,5 @@
 - [x] Добавить функцию compute_mean_percentage_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_median_percentage_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_root_mean_squared_percentage_error_between_models в src/experiment_utils.py и написать тесты.
+
+- [x] Добавить функцию compute_symmetric_median_absolute_percentage_error_between_models в src/experiment_utils.py и написать тесты.

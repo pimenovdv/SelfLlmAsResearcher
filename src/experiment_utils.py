@@ -6742,3 +6742,59 @@ def compute_symmetric_median_absolute_percentage_error_between_models(model1: to
     epsilon = 1e-8
     smape = torch.median(2.0 * torch.abs(vec1 - vec2) / (torch.abs(vec1) + torch.abs(vec2) + epsilon))
     return float(smape.item())
+
+
+def compute_relative_absolute_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Relative Absolute Error (RAE) between the parameters of two models.
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    mean_vec1 = torch.mean(vec1)
+    abs_diff = torch.sum(torch.abs(vec1 - vec2))
+    abs_mean_diff = torch.sum(torch.abs(vec1 - mean_vec1))
+
+    if abs_mean_diff == 0.0:
+        return 0.0
+
+    rae = abs_diff / abs_mean_diff
+    return float(rae.item())
+
+
+def compute_root_relative_squared_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Root Relative Squared Error (RRSE) between the parameters of two models.
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    mean_vec1 = torch.mean(vec1)
+    sq_diff = torch.sum((vec1 - vec2) ** 2)
+    sq_mean_diff = torch.sum((vec1 - mean_vec1) ** 2)
+
+    if sq_mean_diff == 0.0:
+        return 0.0
+
+    rrse = torch.sqrt(sq_diff / sq_mean_diff)
+    return float(rrse.item())

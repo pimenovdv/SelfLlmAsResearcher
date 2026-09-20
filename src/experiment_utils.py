@@ -6676,3 +6676,25 @@ def compute_mean_percentage_error_between_models(model1: torch.nn.Module, model2
     epsilon = 1e-8
     mpe = torch.mean((vec1 - vec2) / torch.clamp(torch.abs(vec1), min=epsilon))
     return float(mpe.item())
+
+
+def compute_median_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Median Percentage Error (MdPE) between the parameters of two models.
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    epsilon = 1e-8
+    mdpe = torch.median((vec1 - vec2) / torch.clamp(torch.abs(vec1), min=epsilon))
+    return float(mdpe.item())

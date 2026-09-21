@@ -6864,3 +6864,30 @@ def compute_median_absolute_percentage_error_between_models(model1: torch.nn.Mod
     percentage_error = torch.abs(vec1 - vec2) / clamped_vec1
     mdape = torch.median(percentage_error)
     return float(mdape.item())
+
+def compute_weighted_mean_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Weighted Mean Absolute Percentage Error (WMAPE) between the parameters of two models.
+    WMAPE = sum(|y_true - y_pred|) / sum(|y_true|)
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    total_abs_diff = torch.sum(torch.abs(vec1 - vec2))
+    total_abs_true = torch.sum(torch.abs(vec1))
+
+    if total_abs_true.item() == 0.0:
+        return 0.0
+
+    wmape = total_abs_diff / total_abs_true
+    return float(wmape.item())

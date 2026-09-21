@@ -1539,3 +1539,6 @@ Computes the Relative Absolute Error (RAE) between the parameters of two models.
 Computes the Root Relative Squared Error (RRSE) between the parameters of two models.
 
 ---
+
+### `compute_weighted_mean_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет взвешенную среднюю абсолютную процентную ошибку (WMAPE) между параметрами двух моделей.

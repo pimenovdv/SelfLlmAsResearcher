@@ -6818,3 +6818,25 @@ def compute_root_relative_squared_error_between_models(model1: torch.nn.Module, 
 
     rrse = torch.sqrt(sq_diff / sq_mean_diff)
     return float(rrse.item())
+
+
+def compute_normalized_root_mean_squared_deviation_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Normalized Root Mean Squared Deviation (NRMSD) between the parameters of two models.
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+    mse = torch.mean((vec1 - vec2) ** 2)
+    rmse = torch.sqrt(mse)
+    range_val = torch.max(vec1) - torch.min(vec1)
+    if range_val == 0.0:
+        return 0.0
+    nrmsd = rmse / range_val
+    return float(nrmsd.item())

@@ -1,1 +1,1 @@
-- [ ] Добавить функцию compute_normalized_root_mean_squared_deviation_between_models в src/experiment_utils.py и написать тесты.
+Completed compute_normalized_root_mean_squared_deviation_between_models task.

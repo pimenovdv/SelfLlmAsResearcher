@@ -5299,6 +5299,26 @@ def compute_mean_absolute_error_between_models(model1: torch.nn.Module, model2: 
     else:
         return 0.0
 
+
+def compute_normalized_mean_absolute_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Normalized Mean Absolute Error (NMAE) between the parameters of two models.
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+    mae = torch.mean(torch.abs(vec1 - vec2))
+    range_val = torch.max(vec1) - torch.min(vec1)
+    if range_val == 0.0:
+        return 0.0
+    nmae = mae / range_val
+    return float(nmae.item())
 def compute_mean_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет среднюю абсолютную процентную ошибку (MAPE) между весами двух моделей.

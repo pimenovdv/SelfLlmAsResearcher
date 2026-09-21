@@ -1,1 +1,1 @@
-Completed compute_normalized_root_mean_squared_deviation_between_models task.
+Completed compute_median_absolute_percentage_error_between_models task.

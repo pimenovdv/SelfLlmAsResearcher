@@ -6840,3 +6840,27 @@ def compute_normalized_root_mean_squared_deviation_between_models(model1: torch.
         return 0.0
     nrmsd = rmse / range_val
     return float(nrmsd.item())
+
+def compute_median_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Median Absolute Percentage Error (MdAPE) between the parameters of two models.
+    MdAPE = median(|(vec1 - vec2) / vec1|)
+    """
+    import torch
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    epsilon = 1e-8
+    clamped_vec1 = torch.clamp(torch.abs(vec1), min=epsilon)
+    percentage_error = torch.abs(vec1 - vec2) / clamped_vec1
+    mdape = torch.median(percentage_error)
+    return float(mdape.item())

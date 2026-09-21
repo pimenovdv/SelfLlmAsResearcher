@@ -445,3 +445,4 @@
 - [x] Добавить функцию compute_symmetric_median_absolute_percentage_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_relative_absolute_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_root_relative_squared_error_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_normalized_mean_absolute_error_between_models в src/experiment_utils.py и написать тесты.

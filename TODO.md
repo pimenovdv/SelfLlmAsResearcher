@@ -448,3 +448,4 @@
 - [x] Добавить функцию compute_normalized_mean_absolute_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_normalized_root_mean_squared_deviation_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_median_absolute_percentage_error_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_weighted_mean_absolute_percentage_error_between_models в src/experiment_utils.py и написать тесты.

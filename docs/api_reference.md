@@ -1529,3 +1529,13 @@ Computes the Root Mean Squared Percentage Error (RMSPE) between the parameters o
 Computes the Symmetric Median Absolute Percentage Error (SMdAPE) between the parameters of two models.
 
 ---
+
+### `compute_relative_absolute_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Relative Absolute Error (RAE) between the parameters of two models.
+
+---
+
+### `compute_root_relative_squared_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Computes the Root Relative Squared Error (RRSE) between the parameters of two models.
+
+---

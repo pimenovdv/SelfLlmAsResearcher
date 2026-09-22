@@ -6937,3 +6937,81 @@ def compute_mean_arctangent_absolute_percentage_error_between_models(model1: tor
     epsilon = 1e-8
     maape = torch.mean(torch.atan(torch.abs(vec1 - vec2) / torch.clamp(torch.abs(vec1), min=epsilon)))
     return float(maape.item())
+
+def compute_parameter_lehmer_mean(model: torch.nn.Module, p: float = 2.0) -> float:
+    """
+    Вычисляет среднее Лемера параметров модели (по абсолютным значениям).
+    """
+    params = [param.data.flatten() for param in model.parameters() if param.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    vec = torch.abs(vec)
+    vec = vec[vec > 0]
+    if vec.numel() == 0:
+        return 0.0
+    num = torch.sum(vec ** p)
+    den = torch.sum(vec ** (p - 1.0))
+    if den == 0.0:
+        return 0.0
+    return float((num / den).item())
+
+def compute_gradient_lehmer_mean(model: torch.nn.Module, p: float = 2.0) -> float:
+    """
+    Вычисляет среднее Лемера градиентов модели (по абсолютным значениям).
+    """
+    grads = [param.grad.flatten() for param in model.parameters() if param.grad is not None and param.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    vec = torch.abs(vec)
+    vec = vec[vec > 0]
+    if vec.numel() == 0:
+        return 0.0
+    num = torch.sum(vec ** p)
+    den = torch.sum(vec ** (p - 1.0))
+    if den == 0.0:
+        return 0.0
+    return float((num / den).item())
+
+def compute_activation_lehmer_mean(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], p: float = 2.0) -> dict[str, float]:
+    """
+    Вычисляет среднее Лемера активаций для заданных слоев (по абсолютным значениям).
+    """
+    activations = {}
+    hooks = []
+
+    def get_hook(name):
+        def hook(model, input, output):
+            if isinstance(output, tuple):
+                output = output[0]
+            vec = output.detach().flatten()
+            vec = torch.abs(vec)
+            vec = vec[vec > 0]
+            if vec.numel() == 0:
+                activations[name] = 0.0
+            else:
+                num = torch.sum(vec ** p)
+                den = torch.sum(vec ** (p - 1.0))
+                if den == 0.0:
+                    activations[name] = 0.0
+                else:
+                    activations[name] = float((num / den).item())
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_hook(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    for hook in hooks:
+        hook.remove()
+
+    if training_state:
+        model.train()
+
+    return activations

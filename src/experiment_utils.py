@@ -7015,3 +7015,79 @@ def compute_activation_lehmer_mean(model: torch.nn.Module, input_data: torch.Ten
         model.train()
 
     return activations
+
+
+def compute_parameter_power_mean(model: torch.nn.Module, p: float = 2.0) -> float:
+    """
+    Вычисляет среднее степенное (generalized mean) параметров модели (по абсолютным значениям).
+    """
+    if p == 0.0:
+        raise ValueError("p cannot be 0.0")
+    params = [param.data.flatten() for param in model.parameters() if param.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    vec = torch.abs(vec)
+    if p < 0:
+        vec = vec[vec > 0]
+    if vec.numel() == 0:
+        return 0.0
+    mean_val = torch.mean(vec ** p)
+    return float((mean_val ** (1.0 / p)).item())
+
+def compute_gradient_power_mean(model: torch.nn.Module, p: float = 2.0) -> float:
+    """
+    Вычисляет среднее степенное градиентов модели (по абсолютным значениям).
+    """
+    if p == 0.0:
+        raise ValueError("p cannot be 0.0")
+    grads = [param.grad.flatten() for param in model.parameters() if param.grad is not None and param.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    vec = torch.abs(vec)
+    if p < 0:
+        vec = vec[vec > 0]
+    if vec.numel() == 0:
+        return 0.0
+    mean_val = torch.mean(vec ** p)
+    return float((mean_val ** (1.0 / p)).item())
+
+def compute_activation_power_mean(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], p: float = 2.0) -> dict[str, float]:
+    """
+    Вычисляет среднее степенное активаций для заданных слоев (по абсолютным значениям).
+    """
+    if p == 0.0:
+        raise ValueError("p cannot be 0.0")
+    activations = {}
+    hooks = []
+
+    def get_activation(name):
+        def hook(mod, inp, out):
+            vec = out.detach().flatten()
+            vec = torch.abs(vec)
+            if p < 0:
+                vec = vec[vec > 0]
+            if vec.numel() == 0:
+                activations[name] = 0.0
+            else:
+                mean_val = torch.mean(vec ** p)
+                activations[name] = float((mean_val ** (1.0 / p)).item())
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_activation(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+
+    if training_state:
+        model.train()
+
+    for h in hooks:
+        h.remove()
+
+    return activations

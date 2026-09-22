@@ -1,1 +1,1 @@
-1. Implement any remaining statistical metrics or final documentation updates.
+1. Review and finalize all implemented metrics and complete project documentation.

@@ -4533,6 +4533,38 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(stat, dict)
         self.assertIn('fc', stat)
 
+
+    def test_compute_parameter_power_mean(self):
+        from src.experiment_utils import compute_parameter_power_mean
+        import torch
+        model = torch.nn.Linear(10, 10)
+        stat = compute_parameter_power_mean(model, p=2.0)
+        self.assertIsInstance(stat, float)
+
+    def test_compute_gradient_power_mean(self):
+        from src.experiment_utils import compute_gradient_power_mean
+        import torch
+        model = torch.nn.Linear(10, 10)
+        out = model(torch.randn(1, 10))
+        out.sum().backward()
+        stat = compute_gradient_power_mean(model, p=2.0)
+        self.assertIsInstance(stat, float)
+
+    def test_compute_activation_power_mean(self):
+        from src.experiment_utils import compute_activation_power_mean
+        import torch
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = SimpleModel()
+        x = torch.randn(1, 10)
+        stat = compute_activation_power_mean(model, x, ['fc'], p=2.0)
+        self.assertIn('fc', stat)
+        self.assertIsInstance(stat['fc'], float)
+
 if __name__ == '__main__':
 
 

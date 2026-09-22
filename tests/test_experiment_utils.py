@@ -4457,6 +4457,21 @@ class TestExperimentUtils(unittest.TestCase):
         stat = compute_weighted_mean_absolute_percentage_error_between_models(model1, model2)
         self.assertIsInstance(stat, float)
 
+
+    def test_compute_root_mean_squared_logarithmic_error_between_models(self):
+        from src.experiment_utils import compute_root_mean_squared_logarithmic_error_between_models
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+
+        model1 = DummyModel()
+        model2 = DummyModel()
+        stat = compute_root_mean_squared_logarithmic_error_between_models(model1, model2)
+        self.assertIsInstance(stat, float)
+
 if __name__ == '__main__':
 
 

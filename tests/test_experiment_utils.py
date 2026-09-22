@@ -4488,6 +4488,51 @@ class TestExperimentUtils(unittest.TestCase):
         stat = compute_mean_arctangent_absolute_percentage_error_between_models(model1, model2)
         self.assertIsInstance(stat, float)
 
+
+    def test_compute_parameter_lehmer_mean(self):
+        import torch
+        from src.experiment_utils import compute_parameter_lehmer_mean
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        stat = compute_parameter_lehmer_mean(model)
+        self.assertIsInstance(stat, float)
+
+    def test_compute_gradient_lehmer_mean(self):
+        import torch
+        from src.experiment_utils import compute_gradient_lehmer_mean
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(1, 10)
+        y = model(x).sum()
+        y.backward()
+        stat = compute_gradient_lehmer_mean(model)
+        self.assertIsInstance(stat, float)
+
+    def test_compute_activation_lehmer_mean(self):
+        import torch
+        from src.experiment_utils import compute_activation_lehmer_mean
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = DummyModel()
+        x = torch.randn(1, 10)
+        stat = compute_activation_lehmer_mean(model, x, ['fc'])
+        self.assertIsInstance(stat, dict)
+        self.assertIn('fc', stat)
+
 if __name__ == '__main__':
 
 

@@ -453,3 +453,4 @@
 - [x] Добавить функцию compute_mean_arctangent_absolute_percentage_error_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функции вычисления среднего Лемера в src/experiment_utils.py и написать тесты.
 - [x] Добавить функции вычисления среднего степенного (power mean) в src/experiment_utils.py и написать тесты.
+- [x] Добавить функции вычисления контрагармонического среднего в src/experiment_utils.py и написать тесты.

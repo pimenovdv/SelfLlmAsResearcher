@@ -4565,6 +4565,50 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('fc', stat)
         self.assertIsInstance(stat['fc'], float)
 
+
+    def test_compute_parameter_contraharmonic_mean(self):
+        from src.experiment_utils import compute_parameter_contraharmonic_mean
+        import torch
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = SimpleModel()
+        stat = compute_parameter_contraharmonic_mean(model, p=1.0)
+        self.assertIsInstance(stat, float)
+
+    def test_compute_gradient_contraharmonic_mean(self):
+        from src.experiment_utils import compute_gradient_contraharmonic_mean
+        import torch
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = SimpleModel()
+        output = model(torch.randn(1, 10))
+        output.sum().backward()
+        stat = compute_gradient_contraharmonic_mean(model, p=1.0)
+        self.assertIsInstance(stat, float)
+
+    def test_compute_activation_contraharmonic_mean(self):
+        from src.experiment_utils import compute_activation_contraharmonic_mean
+        import torch
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+        model = SimpleModel()
+        x = torch.randn(1, 10)
+        stat = compute_activation_contraharmonic_mean(model, x, ['fc'], p=1.0)
+        self.assertIn('fc', stat)
+        self.assertIsInstance(stat['fc'], float)
+
 if __name__ == '__main__':
 
 

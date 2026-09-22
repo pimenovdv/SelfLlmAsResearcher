@@ -1,1 +1,1 @@
-Implement remaining statistical metrics.
+1. Implement additional metrics if necessary or finalize the feature addition process.

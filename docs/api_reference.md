@@ -1542,3 +1542,12 @@ Computes the Root Relative Squared Error (RRSE) between the parameters of two mo
 
 ### `compute_weighted_mean_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
 Вычисляет взвешенную среднюю абсолютную процентную ошибку (WMAPE) между параметрами двух моделей.
+
+### `compute_parameter_contraharmonic_mean(model: torch.nn.modules.module.Module, p: float = 1.0) -> float`
+Вычисляет контрагармоническое среднее параметров модели.
+
+### `compute_gradient_contraharmonic_mean(model: torch.nn.modules.module.Module, p: float = 1.0) -> float`
+Вычисляет контрагармоническое среднее градиентов параметров модели.
+
+### `compute_activation_contraharmonic_mean(model: torch.nn.modules.module.Module, input_data: torch.Tensor, layer_names: list[str], p: float = 1.0) -> dict[str, float]`
+Вычисляет контрагармоническое среднее активаций для заданных слоев.

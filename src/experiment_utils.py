@@ -7091,3 +7091,82 @@ def compute_activation_power_mean(model: torch.nn.Module, input_data: torch.Tens
         h.remove()
 
     return activations
+
+def compute_parameter_contraharmonic_mean(model: torch.nn.Module, p: float = 1.0) -> float:
+    """
+    Вычисляет контрагармоническое среднее параметров модели (по абсолютным значениям).
+    """
+    params = [param.data.flatten() for param in model.parameters() if param.numel() > 0]
+    if not params:
+        return 0.0
+    vec = torch.cat(params)
+    vec = torch.abs(vec)
+    if vec.numel() == 0:
+        return 0.0
+    num = torch.sum(vec ** (p + 1.0))
+    den = torch.sum(vec ** p)
+    if den == 0.0:
+        return 0.0
+    return float((num / den).item())
+
+def compute_gradient_contraharmonic_mean(model: torch.nn.Module, p: float = 1.0) -> float:
+    """
+    Вычисляет контрагармоническое среднее градиентов модели (по абсолютным значениям).
+    """
+    grads = [param.grad.flatten() for param in model.parameters() if param.grad is not None and param.grad.numel() > 0]
+    if not grads:
+        return 0.0
+    vec = torch.cat(grads)
+    vec = torch.abs(vec)
+    if vec.numel() == 0:
+        return 0.0
+    num = torch.sum(vec ** (p + 1.0))
+    den = torch.sum(vec ** p)
+    if den == 0.0:
+        return 0.0
+    return float((num / den).item())
+
+def compute_activation_contraharmonic_mean(model: torch.nn.Module, input_data: torch.Tensor, layer_names: list[str], p: float = 1.0) -> dict[str, float]:
+    """
+    Вычисляет контрагармоническое среднее активаций для заданных слоев (по абсолютным значениям).
+    """
+    activations = {}
+    hooks = []
+
+    def get_activation(name):
+        def hook(model, input, output):
+            activations[name] = output.detach()
+        return hook
+
+    for name, module in model.named_modules():
+        if name in layer_names:
+            hooks.append(module.register_forward_hook(get_activation(name)))
+
+    training_state = model.training
+    model.eval()
+    with torch.no_grad():
+        model(input_data)
+    if training_state:
+        model.train()
+
+    for hook in hooks:
+        hook.remove()
+
+    res = {}
+    for name in layer_names:
+        if name in activations:
+            vec = activations[name].flatten()
+            vec = torch.abs(vec)
+            if vec.numel() == 0:
+                res[name] = 0.0
+            else:
+                num = torch.sum(vec ** (p + 1.0))
+                den = torch.sum(vec ** p)
+                if den == 0.0:
+                    res[name] = 0.0
+                else:
+                    res[name] = float((num / den).item())
+        else:
+            res[name] = 0.0
+
+    return res

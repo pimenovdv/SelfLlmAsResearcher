@@ -1,1 +1,1 @@
-1. Implement more advanced distance metrics such as the intersection distance or other task-specific custom metrics in src/experiment_utils.py.
+1. Implement and test advanced parameter importance metrics or additional histogram-based distances in src/experiment_utils.py.

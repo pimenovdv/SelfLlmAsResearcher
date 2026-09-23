@@ -4709,6 +4709,24 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(compute_lorentzian_distance_between_models(model3, model4), 0.0)
 
 
+
+    def test_compute_intersection_distance_between_models(self):
+        from src.experiment_utils import compute_intersection_distance_between_models
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 1, bias=False)
+        model1 = DummyModel()
+        model2 = DummyModel()
+        model1.fc.weight.data = torch.tensor([[1.0, 2.0]])
+        model2.fc.weight.data = torch.tensor([[3.0, 1.0]])
+        dist = compute_intersection_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 1.0 / 3.0, places=5)
+        model3 = torch.nn.Module()
+        model4 = torch.nn.Module()
+        self.assertEqual(compute_intersection_distance_between_models(model3, model4), 0.0)
+
 if __name__ == '__main__':
 
 

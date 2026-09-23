@@ -4609,6 +4609,22 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIn('fc', stat)
         self.assertIsInstance(stat['fc'], float)
 
+
+    def test_compute_theils_u_statistic_between_models(self):
+        from src.experiment_utils import compute_theils_u_statistic_between_models
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.w = torch.nn.Parameter(w)
+
+        m1 = DummyModel(torch.tensor([1.0, 2.0, 3.0]))
+        m2 = DummyModel(torch.tensor([1.5, 2.5, 3.5]))
+
+        res = compute_theils_u_statistic_between_models(m1, m2)
+        self.assertIsInstance(res, float)
+        self.assertGreaterEqual(res, 0.0)
+
 if __name__ == '__main__':
 
 

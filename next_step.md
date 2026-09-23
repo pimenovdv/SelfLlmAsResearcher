@@ -1,4 +1,2 @@
-1. Review and finalize all implemented metrics and complete project documentation.
-2. Implement remaining statistical metrics.
-3. Add them to tests.
-4. Update docs.
+1. Review and finalize any additional remaining metrics.
+2. Consider project statistical metrics complete if no further metrics are required.

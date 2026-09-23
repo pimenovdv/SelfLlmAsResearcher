@@ -7170,3 +7170,37 @@ def compute_activation_contraharmonic_mean(model: torch.nn.Module, input_data: t
             res[name] = 0.0
 
     return res
+
+def compute_theils_u_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes Theil's U statistic between the parameters of two models.
+    """
+    import torch
+    import math
+
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    diff = vec1 - vec2
+    mse = torch.mean(diff ** 2).item()
+    if mse == 0.0:
+        return 0.0
+
+    mean_sq1 = torch.mean(vec1 ** 2).item()
+    mean_sq2 = torch.mean(vec2 ** 2).item()
+
+    denominator = math.sqrt(mean_sq1) + math.sqrt(mean_sq2)
+    if denominator == 0.0:
+        return 0.0
+
+    numerator = math.sqrt(mse)
+    return numerator / denominator

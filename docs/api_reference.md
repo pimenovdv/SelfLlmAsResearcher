@@ -1551,3 +1551,6 @@ Computes the Root Relative Squared Error (RRSE) between the parameters of two mo
 
 ### `compute_activation_contraharmonic_mean(model: torch.nn.modules.module.Module, input_data: torch.Tensor, layer_names: list[str], p: float = 1.0) -> dict[str, float]`
 Вычисляет контрагармоническое среднее активаций для заданных слоев.
+
+### `compute_theils_u_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
+Вычисляет статистику Theil's U между параметрами двух моделей.

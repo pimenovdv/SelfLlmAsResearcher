@@ -454,3 +454,4 @@
 - [x] Добавить функции вычисления среднего Лемера в src/experiment_utils.py и написать тесты.
 - [x] Добавить функции вычисления среднего степенного (power mean) в src/experiment_utils.py и написать тесты.
 - [x] Добавить функции вычисления контрагармонического среднего в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_theils_u_statistic_between_models в src/experiment_utils.py и написать тесты.

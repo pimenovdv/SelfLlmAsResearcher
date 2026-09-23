@@ -7204,3 +7204,37 @@ def compute_theils_u_statistic_between_models(model1: torch.nn.Module, model2: t
 
     numerator = math.sqrt(mse)
     return numerator / denominator
+
+
+def compute_clark_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Clark distance between the parameters of two models."""
+    import math
+    import torch
+
+    params1 = [p for p in model1.parameters()]
+    params2 = [p for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    distance = 0.0
+    count = 0
+
+    for p1, p2 in zip(params1, params2):
+        p1_flat = p1.view(-1).float()
+        p2_flat = p2.view(-1).float()
+
+        diff = torch.abs(p1_flat - p2_flat)
+        suma = torch.abs(p1_flat) + torch.abs(p2_flat)
+
+        # Avoid division by zero
+        valid_mask = suma > 0
+        if valid_mask.any():
+            ratio = diff[valid_mask] / suma[valid_mask]
+            distance += torch.sum(ratio ** 2).item()
+            count += valid_mask.sum().item()
+
+    if count == 0:
+        return 0.0
+
+    return math.sqrt(distance / count)

@@ -4625,6 +4625,37 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(res, float)
         self.assertGreaterEqual(res, 0.0)
 
+    def test_compute_clark_distance_between_models(self):
+        from src.experiment_utils import compute_clark_distance_between_models
+        import torch
+        import math
+
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 1, bias=False)
+
+        model1 = SimpleModel()
+        model2 = SimpleModel()
+
+        model1.fc.weight.data = torch.tensor([[1.0, 2.0]])
+        model2.fc.weight.data = torch.tensor([[3.0, 4.0]])
+
+        # Diff: |1-3|=2, |2-4|=2
+        # Sum: |1|+|3|=4, |2|+|4|=6
+        # Ratio squared: (2/4)^2 = 0.25, (2/6)^2 = 1/9 = 0.1111...
+        # Mean: (0.25 + 0.1111...) / 2 = 0.36111... / 2 = 0.180555...
+        # Sqrt: sqrt(0.180555...) = 0.424918...
+
+        dist = compute_clark_distance_between_models(model1, model2)
+        expected_dist = math.sqrt(0.18055555555555555)
+        self.assertAlmostEqual(dist, expected_dist, places=5)
+
+        # Test empty models
+        model3 = torch.nn.Module()
+        model4 = torch.nn.Module()
+        self.assertEqual(compute_clark_distance_between_models(model3, model4), 0.0)
+
 if __name__ == '__main__':
 
 

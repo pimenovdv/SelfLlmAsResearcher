@@ -7283,3 +7283,25 @@ def compute_lorentzian_distance_between_models(model1: torch.nn.Module, model2: 
         distance += torch.sum(torch.log1p(torch.abs(p1_flat - p2_flat))).item()
 
     return distance
+
+
+def compute_intersection_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Intersection distance between the parameters of two models."""
+    import torch
+    params1 = [p for p in model1.parameters()]
+    params2 = [p for p in model2.parameters()]
+    if not params1 or not params2:
+        return 0.0
+    intersection = 0.0
+    sum1 = 0.0
+    sum2 = 0.0
+    for p1, p2 in zip(params1, params2):
+        p1_flat = torch.abs(p1.view(-1).float())
+        p2_flat = torch.abs(p2.view(-1).float())
+        intersection += torch.sum(torch.minimum(p1_flat, p2_flat)).item()
+        sum1 += torch.sum(p1_flat).item()
+        sum2 += torch.sum(p2_flat).item()
+    denominator = min(sum1, sum2)
+    if denominator == 0.0:
+        return 0.0
+    return 1.0 - (intersection / denominator)

@@ -7238,3 +7238,28 @@ def compute_clark_distance_between_models(model1: torch.nn.Module, model2: torch
         return 0.0
 
     return math.sqrt(distance / count)
+
+def compute_soergel_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Soergel distance between the parameters of two models."""
+    import torch
+
+    params1 = [p for p in model1.parameters()]
+    params2 = [p for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    numerator = 0.0
+    denominator = 0.0
+
+    for p1, p2 in zip(params1, params2):
+        p1_flat = p1.view(-1).float()
+        p2_flat = p2.view(-1).float()
+
+        numerator += torch.sum(torch.abs(p1_flat - p2_flat)).item()
+        denominator += torch.sum(torch.max(torch.abs(p1_flat), torch.abs(p2_flat))).item()
+
+    if denominator == 0.0:
+        return 0.0
+
+    return numerator / denominator

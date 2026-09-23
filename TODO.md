@@ -456,3 +456,4 @@
 - [x] Добавить функции вычисления контрагармонического среднего в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_theils_u_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_clark_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_soergel_distance_between_models в src/experiment_utils.py и написать тесты.

@@ -4683,6 +4683,32 @@ class TestExperimentUtils(unittest.TestCase):
         model4 = torch.nn.Module()
         self.assertEqual(compute_soergel_distance_between_models(model3, model4), 0.0)
 
+    def test_compute_lorentzian_distance_between_models(self):
+        from src.experiment_utils import compute_lorentzian_distance_between_models
+        import torch
+        import math
+
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 1, bias=False)
+
+        model1 = SimpleModel()
+        model2 = SimpleModel()
+
+        model1.fc.weight.data = torch.tensor([[1.0, 2.0]])
+        model2.fc.weight.data = torch.tensor([[3.0, 1.0]])
+
+        dist = compute_lorentzian_distance_between_models(model1, model2)
+        expected_dist = math.log1p(2.0) + math.log1p(1.0)
+        self.assertAlmostEqual(dist, expected_dist, places=5)
+
+        # Test empty models
+        model3 = torch.nn.Module()
+        model4 = torch.nn.Module()
+        self.assertEqual(compute_lorentzian_distance_between_models(model3, model4), 0.0)
+
+
 if __name__ == '__main__':
 
 

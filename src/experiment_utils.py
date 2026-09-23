@@ -7263,3 +7263,23 @@ def compute_soergel_distance_between_models(model1: torch.nn.Module, model2: tor
         return 0.0
 
     return numerator / denominator
+
+def compute_lorentzian_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Lorentzian distance between the parameters of two models."""
+    import torch
+
+    params1 = [p for p in model1.parameters()]
+    params2 = [p for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    distance = 0.0
+
+    for p1, p2 in zip(params1, params2):
+        p1_flat = p1.view(-1).float()
+        p2_flat = p2.view(-1).float()
+
+        distance += torch.sum(torch.log1p(torch.abs(p1_flat - p2_flat))).item()
+
+    return distance

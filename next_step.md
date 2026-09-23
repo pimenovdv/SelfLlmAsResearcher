@@ -1,1 +1,1 @@
-Проверить завершенность проекта, так как необходимые метрики реализованы. Убедиться, что все тесты проходят.
+1. Implement more advanced distance metrics such as the intersection distance or other task-specific custom metrics in src/experiment_utils.py.

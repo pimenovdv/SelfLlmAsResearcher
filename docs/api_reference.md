@@ -1554,3 +1554,9 @@ Computes the Root Relative Squared Error (RRSE) between the parameters of two mo
 
 ### `compute_theils_u_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float`
 Вычисляет статистику Theil's U между параметрами двух моделей.
+
+### `compute_wave_hedges_distance_between_models(model1, model2)`
+Computes the Wave-Hedges distance between the parameters of two models, applying absolute value to avoid issues with negative weights.
+
+### `compute_kulczynski_distance_between_models(model1, model2)`
+Computes the Kulczynski distance (d1) between the parameters of two models, applying absolute value to avoid issues with negative weights.

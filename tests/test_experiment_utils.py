@@ -4727,6 +4727,25 @@ class TestExperimentUtils(unittest.TestCase):
         model4 = torch.nn.Module()
         self.assertEqual(compute_intersection_distance_between_models(model3, model4), 0.0)
 
+
+    def test_compute_wave_hedges_distance_between_models(self):
+        from src.experiment_utils import compute_wave_hedges_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 10)
+        model2 = torch.nn.Linear(10, 10)
+        dist = compute_wave_hedges_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+
+    def test_compute_kulczynski_distance_between_models(self):
+        from src.experiment_utils import compute_kulczynski_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 10)
+        model2 = torch.nn.Linear(10, 10)
+        dist = compute_kulczynski_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+
 if __name__ == '__main__':
 
 

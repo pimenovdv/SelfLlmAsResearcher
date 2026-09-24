@@ -7305,3 +7305,50 @@ def compute_intersection_distance_between_models(model1: torch.nn.Module, model2
     if denominator == 0.0:
         return 0.0
     return 1.0 - (intersection / denominator)
+def compute_wave_hedges_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Wave-Hedges distance between the parameters of two models.
+    Wave-Hedges distance is sum( |x_i - y_i| / max(x_i, y_i) ).
+    Weights are converted to absolute values before computation.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Wave-Hedges distance.
+    """
+    distance = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        abs_p1 = torch.abs(p1)
+        abs_p2 = torch.abs(p2)
+        diff = torch.abs(abs_p1 - abs_p2)
+        max_val = torch.maximum(abs_p1, abs_p2)
+        max_val = torch.clamp(max_val, min=1e-8)
+        distance += torch.sum(diff / max_val).item()
+    return distance
+
+def compute_kulczynski_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Kulczynski distance (Kulczynski d1) between the parameters of two models.
+    Kulczynski distance is sum( |x_i - y_i| ) / sum( min(x_i, y_i) ).
+    Weights are converted to absolute values before computation.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Kulczynski distance.
+    """
+    diff_sum = 0.0
+    min_sum = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        abs_p1 = torch.abs(p1)
+        abs_p2 = torch.abs(p2)
+        diff_sum += torch.sum(torch.abs(abs_p1 - abs_p2)).item()
+        min_sum += torch.sum(torch.minimum(abs_p1, abs_p2)).item()
+
+    if min_sum == 0.0:
+        return 0.0
+    return diff_sum / min_sum

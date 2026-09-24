@@ -461,3 +461,4 @@
 - [x] Добавить функцию compute_intersection_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_wave_hedges_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_kulczynski_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_motyka_distance_between_models в src/experiment_utils.py и написать тесты.

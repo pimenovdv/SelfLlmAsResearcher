@@ -7352,3 +7352,28 @@ def compute_kulczynski_distance_between_models(model1: torch.nn.Module, model2: 
     if min_sum == 0.0:
         return 0.0
     return diff_sum / min_sum
+
+def compute_motyka_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Motyka distance between the parameters of two models.
+    Motyka distance is 1 - sum(min(x_i, y_i)) / sum(max(x_i, y_i)).
+    Weights are converted to absolute values before computation.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Motyka distance.
+    """
+    min_sum = 0.0
+    max_sum = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        abs_p1 = torch.abs(p1)
+        abs_p2 = torch.abs(p2)
+        min_sum += torch.sum(torch.minimum(abs_p1, abs_p2)).item()
+        max_sum += torch.sum(torch.maximum(abs_p1, abs_p2)).item()
+
+    if max_sum == 0.0:
+        return 0.0
+    return 1.0 - (min_sum / max_sum)

@@ -7499,3 +7499,22 @@ def compute_squared_chord_distance_between_models(model1: torch.nn.Module, model
         chord_sum += torch.sum((torch.sqrt(torch.abs(p1_flat)) - torch.sqrt(torch.abs(p2_flat))) ** 2).item()
 
     return chord_sum
+
+
+def compute_euclidean_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+    if not params1 or not params2: return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0: return 0.0
+    return float(torch.norm(vec1 - vec2, p=2).item())
+
+def compute_manhattan_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+    if not params1 or not params2: return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0: return 0.0
+    return float(torch.norm(vec1 - vec2, p=1).item())

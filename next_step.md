@@ -1,1 +1,1 @@
-Submit the changes.
+Implement Ruzicka similarity distance metric and test it.

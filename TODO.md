@@ -467,3 +467,5 @@
 - [x] Добавить функцию compute_ruzicka_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_matusita_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_squared_chord_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_euclidean_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_manhattan_distance_between_models в src/experiment_utils.py и написать тесты.

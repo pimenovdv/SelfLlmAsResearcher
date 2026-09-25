@@ -465,3 +465,4 @@
 - [x] Добавить функцию compute_tanimoto_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_dice_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_ruzicka_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_matusita_distance_between_models в src/experiment_utils.py и написать тесты.

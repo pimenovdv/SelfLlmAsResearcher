@@ -1560,3 +1560,14 @@ Computes the Wave-Hedges distance between the parameters of two models, applying
 
 ### `compute_kulczynski_distance_between_models(model1, model2)`
 Computes the Kulczynski distance (d1) between the parameters of two models, applying absolute value to avoid issues with negative weights.
+
+### `compute_matusita_distance_between_models(model1, model2)`
+
+Computes the Matusita distance between the parameters of two models.
+
+**Parameters:**
+- `model1` (torch.nn.Module): The first model.
+- `model2` (torch.nn.Module): The second model.
+
+**Returns:**
+- `float`: The calculated Matusita distance.

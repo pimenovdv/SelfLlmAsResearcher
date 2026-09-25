@@ -1,1 +1,1 @@
-Implement Ruzicka similarity distance metric and test it.
+Продолжить добавление новых метрик расстояния между моделями в src/experiment_utils.py, если такие еще остались, или перейти к другим задачам из TODO.md.

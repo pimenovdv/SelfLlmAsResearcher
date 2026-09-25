@@ -7403,3 +7403,28 @@ def compute_tanimoto_distance_between_models(model1: torch.nn.Module, model2: to
 
     tanimoto_similarity = dot_product / denominator
     return 1.0 - tanimoto_similarity
+
+def compute_dice_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Dice distance between the parameters of two models.
+    Dice distance is 1 - 2 * sum(x_i * y_i) / (sum(x_i^2) + sum(y_i^2)).
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Dice distance.
+    """
+    dot_product = 0.0
+    norm1_sq = 0.0
+    norm2_sq = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        dot_product += torch.sum(p1 * p2).item()
+        norm1_sq += torch.sum(p1 ** 2).item()
+        norm2_sq += torch.sum(p2 ** 2).item()
+
+    denominator = norm1_sq + norm2_sq
+    if denominator == 0.0:
+        return 0.0
+    return 1.0 - (2 * dot_product / denominator)

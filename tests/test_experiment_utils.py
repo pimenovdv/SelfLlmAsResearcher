@@ -4657,6 +4657,25 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(compute_clark_distance_between_models(model3, model4), 0.0)
 
 
+
+    def test_compute_ruzicka_distance_between_models(self):
+        from src.experiment_utils import compute_ruzicka_distance_between_models
+        import torch
+
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 1, bias=False)
+
+        model1 = SimpleModel()
+        model2 = SimpleModel()
+
+        model1.fc.weight.data = torch.tensor([[1.0, 2.0]])
+        model2.fc.weight.data = torch.tensor([[3.0, 1.0]])
+
+        dist = compute_ruzicka_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 0.6, places=5)
+
     def test_compute_soergel_distance_between_models(self):
         from src.experiment_utils import compute_soergel_distance_between_models
         import torch

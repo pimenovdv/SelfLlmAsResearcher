@@ -7239,6 +7239,36 @@ def compute_clark_distance_between_models(model1: torch.nn.Module, model2: torch
 
     return math.sqrt(distance / count)
 
+
+def compute_ruzicka_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Ruzicka distance between the parameters of two models."""
+    import torch
+
+    params1 = [p for p in model1.parameters()]
+    params2 = [p for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    numerator = 0.0
+    denominator = 0.0
+
+    for p1, p2 in zip(params1, params2):
+        p1_flat = p1.view(-1).float()
+        p2_flat = p2.view(-1).float()
+
+        p1_abs = torch.abs(p1_flat)
+        p2_abs = torch.abs(p2_flat)
+
+        numerator += torch.sum(torch.min(p1_abs, p2_abs)).item()
+        denominator += torch.sum(torch.max(p1_abs, p2_abs)).item()
+
+    if denominator == 0.0:
+        return 0.0
+
+    ruzicka_similarity = numerator / denominator
+    return 1.0 - ruzicka_similarity
+
 def compute_soergel_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """Computes the Soergel distance between the parameters of two models."""
     import torch

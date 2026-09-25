@@ -4827,6 +4827,14 @@ class TestExperimentUtils(unittest.TestCase):
         dist = compute_manhattan_distance_between_models(model1, model2)
         self.assertIsInstance(dist, float)
 
+    def test_compute_jensen_shannon_divergence_between_models(self):
+        from src.experiment_utils import compute_jensen_shannon_divergence_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 10)
+        model2 = torch.nn.Linear(10, 10)
+        dist = compute_jensen_shannon_divergence_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+
 if __name__ == '__main__':
 
 

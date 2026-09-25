@@ -1575,3 +1575,15 @@ Computes the Matusita distance between the parameters of two models.
 ### `compute_squared_chord_distance_between_models`
 
 Computes the squared chord distance between the parameters of two models.
+
+### `compute_jensen_shannon_divergence_between_models(model1, model2, epsilon=1e-8)`
+
+Computes the Jensen-Shannon (JS) Divergence between the parameters of two models.
+
+**Parameters:**
+- `model1` (torch.nn.Module): The first model.
+- `model2` (torch.nn.Module): The second model.
+- `epsilon` (float): Small value to avoid division by zero or log(0).
+
+**Returns:**
+- `float`: The JS divergence.

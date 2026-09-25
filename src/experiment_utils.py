@@ -5888,6 +5888,54 @@ def compute_concordance_correlation_coefficient_between_models(model1: torch.nn.
     return ccc.item()
 
 
+def compute_jensen_shannon_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Jensen-Shannon (JS) Divergence between the parameters of two models.
+
+    Args:
+        model1 (nn.Module): The first PyTorch model.
+        model2 (nn.Module): The second PyTorch model.
+        epsilon (float): A small value to avoid division by zero or log(0).
+
+    Returns:
+        float: The JS divergence.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.shape != vec2.shape:
+        raise ValueError("Models must have the same parameter shapes.")
+
+    sum1 = vec1.sum()
+    sum2 = vec2.sum()
+
+    if sum1 == 0.0 and sum2 == 0.0:
+        return 0.0
+    if sum1 == 0.0 or sum2 == 0.0:
+        return float('inf')
+
+    p = vec1 / sum1
+    q = vec2 / sum2
+
+    p = torch.clamp(p, min=epsilon)
+    q = torch.clamp(q, min=epsilon)
+
+    m = 0.5 * (p + q)
+
+    kl_pm = torch.sum(p * torch.log(p / m))
+    kl_qm = torch.sum(q * torch.log(q / m))
+
+    return 0.5 * kl_pm.item() + 0.5 * kl_qm.item()
+
 def compute_symmetric_kl_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
     """
     Computes the Symmetric Kullback-Leibler (KL) Divergence between the parameters of two models.
@@ -5919,8 +5967,10 @@ def compute_symmetric_kl_divergence_between_models(model1: torch.nn.Module, mode
     sum1 = vec1.sum()
     sum2 = vec2.sum()
 
-    if sum1 == 0.0 or sum2 == 0.0:
+    if sum1 == 0.0 and sum2 == 0.0:
         return 0.0
+    if sum1 == 0.0 or sum2 == 0.0:
+        return float('inf')
 
     p = vec1 / sum1
     q = vec2 / sum2

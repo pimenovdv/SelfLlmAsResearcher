@@ -7458,3 +7458,24 @@ def compute_dice_distance_between_models(model1: torch.nn.Module, model2: torch.
     if denominator == 0.0:
         return 0.0
     return 1.0 - (2 * dot_product / denominator)
+
+def compute_matusita_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Matusita distance between the parameters of two models."""
+    import torch
+    import math
+
+    params1 = [p for p in model1.parameters()]
+    params2 = [p for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    matusita_sum = 0.0
+
+    for p1, p2 in zip(params1, params2):
+        p1_flat = p1.view(-1).float()
+        p2_flat = p2.view(-1).float()
+
+        matusita_sum += torch.sum((torch.sqrt(torch.abs(p1_flat)) - torch.sqrt(torch.abs(p2_flat))) ** 2).item()
+
+    return math.sqrt(matusita_sum)

@@ -1,1 +1,3 @@
-Продолжить добавление метрик из списка или перейти к другим задачам.
+1. Implement remaining statistical metrics.
+2. Add them to tests.
+3. Update docs.

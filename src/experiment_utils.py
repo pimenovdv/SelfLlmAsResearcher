@@ -7479,3 +7479,23 @@ def compute_matusita_distance_between_models(model1: torch.nn.Module, model2: to
         matusita_sum += torch.sum((torch.sqrt(torch.abs(p1_flat)) - torch.sqrt(torch.abs(p2_flat))) ** 2).item()
 
     return math.sqrt(matusita_sum)
+
+def compute_squared_chord_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the squared chord distance between the parameters of two models."""
+    import torch
+
+    params1 = [p for p in model1.parameters()]
+    params2 = [p for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    chord_sum = 0.0
+
+    for p1, p2 in zip(params1, params2):
+        p1_flat = p1.view(-1).float()
+        p2_flat = p2.view(-1).float()
+
+        chord_sum += torch.sum((torch.sqrt(torch.abs(p1_flat)) - torch.sqrt(torch.abs(p2_flat))) ** 2).item()
+
+    return chord_sum

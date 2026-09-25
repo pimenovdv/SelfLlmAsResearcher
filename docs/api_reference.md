@@ -1571,3 +1571,7 @@ Computes the Matusita distance between the parameters of two models.
 
 **Returns:**
 - `float`: The calculated Matusita distance.
+
+### `compute_squared_chord_distance_between_models`
+
+Computes the squared chord distance between the parameters of two models.

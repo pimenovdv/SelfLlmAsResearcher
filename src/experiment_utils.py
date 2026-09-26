@@ -5571,6 +5571,13 @@ def compute_bray_curtis_distance_between_models(model1: torch.nn.Module, model2:
 
     return float((numerator / denominator).item())
 
+def compute_jaccard_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет расстояние Жаккара между весами двух моделей.
+    """
+    sim = compute_jaccard_similarity_between_models(model1, model2)
+    return 1.0 - sim
+
 def compute_jaccard_similarity_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет индекс Жаккара между распределениями абсолютных значений весов двух моделей.
@@ -7585,3 +7592,22 @@ def compute_jensen_shannon_distance_between_models(model1: torch.nn.Module, mode
     import math
     js_div = compute_jensen_shannon_divergence_between_models(model1, model2, epsilon)
     return math.sqrt(max(0.0, js_div))
+
+def compute_hamming_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, threshold: float = 1e-5) -> float:
+    """
+    Вычисляет расстояние Хэмминга между весами двух моделей.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.shape != vec2.shape:
+        return 0.0
+
+    diff = torch.abs(vec1 - vec2) > threshold
+    return float(diff.float().mean().item())

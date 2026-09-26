@@ -7611,3 +7611,37 @@ def compute_hamming_distance_between_models(model1: torch.nn.Module, model2: tor
 
     diff = torch.abs(vec1 - vec2) > threshold
     return float(diff.float().mean().item())
+
+def compute_correlation_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Correlation distance between the parameters of two models.
+    Correlation distance is defined as 1 - Pearson correlation coefficient.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    mean1 = torch.mean(vec1)
+    mean2 = torch.mean(vec2)
+
+    vec1_centered = vec1 - mean1
+    vec2_centered = vec2 - mean2
+
+    numerator = torch.sum(vec1_centered * vec2_centered)
+    denominator = torch.sqrt(torch.sum(vec1_centered ** 2) * torch.sum(vec2_centered ** 2))
+
+    if denominator == 0:
+        return 0.0
+
+    pearson_corr = (numerator / denominator).item()
+    pearson_corr = max(-1.0, min(1.0, pearson_corr))
+
+    return 1.0 - pearson_corr

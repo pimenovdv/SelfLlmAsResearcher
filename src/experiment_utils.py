@@ -7568,3 +7568,20 @@ def compute_manhattan_distance_between_models(model1: torch.nn.Module, model2: t
     vec2 = torch.cat(params2)
     if vec1.numel() == 0 or vec2.numel() == 0: return 0.0
     return float(torch.norm(vec1 - vec2, p=1).item())
+
+def compute_jensen_shannon_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Jensen-Shannon (JS) Distance between the parameters of two models.
+    The JS Distance is defined as the square root of the JS Divergence.
+
+    Args:
+        model1 (nn.Module): The first PyTorch model.
+        model2 (nn.Module): The second PyTorch model.
+        epsilon (float): A small value to avoid division by zero or log(0).
+
+    Returns:
+        float: The JS distance.
+    """
+    import math
+    js_div = compute_jensen_shannon_divergence_between_models(model1, model2, epsilon)
+    return math.sqrt(max(0.0, js_div))

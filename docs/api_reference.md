@@ -1587,3 +1587,7 @@ Computes the Jensen-Shannon (JS) Divergence between the parameters of two models
 
 **Returns:**
 - `float`: The JS divergence.
+
+### `compute_jensen_shannon_distance_between_models`
+**Description:** Computes the Jensen-Shannon (JS) Distance between the parameters of two models (square root of JS divergence).
+**Signature:** `compute_jensen_shannon_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float`

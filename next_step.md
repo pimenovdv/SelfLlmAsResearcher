@@ -1,3 +1,1 @@
-1. Implement remaining statistical metrics.
-2. Add them to tests.
-3. Update docs.
+1. Implement further metrics (e.g., Mahalanobis distance) and their corresponding tests.

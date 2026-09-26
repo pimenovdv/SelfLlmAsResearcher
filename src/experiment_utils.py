@@ -7645,3 +7645,12 @@ def compute_correlation_distance_between_models(model1: torch.nn.Module, model2:
     pearson_corr = max(-1.0, min(1.0, pearson_corr))
 
     return 1.0 - pearson_corr
+
+def compute_squared_euclidean_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+    if not params1 or not params2: return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0: return 0.0
+    return float(torch.sum((vec1 - vec2) ** 2).item())

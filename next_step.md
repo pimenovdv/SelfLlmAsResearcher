@@ -1,1 +1,1 @@
-1. Implement further metrics (e.g., Mahalanobis distance) and their corresponding tests.
+Продолжить добавление метрик, например, Mahalanobis distance или других статистических метрик, если требуется.

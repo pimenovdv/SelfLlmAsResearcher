@@ -471,3 +471,5 @@
 - [x] Добавить функцию compute_manhattan_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_jensen_shannon_divergence_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_jensen_shannon_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_jaccard_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_hamming_distance_between_models в src/experiment_utils.py и написать тесты.

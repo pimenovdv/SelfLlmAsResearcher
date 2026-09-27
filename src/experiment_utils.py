@@ -7654,3 +7654,12 @@ def compute_squared_euclidean_distance_between_models(model1: torch.nn.Module, m
     vec2 = torch.cat(params2)
     if vec1.numel() == 0 or vec2.numel() == 0: return 0.0
     return float(torch.sum((vec1 - vec2) ** 2).item())
+
+def compute_dot_product_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+    if not params1 or not params2: return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0: return 0.0
+    return float(torch.sum(vec1 * vec2).item())

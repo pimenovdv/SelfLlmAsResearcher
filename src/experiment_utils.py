@@ -7673,3 +7673,18 @@ def compute_log_euclidean_distance_between_models(model1: torch.nn.Module, model
     vec1_log = torch.log(torch.abs(vec1) + epsilon)
     vec2_log = torch.log(torch.abs(vec2) + epsilon)
     return float(torch.sqrt(torch.sum((vec1_log - vec2_log) ** 2)).item())
+
+def compute_r_squared_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+    if not params1 or not params2: return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0: return 0.0
+    ss_res = torch.sum((vec1 - vec2) ** 2)
+    mean_vec1 = torch.mean(vec1)
+    ss_tot = torch.sum((vec1 - mean_vec1) ** 2)
+    if ss_tot == 0.0:
+        return 0.0
+    r_squared = 1.0 - (ss_res / ss_tot)
+    return float(r_squared.item())

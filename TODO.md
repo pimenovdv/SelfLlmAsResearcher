@@ -478,3 +478,4 @@
 - [x] Добавить функцию compute_dot_product_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_log_euclidean_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_r_squared_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_adjusted_r_squared_between_models в src/experiment_utils.py и написать тесты.

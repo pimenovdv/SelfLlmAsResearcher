@@ -7688,3 +7688,15 @@ def compute_r_squared_between_models(model1: torch.nn.Module, model2: torch.nn.M
         return 0.0
     r_squared = 1.0 - (ss_res / ss_tot)
     return float(r_squared.item())
+def compute_adjusted_r_squared_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the adjusted R-squared between parameters of two models."""
+    vec1 = torch.cat([p.flatten() for p in model1.parameters()])
+    vec2 = torch.cat([p.flatten() for p in model2.parameters()])
+    if vec1.numel() == 0 or vec2.numel() == 0: return 0.0
+    n = vec1.numel()
+    if n <= 2:
+        return compute_r_squared_between_models(model1, model2)
+    p = 1
+    r_squared = compute_r_squared_between_models(model1, model2)
+    adjusted_r_squared = 1 - (1 - r_squared) * (n - 1) / (n - p - 1)
+    return float(adjusted_r_squared)

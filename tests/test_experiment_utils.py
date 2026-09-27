@@ -4915,6 +4915,15 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(dist, float)
         self.assertTrue(dist >= 0.0)
 
+
+    def test_compute_r_squared_between_models(self):
+        import torch
+        from src.experiment_utils import compute_r_squared_between_models
+        model1 = torch.nn.Linear(10, 10)
+        model2 = torch.nn.Linear(10, 10)
+        score = compute_r_squared_between_models(model1, model2)
+        self.assertIsInstance(score, float)
+
 if __name__ == '__main__':
 
 

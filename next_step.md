@@ -1,1 +1,1 @@
-Следующий шаг: Добавить дополнительные статистические метрики в `src/experiment_utils.py` на основе текущих реализованных функций и дополнить тесты в `tests/test_experiment_utils.py`.
+Следующий шаг: Добавить дополнительные статистические метрики в src/experiment_utils.py на основе текущих реализованных функций (например, compute_mean_squared_error_between_models) и дополнить тесты в tests/test_experiment_utils.py.

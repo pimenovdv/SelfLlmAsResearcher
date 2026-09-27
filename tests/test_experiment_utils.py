@@ -4906,6 +4906,15 @@ class TestExperimentUtils(unittest.TestCase):
         dot_product = compute_dot_product_between_models(model1, model2)
         self.assertIsInstance(dot_product, float)
 
+    def test_compute_log_euclidean_distance_between_models(self):
+        from src.experiment_utils import compute_log_euclidean_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 10)
+        model2 = torch.nn.Linear(10, 10)
+        dist = compute_log_euclidean_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertTrue(dist >= 0.0)
+
 if __name__ == '__main__':
 
 

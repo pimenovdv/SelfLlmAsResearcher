@@ -476,3 +476,4 @@
 - [x] Добавить функцию compute_correlation_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_squared_euclidean_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_dot_product_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_log_euclidean_distance_between_models в src/experiment_utils.py и написать тесты.

@@ -5007,6 +5007,30 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_mmd_distance_between_models(m1, m2)
         self.assertTrue(dist2 > 0.0)
 
+
+    def test_compute_chord_distance_between_models(self):
+        from src.experiment_utils import compute_chord_distance_between_models
+        import torch
+        import math
+        m1 = torch.nn.Linear(10, 10)
+        m2 = torch.nn.Linear(10, 10)
+        with torch.no_grad():
+            m1.weight.fill_(0.0)
+            m1.bias.fill_(0.0)
+            m2.weight.fill_(0.0)
+            m2.bias.fill_(0.0)
+
+        dist = compute_chord_distance_between_models(m1, m2)
+        self.assertAlmostEqual(dist, 0.0, places=4)
+
+        with torch.no_grad():
+            m1.weight.fill_(1.0)
+            m1.bias.fill_(1.0)
+            m2.weight.fill_(2.0)
+            m2.bias.fill_(3.0)
+        dist2 = compute_chord_distance_between_models(m1, m2)
+        self.assertTrue(dist2 > 0.0)
+
 if __name__ == '__main__':
 
 

@@ -4968,6 +4968,26 @@ class TestExperimentUtils(unittest.TestCase):
             m4.fc.weight.data.fill_(1.0)
         self.assertEqual(compute_mahalanobis_distance_between_models(m3, m4), 0.0)
 
+    def test_compute_energy_distance_between_models(self):
+        from src.experiment_utils import compute_energy_distance_between_models
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(1, 2, bias=False)
+        m1 = DummyModel()
+        m2 = DummyModel()
+        with torch.no_grad():
+            m1.fc.weight.data = torch.tensor([[1.0], [2.0]])
+            m2.fc.weight.data = torch.tensor([[1.0], [2.0]])
+        dist = compute_energy_distance_between_models(m1, m2)
+        self.assertAlmostEqual(dist, 0.0, places=4)
+        with torch.no_grad():
+            m1.fc.weight.data = torch.tensor([[1.0], [2.0]])
+            m2.fc.weight.data = torch.tensor([[3.0], [4.0]])
+        dist2 = compute_energy_distance_between_models(m1, m2)
+        self.assertTrue(dist2 > 0.0)
+
 if __name__ == '__main__':
 
 

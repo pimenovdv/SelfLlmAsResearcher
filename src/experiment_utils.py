@@ -7772,3 +7772,46 @@ def compute_energy_distance_between_models(model1: torch.nn.Module, model2: torc
     dist = torch.sqrt(2 * integral)
 
     return float(dist.item())
+
+
+def compute_mmd_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, gamma: float = 1.0, max_samples: int = 1000) -> float:
+    """
+    Computes the Maximum Mean Discrepancy (MMD) distance with an RBF kernel between the
+    flattened weights of two models. To prevent excessive computation, weights are uniformly sampled
+    up to max_samples.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    vec1 = vec1.float()
+    vec2 = vec2.float()
+
+    if vec1.numel() > max_samples:
+        indices = torch.linspace(0, vec1.numel() - 1, steps=max_samples).long()
+        vec1 = vec1[indices]
+    if vec2.numel() > max_samples:
+        indices = torch.linspace(0, vec2.numel() - 1, steps=max_samples).long()
+        vec2 = vec2[indices]
+
+    x = vec1.unsqueeze(1)
+    y = vec2.unsqueeze(1)
+
+    xx = torch.cdist(x, x, p=2.0) ** 2
+    yy = torch.cdist(y, y, p=2.0) ** 2
+    xy = torch.cdist(x, y, p=2.0) ** 2
+
+    k_xx = torch.exp(-gamma * xx).mean()
+    k_yy = torch.exp(-gamma * yy).mean()
+    k_xy = torch.exp(-gamma * xy).mean()
+
+    mmd_sq = k_xx + k_yy - 2 * k_xy
+    return float(max(0.0, mmd_sq.item()))

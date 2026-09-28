@@ -7714,3 +7714,29 @@ def compute_normalized_cross_correlation_between_models(model1: torch.nn.Module,
 
     ncc = torch.dot(vec1, vec2) / (norm1 * norm2)
     return float(ncc.item())
+
+def compute_mahalanobis_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Mahalanobis distance between the parameters of two models,
+    assuming a diagonal covariance matrix based on the combined variance.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0 or vec1.numel() != vec2.numel():
+        return 0.0
+
+    combined = torch.cat([vec1, vec2])
+    var = torch.var(combined, unbiased=False)
+    if var == 0.0:
+        return 0.0
+
+    dist = torch.sqrt(torch.sum((vec1 - vec2) ** 2) / var)
+    return float(dist.item())

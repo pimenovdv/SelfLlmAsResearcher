@@ -4940,6 +4940,34 @@ class TestExperimentUtils(unittest.TestCase):
         score = compute_normalized_cross_correlation_between_models(model1, model2)
         self.assertIsInstance(score, float)
 
+
+    def test_compute_mahalanobis_distance_between_models(self):
+        from src.experiment_utils import compute_mahalanobis_distance_between_models
+        import torch
+        import math
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(1, 2, bias=False)
+        m1 = DummyModel()
+        m2 = DummyModel()
+        with torch.no_grad():
+            m1.fc.weight.data = torch.tensor([[1.0], [2.0]])
+            m2.fc.weight.data = torch.tensor([[3.0], [4.0]])
+        # combined = [1.0, 2.0, 3.0, 4.0]
+        # var = 1.25
+        # sq diff sum = (1-3)^2 + (2-4)^2 = 4 + 4 = 8
+        # dist = sqrt(8 / 1.25) = sqrt(6.4) = 2.5298...
+        dist = compute_mahalanobis_distance_between_models(m1, m2)
+        self.assertAlmostEqual(dist, math.sqrt(6.4), places=4)
+
+        m3 = DummyModel()
+        m4 = DummyModel()
+        with torch.no_grad():
+            m3.fc.weight.data.fill_(1.0)
+            m4.fc.weight.data.fill_(1.0)
+        self.assertEqual(compute_mahalanobis_distance_between_models(m3, m4), 0.0)
+
 if __name__ == '__main__':
 
 

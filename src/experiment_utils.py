@@ -7700,3 +7700,17 @@ def compute_adjusted_r_squared_between_models(model1: torch.nn.Module, model2: t
     r_squared = compute_r_squared_between_models(model1, model2)
     adjusted_r_squared = 1 - (1 - r_squared) * (n - 1) / (n - p - 1)
     return float(adjusted_r_squared)
+def compute_normalized_cross_correlation_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Normalized Cross-Correlation (NCC) between the parameters of two models."""
+    vec1 = torch.cat([p.flatten() for p in model1.parameters()])
+    vec2 = torch.cat([p.flatten() for p in model2.parameters()])
+    if vec1.numel() == 0 or vec2.numel() == 0: return 0.0
+
+    norm1 = torch.norm(vec1)
+    norm2 = torch.norm(vec2)
+
+    if norm1 == 0.0 or norm2 == 0.0:
+        return 0.0
+
+    ncc = torch.dot(vec1, vec2) / (norm1 * norm2)
+    return float(ncc.item())

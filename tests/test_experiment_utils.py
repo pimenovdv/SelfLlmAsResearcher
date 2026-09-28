@@ -4933,6 +4933,13 @@ class TestExperimentUtils(unittest.TestCase):
         score = compute_adjusted_r_squared_between_models(model1, model2)
         self.assertIsInstance(score, float)
 
+    def test_compute_normalized_cross_correlation_between_models(self):
+        from src.experiment_utils import compute_normalized_cross_correlation_between_models
+        model1 = torch.nn.Linear(10, 10)
+        model2 = torch.nn.Linear(10, 10)
+        score = compute_normalized_cross_correlation_between_models(model1, model2)
+        self.assertIsInstance(score, float)
+
 if __name__ == '__main__':
 
 

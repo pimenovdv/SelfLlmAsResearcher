@@ -7815,3 +7815,31 @@ def compute_mmd_distance_between_models(model1: torch.nn.Module, model2: torch.n
 
     mmd_sq = k_xx + k_yy - 2 * k_xy
     return float(max(0.0, mmd_sq.item()))
+
+
+def compute_chord_distance_between_models(model1, model2) -> float:
+    """Computes the chord distance between the parameters of two models."""
+    import torch
+    import math
+
+    params1 = [p for p in model1.parameters()]
+    params2 = [p for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    chord_sum = 0.0
+
+    p1_concat = torch.cat([p.view(-1).float() for p in params1])
+    p2_concat = torch.cat([p.view(-1).float() for p in params2])
+
+    norm1 = torch.norm(p1_concat)
+    norm2 = torch.norm(p2_concat)
+
+    if norm1 == 0 or norm2 == 0:
+        return 0.0
+
+    p1_normalized = p1_concat / norm1
+    p2_normalized = p2_concat / norm2
+
+    return torch.norm(p1_normalized - p2_normalized).item()

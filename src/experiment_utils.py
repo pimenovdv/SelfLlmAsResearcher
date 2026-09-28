@@ -7740,3 +7740,35 @@ def compute_mahalanobis_distance_between_models(model1: torch.nn.Module, model2:
 
     dist = torch.sqrt(torch.sum((vec1 - vec2) ** 2) / var)
     return float(dist.item())
+def compute_energy_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Energy distance between the flattened weights of two models.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    vec1 = vec1.float()
+    vec2 = vec2.float()
+
+    all_values, _ = torch.sort(torch.cat([vec1, vec2]))
+    diffs = all_values[1:] - all_values[:-1]
+
+    vec1_sorted, _ = torch.sort(vec1)
+    vec2_sorted, _ = torch.sort(vec2)
+
+    cdf_1 = torch.searchsorted(vec1_sorted, all_values[:-1], right=True).float() / len(vec1)
+    cdf_2 = torch.searchsorted(vec2_sorted, all_values[:-1], right=True).float() / len(vec2)
+
+    integral = torch.sum((cdf_1 - cdf_2)**2 * diffs)
+    dist = torch.sqrt(2 * integral)
+
+    return float(dist.item())

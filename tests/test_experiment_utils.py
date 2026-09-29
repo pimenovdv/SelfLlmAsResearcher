@@ -5054,6 +5054,17 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_itakura_saito_distance_between_models(m1, m2)
         self.assertTrue(dist2 > 0.0)
 
+
+    def test_compute_frobenius_distance_between_models(self):
+        from src.experiment_utils import compute_frobenius_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 10)
+        model2 = torch.nn.Linear(10, 10)
+        dist = compute_frobenius_distance_between_models(model1, model2)
+        self.assertTrue(dist >= 0.0)
+        dist_same = compute_frobenius_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=4)
+
 if __name__ == '__main__':
 
 

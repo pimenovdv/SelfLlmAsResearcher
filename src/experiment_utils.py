@@ -7861,3 +7861,15 @@ def compute_itakura_saito_distance_between_models(model1: torch.nn.Module, model
     ratio = p1_concat / p2_concat
     is_dist = torch.sum(ratio - torch.log(ratio) - 1.0)
     return is_dist.item()
+
+
+def compute_frobenius_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+    return torch.norm(vec1 - vec2, p=2).item()

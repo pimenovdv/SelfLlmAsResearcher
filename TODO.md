@@ -488,3 +488,5 @@
 - [x] Добавить функцию compute_frobenius_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_frechet_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_quantile_loss_between_models в src/experiment_utils.py и написать тесты.
+
+- [x] Добавить метрику потерь (tri-weight loss) в src/experiment_utils.py.

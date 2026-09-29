@@ -1,1 +1,1 @@
-Следующий шаг: Добавить метрику потерь (например, tri-weight loss или другую) в src/experiment_utils.py.
+Следующий шаг: Добавить еще одну метрику потерь в src/experiment_utils.py.

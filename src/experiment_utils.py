@@ -7910,3 +7910,36 @@ def compute_quantile_loss_between_models(model1: torch.nn.Module, model2: torch.
     diff = vec1 - vec2
     loss = torch.max(q * diff, (q - 1) * diff)
     return loss.mean().item()
+
+def compute_tri_weight_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, c: float = 4.0) -> float:
+    """
+    Computes the Tri-Weight loss between two PyTorch models.
+
+    The Tri-Weight loss is a variation of the Huber loss that is even more robust to outliers.
+    For residuals e = p1 - p2, it is defined as:
+    L(e) = 1 - (1 - (e / c)^2)^3 for |e| <= c
+    L(e) = 1 for |e| > c
+    where c is a tuning constant (typically around 4.0).
+    """
+    import torch
+
+    total_loss = 0.0
+    total_elements = 0
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        residual = p1 - p2
+        abs_residual = torch.abs(residual)
+
+        mask_in = abs_residual <= c
+        loss_in = 1.0 - torch.pow(1.0 - torch.pow(abs_residual[mask_in] / c, 2), 3)
+
+        mask_out = abs_residual > c
+        loss_out = torch.ones_like(abs_residual[mask_out])
+
+        total_loss += torch.sum(loss_in).item() + torch.sum(loss_out).item()
+        total_elements += residual.numel()
+
+    if total_elements == 0:
+        return 0.0
+
+    return total_loss / total_elements

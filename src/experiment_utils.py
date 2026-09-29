@@ -7873,3 +7873,19 @@ def compute_frobenius_distance_between_models(model1: torch.nn.Module, model2: t
     if vec1.numel() == 0 or vec2.numel() == 0:
         return 0.0
     return torch.norm(vec1 - vec2, p=2).item()
+
+def compute_frechet_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+    mu1 = torch.mean(vec1)
+    mu2 = torch.mean(vec2)
+    var1 = torch.var(vec1, unbiased=False) if vec1.numel() > 1 else torch.tensor(0.0, device=vec1.device)
+    var2 = torch.var(vec2, unbiased=False) if vec2.numel() > 1 else torch.tensor(0.0, device=vec2.device)
+    frechet_dist = (mu1 - mu2)**2 + (torch.sqrt(var1) - torch.sqrt(var2))**2
+    return frechet_dist.item()

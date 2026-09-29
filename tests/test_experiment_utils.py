@@ -5065,6 +5065,17 @@ class TestExperimentUtils(unittest.TestCase):
         dist_same = compute_frobenius_distance_between_models(model1, model1)
         self.assertAlmostEqual(dist_same, 0.0, places=4)
 
+    def test_compute_frechet_distance_between_models(self):
+        import torch
+        from src.experiment_utils import compute_frechet_distance_between_models
+        model1 = torch.nn.Linear(2, 2)
+        model2 = torch.nn.Linear(2, 2)
+        dist = compute_frechet_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+        dist_same = compute_frechet_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=4)
+
 if __name__ == '__main__':
 
 

@@ -7843,3 +7843,21 @@ def compute_chord_distance_between_models(model1, model2) -> float:
     p2_normalized = p2_concat / norm2
 
     return torch.norm(p1_normalized - p2_normalized).item()
+
+def compute_itakura_saito_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, eps: float = 1e-8) -> float:
+    """
+    Вычисляет расстояние Итакуры-Сайто (Itakura-Saito Distance) между распределениями параметров двух моделей.
+    Для стабильности вычислений используются абсолютные значения весов и добавляется eps.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    p1_concat = torch.cat(params1).abs() + eps
+    p2_concat = torch.cat(params2).abs() + eps
+
+    ratio = p1_concat / p2_concat
+    is_dist = torch.sum(ratio - torch.log(ratio) - 1.0)
+    return is_dist.item()

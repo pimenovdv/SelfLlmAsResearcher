@@ -7889,3 +7889,24 @@ def compute_frechet_distance_between_models(model1: torch.nn.Module, model2: tor
     var2 = torch.var(vec2, unbiased=False) if vec2.numel() > 1 else torch.tensor(0.0, device=vec2.device)
     frechet_dist = (mu1 - mu2)**2 + (torch.sqrt(var1) - torch.sqrt(var2))**2
     return frechet_dist.item()
+
+def compute_quantile_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, q: float = 0.5) -> float:
+    """
+    Вычисляет квантильную потерю (Quantile Loss / Pinball Loss) между параметрами двух моделей.
+    """
+    import torch
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    diff = vec1 - vec2
+    loss = torch.max(q * diff, (q - 1) * diff)
+    return loss.mean().item()

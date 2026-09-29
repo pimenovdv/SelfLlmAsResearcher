@@ -484,3 +484,4 @@
 - [x] Добавить метрику compute_energy_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику compute_mmd_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_chord_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_itakura_saito_distance_between_models в src/experiment_utils.py и написать тесты.

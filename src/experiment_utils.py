@@ -7991,3 +7991,18 @@ def compute_welsch_loss_between_models(model1: torch.nn.Module, model2: torch.nn
     diff_sq = (params1 - params2) ** 2
     loss = (c**2 / 2.0) * (1.0 - torch.exp(-diff_sq / (c**2)))
     return float(torch.sum(loss).item())
+
+
+def compute_pseudo_huber_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, delta: float = 1.0) -> float:
+    """
+    Computes the Pseudo-Huber loss between the parameters of two PyTorch models.
+
+    The Pseudo-Huber loss is defined as (delta^2) * (sqrt(1 + ((p1-p2)/delta)^2) - 1).
+    """
+    import torch
+    import math
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff = params1 - params2
+    loss = (delta**2) * (torch.sqrt(1 + (diff / delta)**2) - 1)
+    return float(torch.sum(loss).item())

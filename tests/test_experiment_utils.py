@@ -5160,7 +5160,22 @@ class TestExperimentUtils(unittest.TestCase):
         loss_same = compute_cauchy_loss_between_models(model1, model1, c=1.0)
         self.assertAlmostEqual(loss_same, 0.0, places=5)
 
+
+    def test_compute_geman_mcclure_loss_between_models(self):
+        from src.experiment_utils import compute_geman_mcclure_loss_between_models
+        import torch
+        model1 = torch.nn.Linear(2, 2)
+        model2 = torch.nn.Linear(2, 2)
+        loss = compute_geman_mcclure_loss_between_models(model1, model2, c=1.0)
+        self.assertIsInstance(loss, float)
+        self.assertGreaterEqual(loss, 0.0)
+
+        # Test on same model
+        loss_same = compute_geman_mcclure_loss_between_models(model1, model1, c=1.0)
+        self.assertAlmostEqual(loss_same, 0.0, places=5)
+
 if __name__ == '__main__':
+
 
 
 

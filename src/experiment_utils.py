@@ -7943,3 +7943,36 @@ def compute_tri_weight_loss_between_models(model1: torch.nn.Module, model2: torc
         return 0.0
 
     return total_loss / total_elements
+
+def compute_tukey_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, c: float = 4.685) -> float:
+    """
+    Computes the Tukey's biweight loss between the parameters of two PyTorch models.
+
+    The Tukey's biweight loss is highly robust to outliers.
+    For residuals e = p1 - p2, it is defined as:
+    L(e) = (c^2 / 6) * [1 - (1 - (e/c)^2)^3] for |e| <= c
+    L(e) = (c^2 / 6) for |e| > c
+    where c is a tuning constant (typically 4.685).
+    """
+    import torch
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    diff = vec1 - vec2
+    abs_diff = torch.abs(diff)
+
+    loss_val = (c**2 / 6.0) * (1.0 - (1.0 - (diff / c)**2)**3)
+    max_loss = c**2 / 6.0
+
+    loss = torch.where(abs_diff <= c, loss_val, torch.full_like(diff, max_loss))
+
+    return loss.mean().item()

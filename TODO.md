@@ -493,3 +493,4 @@
 - [x] Добавить метрику потерь (Tukey loss) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику потерь (Welsch loss) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику потерь (Pseudo-Huber loss) в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику потерь (Cauchy loss) в src/experiment_utils.py и написать тесты.

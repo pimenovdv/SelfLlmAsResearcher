@@ -7976,3 +7976,18 @@ def compute_tukey_loss_between_models(model1: torch.nn.Module, model2: torch.nn.
     loss = torch.where(abs_diff <= c, loss_val, torch.full_like(diff, max_loss))
 
     return loss.mean().item()
+
+
+def compute_welsch_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, c: float = 1.0) -> float:
+    """
+    Computes the Welsch (Leclerc) loss between the parameters of two PyTorch models.
+
+    The Welsch loss is defined as (c^2 / 2) * (1 - exp(-(p1-p2)^2 / c^2)).
+    """
+    import torch
+    import math
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff_sq = (params1 - params2) ** 2
+    loss = (c**2 / 2.0) * (1.0 - torch.exp(-diff_sq / (c**2)))
+    return float(torch.sum(loss).item())

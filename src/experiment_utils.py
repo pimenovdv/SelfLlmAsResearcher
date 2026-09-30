@@ -8006,3 +8006,17 @@ def compute_pseudo_huber_loss_between_models(model1: torch.nn.Module, model2: to
     diff = params1 - params2
     loss = (delta**2) * (torch.sqrt(1 + (diff / delta)**2) - 1)
     return float(torch.sum(loss).item())
+
+def compute_cauchy_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, c: float = 1.0) -> float:
+    """
+    Computes the Cauchy loss between the parameters of two PyTorch models.
+
+    The Cauchy loss is defined as (c^2 / 2) * log(1 + ((p1-p2)/c)^2).
+    """
+    import torch
+    import math
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff = params1 - params2
+    loss = (c**2 / 2.0) * torch.log(1 + (diff / c)**2)
+    return float(torch.sum(loss).item())

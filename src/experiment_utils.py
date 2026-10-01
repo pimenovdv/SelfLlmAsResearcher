@@ -8047,3 +8047,16 @@ def compute_charbonnier_loss_between_models(model1: torch.nn.Module, model2: tor
     diff_sq = (params1 - params2) ** 2
     loss = torch.sqrt(diff_sq + epsilon**2)
     return float(torch.sum(loss).item())
+
+def compute_fair_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, c: float = 1.0) -> float:
+    """
+    Computes the Fair loss between the parameters of two PyTorch models.
+
+    The Fair loss is defined as c^2 * (|p1 - p2|/c - log(1 + |p1 - p2|/c)).
+    """
+    import torch
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff_abs = torch.abs(params1 - params2)
+    loss = (c**2) * (diff_abs / c - torch.log(1 + diff_abs / c))
+    return float(torch.sum(loss).item())

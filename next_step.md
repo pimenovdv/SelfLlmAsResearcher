@@ -1,1 +1,1 @@
-Add another loss metric such as Log-Cosh loss or similar to src/experiment_utils.py
+Implement another robust loss metric like Smooth L1 Loss in src/experiment_utils.py

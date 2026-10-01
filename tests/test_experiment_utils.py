@@ -5221,6 +5221,19 @@ class TestExperimentUtils(unittest.TestCase):
         loss_same = compute_smooth_l1_loss_between_models(model1, model1, beta=1.0)
         self.assertAlmostEqual(loss_same, 0.0, places=5)
 
+
+    def test_compute_berhu_loss_between_models(self):
+        from src.experiment_utils import compute_berhu_loss_between_models
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 2)
+        model1 = DummyModel()
+        model2 = DummyModel()
+        loss = compute_berhu_loss_between_models(model1, model2, c=1.0)
+        self.assertIsInstance(loss, float)
+
 if __name__ == '__main__':
 
 

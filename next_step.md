@@ -1,1 +1,1 @@
-Add another loss metric such as Charbonnier loss to src/experiment_utils.py
+Add another loss metric such as Log-Cosh loss or similar to src/experiment_utils.py

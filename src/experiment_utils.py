@@ -8060,3 +8060,21 @@ def compute_fair_loss_between_models(model1: torch.nn.Module, model2: torch.nn.M
     diff_abs = torch.abs(params1 - params2)
     loss = (c**2) * (diff_abs / c - torch.log(1 + diff_abs / c))
     return float(torch.sum(loss).item())
+def compute_smooth_l1_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, beta: float = 1.0) -> float:
+    """
+    Computes the Smooth L1 Loss between the parameters of two models.
+    Smooth L1 Loss is 0.5 * x^2 / beta if |x| < beta, and |x| - 0.5 * beta otherwise.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        beta (float): The threshold at which to change between L1 and L2 loss. Default is 1.0.
+
+    Returns:
+        float: The computed Smooth L1 Loss.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff_abs = torch.abs(params1 - params2)
+    loss = torch.where(diff_abs < beta, 0.5 * (diff_abs ** 2) / beta, diff_abs - 0.5 * beta)
+    return float(torch.sum(loss).item())

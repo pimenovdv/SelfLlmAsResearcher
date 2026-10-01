@@ -5234,6 +5234,24 @@ class TestExperimentUtils(unittest.TestCase):
         loss = compute_berhu_loss_between_models(model1, model2, c=1.0)
         self.assertIsInstance(loss, float)
 
+
+    def test_compute_wing_loss_between_models(self):
+        from src.experiment_utils import compute_wing_loss_between_models
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 2)
+        model1 = DummyModel()
+        model2 = DummyModel()
+        loss = compute_wing_loss_between_models(model1, model2, w=10.0, epsilon=2.0)
+        self.assertIsInstance(loss, float)
+        self.assertGreaterEqual(loss, 0.0)
+
+        # Test on same model
+        loss_same = compute_wing_loss_between_models(model1, model1, w=10.0, epsilon=2.0)
+        self.assertAlmostEqual(loss_same, 0.0, places=5)
+
 if __name__ == '__main__':
 
 

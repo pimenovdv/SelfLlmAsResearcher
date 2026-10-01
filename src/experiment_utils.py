@@ -8096,3 +8096,25 @@ def compute_berhu_loss_between_models(model1: torch.nn.Module, model2: torch.nn.
     diff_abs = torch.abs(params1 - params2)
     loss = torch.where(diff_abs <= c, diff_abs, (diff_abs ** 2 + c ** 2) / (2 * c))
     return float(torch.sum(loss).item())
+
+
+def compute_wing_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, w: float = 10.0, epsilon: float = 2.0) -> float:
+    """
+    Computes the Wing loss between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        w (float): The non-negative w parameter.
+        epsilon (float): The epsilon parameter.
+
+    Returns:
+        float: The computed Wing loss.
+    """
+    import math
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff_abs = torch.abs(params1 - params2)
+    c = w - w * math.log(1.0 + w / epsilon)
+    loss = torch.where(diff_abs < w, w * torch.log(1.0 + diff_abs / epsilon), diff_abs - c)
+    return float(torch.sum(loss).item())

@@ -8078,3 +8078,21 @@ def compute_smooth_l1_loss_between_models(model1: torch.nn.Module, model2: torch
     diff_abs = torch.abs(params1 - params2)
     loss = torch.where(diff_abs < beta, 0.5 * (diff_abs ** 2) / beta, diff_abs - 0.5 * beta)
     return float(torch.sum(loss).item())
+
+def compute_berhu_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, c: float = 1.0) -> float:
+    """
+    Computes the Berhu (Reverse Huber) loss between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        c (float): The threshold parameter.
+
+    Returns:
+        float: The computed Berhu loss.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff_abs = torch.abs(params1 - params2)
+    loss = torch.where(diff_abs <= c, diff_abs, (diff_abs ** 2 + c ** 2) / (2 * c))
+    return float(torch.sum(loss).item())

@@ -8033,3 +8033,17 @@ def compute_geman_mcclure_loss_between_models(model1: torch.nn.Module, model2: t
     diff_sq = (params1 - params2) ** 2
     loss = (c**2 / 2.0) * (diff_sq / (c**2 + diff_sq))
     return float(torch.sum(loss).item())
+
+
+def compute_charbonnier_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-3) -> float:
+    """
+    Computes the Charbonnier loss between the parameters of two PyTorch models.
+
+    The Charbonnier loss is defined as sqrt((p1 - p2)^2 + epsilon^2).
+    """
+    import torch
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff_sq = (params1 - params2) ** 2
+    loss = torch.sqrt(diff_sq + epsilon**2)
+    return float(torch.sum(loss).item())

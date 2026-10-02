@@ -8155,3 +8155,37 @@ def compute_andrews_sine_loss_between_models(model1: torch.nn.Module, model2: to
     loss = torch.where(diff_abs <= c * math.pi, (c ** 2) * (1.0 - torch.cos(diff / c)), 2.0 * (c ** 2) * torch.ones_like(diff))
 
     return float(torch.sum(loss).item())
+
+def compute_barron_loss_between_models(model1, model2, alpha: float = 1.0, c: float = 1.0) -> float:
+    """
+    Computes the Barron robust loss between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        alpha (float): The shape parameter. Default is 1.0 (Pseudo-Huber).
+        c (float): The scale parameter. Default is 1.0.
+
+    Returns:
+        float: The computed Barron loss.
+    """
+    import torch
+    import math
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff = params1 - params2
+    diff_sq = diff ** 2
+
+    alpha = float(alpha)
+    c = float(c)
+
+    if abs(alpha - 2.0) < 1e-6:
+        loss = 0.5 * diff_sq / (c ** 2)
+    elif abs(alpha - 0.0) < 1e-6:
+        loss = torch.log(0.5 * diff_sq / (c ** 2) + 1.0)
+    elif alpha == float('-inf'):
+        loss = 1.0 - torch.exp(-0.5 * diff_sq / (c ** 2))
+    else:
+        loss = (abs(alpha - 2.0) / alpha) * (torch.pow(diff_sq / (c ** 2 * abs(alpha - 2.0)) + 1.0, alpha / 2.0) - 1.0)
+
+    return float(torch.sum(loss).item())

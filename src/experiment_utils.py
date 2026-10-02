@@ -8118,3 +8118,16 @@ def compute_wing_loss_between_models(model1: torch.nn.Module, model2: torch.nn.M
     c = w - w * math.log(1.0 + w / epsilon)
     loss = torch.where(diff_abs < w, w * torch.log(1.0 + diff_abs / epsilon), diff_abs - c)
     return float(torch.sum(loss).item())
+
+def compute_adaptive_wing_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, omega: float = 14.0, theta: float = 0.5, epsilon: float = 1.0, alpha: float = 2.1) -> float:
+    import torch
+    import math
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    y = params1
+    y_hat = params2
+    diff_abs = torch.abs(y - y_hat)
+    A = omega * (1 / (1 + torch.pow(theta / epsilon, alpha - y))) * (alpha - y) * torch.pow(theta / epsilon, alpha - y - 1) * (1 / epsilon)
+    C = theta * A - omega * torch.log(1 + torch.pow(theta / epsilon, alpha - y))
+    loss = torch.where(diff_abs < theta, omega * torch.log(1 + torch.pow(diff_abs / epsilon, alpha - y)), A * diff_abs - C)
+    return float(torch.sum(loss).item())

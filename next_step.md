@@ -1,1 +1,1 @@
-Add another statistical metric (e.g. Adaptive Wing Loss) to src/experiment_utils.py
+Add another statistical metric to src/experiment_utils.py

@@ -8189,3 +8189,25 @@ def compute_barron_loss_between_models(model1, model2, alpha: float = 1.0, c: fl
         loss = (abs(alpha - 2.0) / alpha) * (torch.pow(diff_sq / (c ** 2 * abs(alpha - 2.0)) + 1.0, alpha / 2.0) - 1.0)
 
     return float(torch.sum(loss).item())
+
+def compute_correntropy_loss_between_models(model1, model2, sigma: float = 1.0) -> float:
+    """
+    Computes the Correntropy loss (C-loss) between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        sigma (float): The kernel bandwidth parameter. Default is 1.0.
+
+    Returns:
+        float: The computed Correntropy loss.
+    """
+    import torch
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff_sq = (params1 - params2) ** 2
+
+    sigma = float(sigma)
+    kernel_vals = torch.exp(-diff_sq / (2.0 * sigma ** 2))
+    loss = 1.0 - kernel_vals
+    return float(torch.sum(loss).item())

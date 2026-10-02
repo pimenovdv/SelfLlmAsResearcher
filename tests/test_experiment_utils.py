@@ -5271,6 +5271,21 @@ class TestExperimentUtils(unittest.TestCase):
         loss_same = compute_adaptive_wing_loss_between_models(model1, model1, omega=14.0, theta=0.5, epsilon=1.0, alpha=2.1)
         self.assertAlmostEqual(loss_same, 0.0, places=5)
 
+
+    def test_compute_andrews_sine_loss_between_models(self):
+        from src.experiment_utils import compute_andrews_sine_loss_between_models
+        import torch.nn as nn
+        class DummyModel(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = nn.Linear(10, 2)
+        model1 = DummyModel()
+        model2 = DummyModel()
+        loss = compute_andrews_sine_loss_between_models(model1, model2)
+        self.assertIsInstance(loss, float)
+        loss_same = compute_andrews_sine_loss_between_models(model1, model1)
+        self.assertAlmostEqual(loss_same, 0.0, places=5)
+
 if __name__ == '__main__':
 
 

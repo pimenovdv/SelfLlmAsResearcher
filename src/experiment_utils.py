@@ -8131,3 +8131,27 @@ def compute_adaptive_wing_loss_between_models(model1: torch.nn.Module, model2: t
     C = theta * A - omega * torch.log(1 + torch.pow(theta / epsilon, alpha - y))
     loss = torch.where(diff_abs < theta, omega * torch.log(1 + torch.pow(diff_abs / epsilon, alpha - y)), A * diff_abs - C)
     return float(torch.sum(loss).item())
+
+def compute_andrews_sine_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, c: float = 1.0) -> float:
+    """
+    Computes the Andrews' sine loss between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        c (float): The tuning constant. Default is 1.0.
+
+    Returns:
+        float: The computed Andrews' sine loss.
+    """
+    import torch
+    import math
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    diff = params1 - params2
+    diff_abs = torch.abs(diff)
+
+    loss = torch.where(diff_abs <= c * math.pi, (c ** 2) * (1.0 - torch.cos(diff / c)), 2.0 * (c ** 2) * torch.ones_like(diff))
+
+    return float(torch.sum(loss).item())

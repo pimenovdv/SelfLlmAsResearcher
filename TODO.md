@@ -501,3 +501,4 @@
 - [x] Добавить метрику потерь (Berhu loss) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику потерь (Wing loss) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику потерь (Adaptive Wing loss) в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику потерь (Andrews Sine loss) в src/experiment_utils.py и написать тесты.

@@ -5315,6 +5315,27 @@ class TestExperimentUtils(unittest.TestCase):
         loss_same = compute_correntropy_loss_between_models(model1, model1)
         self.assertAlmostEqual(loss_same, 0.0, places=5)
 
+    def test_compute_talwar_loss_between_models(self):
+        from src.experiment_utils import compute_talwar_loss_between_models
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.p = torch.nn.Parameter(torch.tensor([0.5, 2.0]))
+
+        class DummyModel2(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.p = torch.nn.Parameter(torch.tensor([0.0, 0.0]))
+
+        model1 = DummyModel()
+        model2 = DummyModel2()
+
+        loss = compute_talwar_loss_between_models(model1, model2, c=1.0)
+        self.assertIsInstance(loss, float)
+        loss_same = compute_talwar_loss_between_models(model1, model1)
+        self.assertAlmostEqual(loss_same, 0.0, places=5)
+
 if __name__ == '__main__':
 
 

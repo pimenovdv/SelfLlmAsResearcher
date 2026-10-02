@@ -8211,3 +8211,13 @@ def compute_correntropy_loss_between_models(model1, model2, sigma: float = 1.0) 
     kernel_vals = torch.exp(-diff_sq / (2.0 * sigma ** 2))
     loss = 1.0 - kernel_vals
     return float(torch.sum(loss).item())
+
+def compute_talwar_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, c: float = 1.0) -> float:
+    """
+    Computes the Talwar loss between the parameters of two models.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    diff = params1 - params2
+    loss = torch.where(torch.abs(diff) <= c, 0.5 * (diff ** 2), torch.full_like(diff, 0.5 * (c ** 2)))
+    return float(torch.mean(loss).item())

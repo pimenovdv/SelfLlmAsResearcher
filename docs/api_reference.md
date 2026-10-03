@@ -1176,6 +1176,8 @@ Returns:
 
 ---
 
+
+
 ### `compute_symmetric_mean_absolute_percentage_error_between_models(model1: torch.nn.modules.module.Module, model2: torch.nn.modules.module.Module) -> float`
 Вычисляет симметричную среднюю абсолютную процентную ошибку (SMAPE) между весами двух моделей.
 

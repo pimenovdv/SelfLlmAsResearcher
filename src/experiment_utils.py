@@ -5319,6 +5319,8 @@ def compute_normalized_mean_absolute_error_between_models(model1: torch.nn.Modul
         return 0.0
     nmae = mae / range_val
     return float(nmae.item())
+
+
 def compute_mean_absolute_percentage_error_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет среднюю абсолютную процентную ошибку (MAPE) между весами двух моделей.
@@ -5577,6 +5579,8 @@ def compute_jaccard_distance_between_models(model1: torch.nn.Module, model2: tor
     """
     sim = compute_jaccard_similarity_between_models(model1, model2)
     return 1.0 - sim
+
+
 
 def compute_jaccard_similarity_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
@@ -5943,6 +5947,8 @@ def compute_jensen_shannon_divergence_between_models(model1: torch.nn.Module, mo
 
     return 0.5 * kl_pm.item() + 0.5 * kl_qm.item()
 
+
+
 def compute_symmetric_kl_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
     """
     Computes the Symmetric Kullback-Leibler (KL) Divergence between the parameters of two models.
@@ -5978,6 +5984,11 @@ def compute_symmetric_kl_divergence_between_models(model1: torch.nn.Module, mode
         return 0.0
     if sum1 == 0.0 or sum2 == 0.0:
         return float('inf')
+
+    if sum1 == 0.0 or sum2 == 0.0:
+        return 0.0
+
+
 
     p = vec1 / sum1
     q = vec2 / sum2

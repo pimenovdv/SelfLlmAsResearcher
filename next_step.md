@@ -1,1 +1,1 @@
-Add another statistical metric or similarity measure to src/experiment_utils.py and write corresponding tests.
+Add another statistical metric, loss function, or distance measure to src/experiment_utils.py and implement corresponding tests.

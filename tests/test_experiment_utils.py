@@ -5336,6 +5336,35 @@ class TestExperimentUtils(unittest.TestCase):
         loss_same = compute_talwar_loss_between_models(model1, model1)
         self.assertAlmostEqual(loss_same, 0.0, places=5)
 
+
+    def test_compute_generalized_bray_curtis_distance_between_models(self):
+        from src.experiment_utils import compute_generalized_bray_curtis_distance_between_models
+        import torch
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.p = torch.nn.Parameter(torch.tensor([-1.0, 3.0]))
+
+        class DummyModel2(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.p = torch.nn.Parameter(torch.tensor([1.0, 2.0]))
+
+        model1 = DummyModel()
+        model2 = DummyModel2()
+
+        dist = compute_generalized_bray_curtis_distance_between_models(model1, model2, p=2.0)
+        self.assertIsInstance(dist, float)
+
+        # dist for p=2: numerator = (|-1 - 1|^2 + |3 - 2|^2) = 4 + 1 = 5
+        # denominator = ((|-1| + |1|)^2 + (|3| + |2|)^2) = 4 + 25 = 29
+        # dist = 5/29 ~ 0.1724
+        self.assertAlmostEqual(dist, 5.0 / 29.0, places=4)
+
+        dist_same = compute_generalized_bray_curtis_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=5)
+
 if __name__ == '__main__':
 
 

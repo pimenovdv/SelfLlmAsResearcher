@@ -8221,3 +8221,25 @@ def compute_talwar_loss_between_models(model1: torch.nn.Module, model2: torch.nn
     diff = params1 - params2
     loss = torch.where(torch.abs(diff) <= c, 0.5 * (diff ** 2), torch.full_like(diff, 0.5 * (c ** 2)))
     return float(torch.mean(loss).item())
+
+def compute_generalized_bray_curtis_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, p: float = 2.0) -> float:
+    """
+    Вычисляет обобщенное расстояние Брея-Кертиса (Generalized Bray-Curtis Distance) между весами двух моделей.
+    Для p=1.0 эквивалентно обычному расстоянию Брея-Кертиса.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    numerator = torch.sum(torch.abs(vec1 - vec2) ** p)
+    denominator = torch.sum((torch.abs(vec1) + torch.abs(vec2)) ** p) + 1e-8
+
+    return float((numerator / denominator).item())

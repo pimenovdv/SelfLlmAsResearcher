@@ -8243,3 +8243,34 @@ def compute_generalized_bray_curtis_distance_between_models(model1: torch.nn.Mod
     denominator = torch.sum((torch.abs(vec1) + torch.abs(vec2)) ** p) + 1e-8
 
     return float((numerator / denominator).item())
+
+def compute_hassanat_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Hassanat distance between the parameters of two models.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    min_vals = torch.min(vec1, vec2)
+    max_vals = torch.max(vec1, vec2)
+
+    # Hassanat distance for vectors x, y:
+    # D(x,y) = sum(1 - (1 + min(x_i, y_i) - min(0, min(x_i, y_i))) / (1 + max(x_i, y_i) - min(0, min(x_i, y_i))))
+
+    adj = torch.clamp(min_vals, max=0.0)
+
+    numerator = 1.0 + min_vals - adj
+    denominator = 1.0 + max_vals - adj
+
+    distances = 1.0 - (numerator / denominator)
+
+    return float(torch.sum(distances).item())

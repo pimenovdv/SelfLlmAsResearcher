@@ -5365,6 +5365,35 @@ class TestExperimentUtils(unittest.TestCase):
         dist_same = compute_generalized_bray_curtis_distance_between_models(model1, model1)
         self.assertAlmostEqual(dist_same, 0.0, places=5)
 
+
+    def test_compute_hassanat_distance_between_models(self):
+        from src.experiment_utils import compute_hassanat_distance_between_models
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 1)
+        model1 = SimpleModel()
+        model2 = SimpleModel()
+
+        with torch.no_grad():
+            model1.fc.weight.fill_(1.0)
+            model1.fc.bias.fill_(2.0)
+
+            model2.fc.weight.fill_(3.0)
+            model2.fc.bias.fill_(5.0)
+
+        dist = compute_hassanat_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+
+        # weights: min=1, max=3, adj=0 -> 1 - (1+1-0)/(1+3-0) = 1 - 2/4 = 0.5. (10 weights -> sum=5.0)
+        # bias: min=2, max=5, adj=0 -> 1 - (1+2-0)/(1+5-0) = 1 - 3/6 = 0.5. (1 bias -> sum=0.5)
+        # total expected = 5.5
+
+        self.assertAlmostEqual(dist, 5.5, places=4)
+
+        dist_same = compute_hassanat_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=5)
+
 if __name__ == '__main__':
 
 

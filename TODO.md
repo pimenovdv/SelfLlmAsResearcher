@@ -506,3 +506,4 @@
 - [x] Добавить метрику потерь (Correntropy loss) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику потерь (Talwar loss) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику обобщенного расстояния Брея-Кертиса (Generalized Bray-Curtis distance) в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_hassanat_distance_between_models в src/experiment_utils.py и написать тесты.

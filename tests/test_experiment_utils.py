@@ -5365,6 +5365,31 @@ class TestExperimentUtils(unittest.TestCase):
         dist_same = compute_generalized_bray_curtis_distance_between_models(model1, model1)
         self.assertAlmostEqual(dist_same, 0.0, places=5)
 
+
+    def test_compute_yule_kendall_index_between_models(self):
+        from src.experiment_utils import compute_yule_kendall_index_between_models
+        import torch
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2)
+                self.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+                self.fc.bias.data = torch.tensor([5.0, 6.0])
+
+        class DummyModel2(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2)
+                self.fc.weight.data = torch.tensor([[0.5, 2.5], [2.0, 5.0]])
+                self.fc.bias.data = torch.tensor([5.5, 5.0])
+
+        model1 = DummyModel()
+        model2 = DummyModel2()
+        idx = compute_yule_kendall_index_between_models(model1, model2)
+        self.assertIsInstance(idx, float)
+        idx_same = compute_yule_kendall_index_between_models(model1, model1)
+        self.assertAlmostEqual(idx_same, 0.0, places=5)
+
 if __name__ == '__main__':
 
 

@@ -8243,3 +8243,25 @@ def compute_generalized_bray_curtis_distance_between_models(model1: torch.nn.Mod
     denominator = torch.sum((torch.abs(vec1) + torch.abs(vec2)) ** p) + 1e-8
 
     return float((numerator / denominator).item())
+
+def compute_yule_kendall_index_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет индекс Юла-Кендалла (Yule-Kendall index) для разницы весов двух моделей.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    diff = vec1 - vec2
+    if diff.numel() < 3:
+        return 0.0
+    q1 = torch.quantile(diff.float(), 0.25)
+    q2 = torch.quantile(diff.float(), 0.5)
+    q3 = torch.quantile(diff.float(), 0.75)
+    denominator = q3 - q1
+    if denominator == 0:
+        return 0.0
+    yk_index = (q1 - 2 * q2 + q3) / denominator
+    return float(yk_index.item())

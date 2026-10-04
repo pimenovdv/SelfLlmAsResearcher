@@ -5394,6 +5394,30 @@ class TestExperimentUtils(unittest.TestCase):
         dist_same = compute_hassanat_distance_between_models(model1, model1)
         self.assertAlmostEqual(dist_same, 0.0, places=5)
 
+
+    def test_compute_neyman_chi_square_distance_between_models(self):
+        import torch.nn as nn
+        from src.experiment_utils import compute_neyman_chi_square_distance_between_models
+        model1 = nn.Linear(10, 1)
+        model2 = nn.Linear(10, 1)
+
+        with torch.no_grad():
+            model1.weight.fill_(2.0)
+            model1.bias.fill_(2.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+
+        dist = compute_neyman_chi_square_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+
+        # (2 - 1)^2 / 2 = 0.5 per element
+        # Total parameters: 10 weights + 1 bias = 11
+        # Expected total distance: 11 * 0.5 = 5.5
+        self.assertAlmostEqual(dist, 5.5, places=4)
+
+        dist_same = compute_neyman_chi_square_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=5)
+
 if __name__ == '__main__':
 
 

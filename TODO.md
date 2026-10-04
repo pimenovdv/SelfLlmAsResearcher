@@ -509,3 +509,4 @@
 - [x] Добавить функцию compute_hassanat_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_neyman_chi_square_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_pearson_chi_square_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_probabilistic_symmetric_chi_square_distance_between_models в src/experiment_utils.py и написать тесты.

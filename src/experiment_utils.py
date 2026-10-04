@@ -8320,3 +8320,26 @@ def compute_pearson_chi_square_distance_between_models(model1: torch.nn.Module, 
     denominator[denominator == 0] = 1e-8 # Avoid division by zero
 
     return torch.sum((diff ** 2) / denominator).item()
+
+def compute_probabilistic_symmetric_chi_square_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет вероятностное симметричное расстояние хи-квадрат (Probabilistic Symmetric Chi-Square Distance) между распределениями абсолютных значений весов двух моделей.
+    Формула: 2 * sum((|x_i| - |y_i|)^2 / (|x_i| + |y_i|))
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.shape != vec2.shape:
+        raise ValueError("Models must have the same number of parameters.")
+
+    diff = vec1 - vec2
+    denominator = vec1 + vec2
+    denominator[denominator == 0] = 1e-8 # Avoid division by zero
+
+    return 2.0 * torch.sum((diff ** 2) / denominator).item()

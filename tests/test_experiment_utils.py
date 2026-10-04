@@ -5418,6 +5418,26 @@ class TestExperimentUtils(unittest.TestCase):
         dist_same = compute_neyman_chi_square_distance_between_models(model1, model1)
         self.assertAlmostEqual(dist_same, 0.0, places=5)
 
+    def test_compute_pearson_chi_square_distance_between_models(self):
+        from src.experiment_utils import compute_pearson_chi_square_distance_between_models
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+
+        # Set specific weights to test calculations
+        with torch.no_grad():
+            # w1 = 2, w2 = 1. formula: (2-1)^2 / 1 = 1
+            model1.weight.fill_(2.0)
+            model1.bias.fill_(2.0)
+            model2.weight.fill_(1.0)
+            model2.bias.fill_(1.0)
+
+        dist = compute_pearson_chi_square_distance_between_models(model1, model2)
+        # Expected: 11 parameters, each contributes 1. Total: 11.
+        self.assertAlmostEqual(dist, 11.0, places=4)
+
+        dist_same = compute_pearson_chi_square_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=5)
+
 if __name__ == '__main__':
 
 

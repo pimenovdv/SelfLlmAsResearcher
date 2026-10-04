@@ -1,1 +1,1 @@
-Add another statistical distance metric to src/experiment_utils.py
+Implement an additional statistical distance metric in src/experiment_utils.py based on recent additions

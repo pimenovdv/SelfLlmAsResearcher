@@ -5462,6 +5462,28 @@ class TestExperimentUtils(unittest.TestCase):
         dist_same = compute_probabilistic_symmetric_chi_square_distance_between_models(model1, model1)
         self.assertAlmostEqual(dist_same, 0.0, places=5)
 
+
+    def test_compute_additive_symmetric_chi_square_distance_between_models(self):
+        from src.experiment_utils import compute_additive_symmetric_chi_square_distance_between_models
+        import torch
+        import torch.nn as nn
+
+        model1 = nn.Linear(2, 1, bias=False)
+        model2 = nn.Linear(2, 1, bias=False)
+
+        with torch.no_grad():
+            model1.weight.copy_(torch.tensor([[2.0, -1.0]]))
+            model2.weight.copy_(torch.tensor([[1.0, 1.0]]))
+
+        # dist = 0.5 * ( (|2| - |1|)^2 / (|2| + |1|) + (|-1| - |1|)^2 / (|-1| + |1|) )
+        # = 0.5 * ( (1)^2 / 3 + (0)^2 / 2 )
+        # = 0.5 * ( 1/3 ) = 1/6 = 0.1666...
+        dist = compute_additive_symmetric_chi_square_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 1.0 / 6.0, places=4)
+
+        dist_same = compute_additive_symmetric_chi_square_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=5)
+
 if __name__ == '__main__':
 
 

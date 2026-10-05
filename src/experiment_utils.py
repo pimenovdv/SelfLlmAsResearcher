@@ -8343,3 +8343,19 @@ def compute_probabilistic_symmetric_chi_square_distance_between_models(model1: t
     denominator[denominator == 0] = 1e-8 # Avoid division by zero
 
     return 2.0 * torch.sum((diff ** 2) / denominator).item()
+
+def compute_additive_symmetric_chi_square_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Additive Symmetric Chi-Square Distance between the parameters of two models.
+    Additive Symmetric Chi-Square distance is sum( ((|x_i| - |y_i|)^2) / (|x_i| + |y_i|) ) / 2.
+    Weights are converted to absolute values before computation.
+    """
+    distance = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        abs_p1 = torch.abs(p1)
+        abs_p2 = torch.abs(p2)
+        diff = torch.abs(abs_p1 - abs_p2)
+        denominator = abs_p1 + abs_p2
+        denominator = torch.clamp(denominator, min=1e-8)
+        distance += torch.sum((diff ** 2) / denominator).item()
+    return distance / 2.0

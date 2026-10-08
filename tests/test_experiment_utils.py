@@ -5504,6 +5504,24 @@ class TestExperimentUtils(unittest.TestCase):
         dist_diff = compute_taneja_divergence_between_models(model1, model2)
         self.assertGreater(dist_diff, 0.0)
 
+
+    def test_compute_kumar_johnson_divergence_between_models(self):
+        from src.experiment_utils import compute_kumar_johnson_divergence_between_models
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+
+        # Identical models
+        dist_same = compute_kumar_johnson_divergence_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=4)
+
+        # Different models
+        with torch.no_grad():
+            model2.weight.add_(1.0)
+            model2.bias.add_(1.0)
+
+        dist_diff = compute_kumar_johnson_divergence_between_models(model1, model2)
+        self.assertGreater(dist_diff, 0.0)
+
 if __name__ == '__main__':
 
 

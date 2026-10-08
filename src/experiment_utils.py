@@ -8380,3 +8380,25 @@ def compute_taneja_divergence_between_models(model1: torch.nn.Module, model2: to
         term = arithmetic_mean * torch.log(arithmetic_mean / geometric_mean)
         divergence += torch.sum(term).item()
     return divergence
+
+
+def compute_kumar_johnson_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Kumar-Johnson divergence between the parameters of two models.
+    D_KJ(P, Q) = sum( ((p**2 - q**2)**2) / (2 * (p * q)**1.5) )
+    Weights are converted to absolute values and normalized to probability distributions.
+    """
+    divergence = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p = torch.abs(p1.flatten()) + epsilon
+        q = torch.abs(p2.flatten()) + epsilon
+
+        # Normalize
+        p = p / torch.sum(p)
+        q = q / torch.sum(q)
+
+        numerator = (p**2 - q**2)**2
+        denominator = 2.0 * (p * q)**1.5
+        term = numerator / denominator
+        divergence += torch.sum(term).item()
+    return divergence

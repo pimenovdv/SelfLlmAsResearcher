@@ -8359,3 +8359,24 @@ def compute_additive_symmetric_chi_square_distance_between_models(model1: torch.
         denominator = torch.clamp(denominator, min=1e-8)
         distance += torch.sum((diff ** 2) / denominator).item()
     return distance / 2.0
+
+def compute_taneja_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Taneja divergence between the parameters of two models.
+    T(P, Q) = sum( ((p_i + q_i)/2) * log( (p_i + q_i) / (2 * sqrt(p_i * q_i)) ) )
+    Weights are converted to absolute values and normalized to probability distributions.
+    """
+    divergence = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p = torch.abs(p1.flatten()) + epsilon
+        q = torch.abs(p2.flatten()) + epsilon
+
+        # Normalize
+        p = p / torch.sum(p)
+        q = q / torch.sum(q)
+
+        arithmetic_mean = (p + q) / 2.0
+        geometric_mean = torch.sqrt(p * q)
+        term = arithmetic_mean * torch.log(arithmetic_mean / geometric_mean)
+        divergence += torch.sum(term).item()
+    return divergence

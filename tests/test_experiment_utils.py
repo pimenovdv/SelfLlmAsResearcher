@@ -5484,6 +5484,26 @@ class TestExperimentUtils(unittest.TestCase):
         dist_same = compute_additive_symmetric_chi_square_distance_between_models(model1, model1)
         self.assertAlmostEqual(dist_same, 0.0, places=5)
 
+
+    def test_compute_taneja_divergence_between_models(self):
+        import torch
+        model1 = torch.nn.Linear(2, 2)
+        model2 = torch.nn.Linear(2, 2)
+
+        # Setting deterministic weights
+        model1.weight.data = torch.tensor([[1.0, 0.0], [0.0, 1.0]])
+        model1.bias.data = torch.tensor([0.0, 0.0])
+        model2.weight.data = torch.tensor([[1.0, 0.0], [0.0, 1.0]])
+        model2.bias.data = torch.tensor([0.0, 0.0])
+
+        from src.experiment_utils import compute_taneja_divergence_between_models
+        dist_same = compute_taneja_divergence_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=5)
+
+        model2.weight.data = torch.tensor([[0.0, 1.0], [1.0, 0.0]])
+        dist_diff = compute_taneja_divergence_between_models(model1, model2)
+        self.assertGreater(dist_diff, 0.0)
+
 if __name__ == '__main__':
 
 

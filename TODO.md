@@ -511,3 +511,4 @@
 - [x] Добавить функцию compute_pearson_chi_square_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_probabilistic_symmetric_chi_square_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_additive_symmetric_chi_square_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_taneja_divergence_between_models в src/experiment_utils.py и написать тесты.

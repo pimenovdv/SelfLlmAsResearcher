@@ -8466,3 +8466,32 @@ def compute_lin_divergence_between_models(model1: torch.nn.Module, model2: torch
         term = entropy_m - alpha * entropy_p - (1.0 - alpha) * entropy_q
         divergence += term.item()
     return divergence
+
+def compute_vicis_wave_hedges_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Vicis-Wave Hedges distance between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Vicis-Wave Hedges distance.
+    """
+    import torch
+
+    dist = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        vec1 = p1.view(-1).float()
+        vec2 = p2.view(-1).float()
+
+        diff = torch.abs(vec1 - vec2)
+        min_vals = torch.min(torch.abs(vec1), torch.abs(vec2))
+
+        # We need to handle zero denominator safely
+        denom = min_vals.clone()
+        denom[denom == 0] = 1e-8
+
+        dist += torch.sum(diff / denom).item()
+
+    return dist

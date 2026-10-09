@@ -5557,6 +5557,25 @@ class TestExperimentUtils(unittest.TestCase):
         div_diff = compute_k_divergence_between_models(model1, model2)
         self.assertGreater(div_diff, 0.0)
 
+
+    def test_compute_lin_divergence_between_models(self):
+        from src.experiment_utils import compute_lin_divergence_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+
+        # Identical models
+        div_same = compute_lin_divergence_between_models(model1, model1)
+        self.assertAlmostEqual(div_same, 0.0, places=4)
+
+        # Different models
+        with torch.no_grad():
+            model2.weight.add_(1.0)
+            model2.bias.add_(1.0)
+
+        div_diff = compute_lin_divergence_between_models(model1, model2)
+        self.assertGreater(div_diff, 0.0)
+
 if __name__ == '__main__':
 
 

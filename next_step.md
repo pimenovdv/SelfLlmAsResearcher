@@ -1,1 +1,1 @@
-Add Anderson-Darling distance to src/experiment_utils.py
+Add another statistical metric to src/experiment_utils.py

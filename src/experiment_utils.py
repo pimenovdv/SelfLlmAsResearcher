@@ -8443,3 +8443,26 @@ def compute_k_divergence_between_models(model1: torch.nn.Module, model2: torch.n
         term = p * torch.log(2.0 * p / (p + q))
         divergence += torch.sum(term).item()
     return divergence
+
+def compute_lin_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, alpha: float = 0.5, epsilon: float = 1e-8) -> float:
+    """
+    Вычисляет дивергенцию Лина (Lin divergence) между весами двух моделей.
+    """
+    divergence = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p = torch.abs(p1.flatten()) + epsilon
+        q = torch.abs(p2.flatten()) + epsilon
+
+        # Normalize
+        p = p / torch.sum(p)
+        q = q / torch.sum(q)
+
+        m = alpha * p + (1.0 - alpha) * q
+
+        entropy_m = -torch.sum(m * torch.log(m))
+        entropy_p = -torch.sum(p * torch.log(p))
+        entropy_q = -torch.sum(q * torch.log(q))
+
+        term = entropy_m - alpha * entropy_p - (1.0 - alpha) * entropy_q
+        divergence += term.item()
+    return divergence

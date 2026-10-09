@@ -1,1 +1,1 @@
-Implement another distance or divergence metric to evaluate models in src/experiment_utils.py.
+Add Anderson-Darling distance to src/experiment_utils.py

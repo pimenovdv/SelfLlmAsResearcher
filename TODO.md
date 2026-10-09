@@ -517,3 +517,4 @@
 - [x] Добавить функцию compute_k_divergence_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_lin_divergence_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_vicis_wave_hedges_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_cramer_von_mises_statistic_between_models в src/experiment_utils.py и написать тесты.

@@ -5595,6 +5595,22 @@ class TestExperimentUtils(unittest.TestCase):
         div_diff = compute_vicis_wave_hedges_distance_between_models(model1, model2)
         self.assertGreater(div_diff, 0.0)
 
+
+
+    def test_compute_cramer_von_mises_statistic_between_models(self):
+        import torch
+        from src.experiment_utils import compute_cramer_von_mises_statistic_between_models
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+        torch.nn.init.constant_(model1.weight, 1.0)
+        torch.nn.init.constant_(model1.bias, 0.0)
+        torch.nn.init.constant_(model2.weight, 1.0)
+        torch.nn.init.constant_(model2.bias, 0.0)
+
+        # Identical models should have statistic close to 0 (or constant)
+        stat = compute_cramer_von_mises_statistic_between_models(model1, model2)
+        self.assertIsInstance(stat, float)
+
 if __name__ == '__main__':
 
 

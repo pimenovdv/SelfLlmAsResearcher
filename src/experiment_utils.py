@@ -8495,3 +8495,48 @@ def compute_vicis_wave_hedges_distance_between_models(model1: torch.nn.Module, m
         dist += torch.sum(diff / denom).item()
 
     return dist
+
+
+def compute_cramer_von_mises_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет статистику Крамера-фон Мизеса (Cramer-von Mises) между весами двух моделей.
+    Статистика Крамера-фон Мизеса оценивает различие между двумя эмпирическими функциями распределения.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    combined_params1 = torch.cat(params1).float()
+    combined_params2 = torch.cat(params2).float()
+
+    if combined_params1.numel() == 0 or combined_params2.numel() == 0:
+        return 0.0
+
+    n = combined_params1.numel()
+    m = combined_params2.numel()
+
+    # Сортируем объединенные данные
+    combined_all = torch.cat([combined_params1, combined_params2])
+    sorted_all, indices = torch.sort(combined_all)
+
+    # Ранги элементов
+    ranks = torch.empty_like(sorted_all)
+    ranks[indices] = torch.arange(1, n + m + 1, dtype=torch.float32, device=combined_all.device)
+
+    ranks1 = ranks[:n]
+    ranks2 = ranks[n:]
+
+    sorted_ranks1, _ = torch.sort(ranks1)
+    sorted_ranks2, _ = torch.sort(ranks2)
+
+    i = torch.arange(1, n + 1, dtype=torch.float32, device=combined_all.device)
+    j = torch.arange(1, m + 1, dtype=torch.float32, device=combined_all.device)
+
+    U = n * torch.sum((sorted_ranks1 - i)**2) + m * torch.sum((sorted_ranks2 - j)**2)
+
+    cvm_stat = (U / (n * m * (n + m))) - (4 * n * m - 1) / (6 * (n + m))
+
+    return float(cvm_stat.item())

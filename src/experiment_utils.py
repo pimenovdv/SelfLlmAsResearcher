@@ -8402,3 +8402,24 @@ def compute_kumar_johnson_divergence_between_models(model1: torch.nn.Module, mod
         term = numerator / denominator
         divergence += torch.sum(term).item()
     return divergence
+
+def compute_topsoe_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Topsoe distance between the parameters of two models.
+    Topsoe(P, Q) = sum( p * log(2p / (p+q)) + q * log(2q / (p+q)) )
+    Weights are converted to absolute values and normalized to probability distributions.
+    """
+    distance = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p = torch.abs(p1.flatten()) + epsilon
+        q = torch.abs(p2.flatten()) + epsilon
+
+        # Normalize
+        p = p / torch.sum(p)
+        q = q / torch.sum(q)
+
+        term1 = p * torch.log(2.0 * p / (p + q))
+        term2 = q * torch.log(2.0 * q / (p + q))
+
+        distance += torch.sum(term1 + term2).item()
+    return distance

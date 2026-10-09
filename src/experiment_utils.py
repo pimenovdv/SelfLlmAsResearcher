@@ -8540,3 +8540,43 @@ def compute_cramer_von_mises_statistic_between_models(model1: torch.nn.Module, m
     cvm_stat = (U / (n * m * (n + m))) - (4 * n * m - 1) / (6 * (n + m))
 
     return float(cvm_stat.item())
+
+def compute_anderson_darling_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Anderson-Darling two-sample distance between the flattened parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first PyTorch model.
+        model2 (torch.nn.Module): The second PyTorch model.
+
+    Returns:
+        float: The Anderson-Darling distance. Returns 0.0 if either model has no parameters.
+    """
+    vec1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    vec2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+    n = vec1.numel()
+    m = vec2.numel()
+    N = n + m
+    if N == 0 or n == 0 or m == 0:
+        return 0.0
+
+    combined = torch.cat([vec1, vec2])
+    _, indices = torch.sort(combined)
+    is_vec1 = (indices < n).float()
+    M = torch.cumsum(is_vec1, dim=0)
+
+    M_i = M[:-1]
+    i_val = torch.arange(1, N, device=combined.device, dtype=torch.float64)
+    M_i = M_i.to(torch.float64)
+
+    n_f = float(n)
+    m_f = float(m)
+    N_f = float(N)
+
+    numerator = (N_f * M_i - i_val * n_f) ** 2
+    denominator = i_val * (N_f - i_val)
+
+    terms = numerator / denominator
+    A2 = terms.sum().item() / (n_f * m_f)
+
+    return float(A2)

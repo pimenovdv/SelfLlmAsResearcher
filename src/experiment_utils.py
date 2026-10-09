@@ -8423,3 +8423,23 @@ def compute_topsoe_distance_between_models(model1: torch.nn.Module, model2: torc
 
         distance += torch.sum(term1 + term2).item()
     return distance
+
+def compute_k_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the K-divergence between the parameters of two models.
+
+    K-divergence is an asymmetric divergence measure. Parameters are first
+    converted to absolute values and normalized to probability distributions.
+    """
+    divergence = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p = torch.abs(p1.flatten()) + epsilon
+        q = torch.abs(p2.flatten()) + epsilon
+
+        # Normalize
+        p = p / torch.sum(p)
+        q = q / torch.sum(q)
+
+        term = p * torch.log(2.0 * p / (p + q))
+        divergence += torch.sum(term).item()
+    return divergence

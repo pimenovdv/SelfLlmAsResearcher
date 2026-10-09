@@ -514,3 +514,4 @@
 - [x] Добавить функцию compute_taneja_divergence_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_kumar_johnson_divergence_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_topsoe_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_k_divergence_between_models в src/experiment_utils.py и написать тесты.

@@ -519,3 +519,4 @@
 - [x] Добавить функцию compute_vicis_wave_hedges_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_cramer_von_mises_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_anderson_darling_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_chatterjee_correlation_between_models в src/experiment_utils.py и написать тесты.

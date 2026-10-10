@@ -8734,3 +8734,24 @@ def compute_jeffreys_distance_between_models(model1: torch.nn.Module, model2: to
         distance += torch.sum(term).item()
 
     return distance
+
+def compute_geodesic_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Geodesic distance (angle) between the parameters of two models.
+    It treats the concatenated flattened parameters as vectors and computes the arc cosine of their normalized dot product.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    norm1 = torch.norm(params1, p=2)
+    norm2 = torch.norm(params2, p=2)
+
+    if norm1 == 0.0 or norm2 == 0.0:
+        return 0.0
+
+    dot_product = torch.dot(params1, params2) / (norm1 * norm2)
+    # Clip dot product to [-1, 1] to avoid NaNs in acos due to numerical instability
+    dot_product = torch.clamp(dot_product, -1.0, 1.0)
+
+    distance = torch.acos(dot_product).item()
+    return float(distance)

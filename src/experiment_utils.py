@@ -8714,3 +8714,23 @@ def compute_czekanowski_distance_between_models(model1: torch.nn.Module, model2:
         return 0.0
 
     return float((numerator / denominator).item())
+
+def compute_jeffreys_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Jeffreys distance (symmetrized Kullback-Leibler divergence) between the parameters of two models.
+    Weights are converted to absolute values and normalized to probability distributions.
+    """
+    distance = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p = torch.abs(p1.flatten()) + epsilon
+        q = torch.abs(p2.flatten()) + epsilon
+
+        # Normalize
+        p = p / torch.sum(p)
+        q = q / torch.sum(q)
+
+        # Jeffreys distance is KL(P||Q) + KL(Q||P) = sum( (p - q) * log(p / q) )
+        term = (p - q) * torch.log(p / q)
+        distance += torch.sum(term).item()
+
+    return distance

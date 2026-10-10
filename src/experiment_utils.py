@@ -8580,3 +8580,34 @@ def compute_anderson_darling_distance_between_models(model1: torch.nn.Module, mo
     A2 = terms.sum().item() / (n_f * m_f)
 
     return float(A2)
+
+
+def compute_chatterjee_correlation_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Chatterjee Correlation Coefficient between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Chatterjee correlation coefficient.
+    """
+    params1 = []
+    params2 = []
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        params1.append(p1.view(-1).float())
+        params2.append(p2.view(-1).float())
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    n = vec1.size(0)
+    if n < 2:
+        return 0.0
+    sorted_vec1, indices = torch.sort(vec1)
+    sorted_vec2_by_vec1 = vec2[indices]
+    ranks = torch.argsort(torch.argsort(sorted_vec2_by_vec1)).float() + 1.0
+    sum_abs_diff = torch.sum(torch.abs(ranks[1:] - ranks[:-1]))
+    chatterjee_corr = 1.0 - (3.0 * sum_abs_diff) / (n**2 - 1.0)
+    return float(chatterjee_corr.item())

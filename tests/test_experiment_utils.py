@@ -5626,6 +5626,13 @@ class TestExperimentUtils(unittest.TestCase):
         stat = compute_anderson_darling_distance_between_models(model1, model2)
         self.assertIsInstance(stat, float)
 
+    def test_compute_chatterjee_correlation_between_models(self):
+        from src.experiment_utils import compute_chatterjee_correlation_between_models
+        model1 = torch.nn.Linear(10, 5)
+        model2 = torch.nn.Linear(10, 5)
+        stat = compute_chatterjee_correlation_between_models(model1, model2)
+        self.assertIsInstance(stat, float)
+
 if __name__ == '__main__':
 
 

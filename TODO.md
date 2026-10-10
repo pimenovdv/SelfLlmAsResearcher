@@ -521,3 +521,4 @@
 - [x] Добавить функцию compute_anderson_darling_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_chatterjee_correlation_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику compute_distance_correlation_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_czekanowski_distance_between_models в src/experiment_utils.py и написать тесты.

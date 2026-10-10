@@ -8686,3 +8686,31 @@ def compute_distance_correlation_between_models(model1: torch.nn.Module, model2:
 
     dcor = (max(dcov2_xy / dvar_prod, 0.0))**0.5
     return float(dcor)
+def compute_czekanowski_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Czekanowski distance between the parameters of two models.
+
+    The Czekanowski distance between two vectors p and q is defined as:
+    D_Czekanowski(p, q) = (sum_i |p_i - q_i|) / (sum_i (|p_i| + |q_i|))
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Czekanowski distance. Returns 0.0 if the models have no parameters
+               or if the denominator is exactly zero.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    if params1.numel() == 0 or params2.numel() == 0:
+        return 0.0
+
+    numerator = torch.sum(torch.abs(params1 - params2))
+    denominator = torch.sum(torch.abs(params1) + torch.abs(params2))
+
+    if denominator == 0.0:
+        return 0.0
+
+    return float((numerator / denominator).item())

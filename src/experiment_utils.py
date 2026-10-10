@@ -8611,3 +8611,78 @@ def compute_chatterjee_correlation_between_models(model1: torch.nn.Module, model
     sum_abs_diff = torch.sum(torch.abs(ranks[1:] - ranks[:-1]))
     chatterjee_corr = 1.0 - (3.0 * sum_abs_diff) / (n**2 - 1.0)
     return float(chatterjee_corr.item())
+
+def compute_distance_correlation_between_models(model1: torch.nn.Module, model2: torch.nn.Module, batch_size: int = 1000) -> float:
+    """
+    Computes the distance correlation between the flattened weights of two models using batched operations to avoid OOM.
+    """
+    params1 = []
+    params2 = []
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        params1.append(p1.view(-1).float())
+        params2.append(p2.view(-1).float())
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).unsqueeze(1)
+    vec2 = torch.cat(params2).unsqueeze(1)
+
+    n = vec1.size(0)
+    if n < 2:
+        return 0.0
+
+    # calculate means via batched sum
+    A_sum_all = 0.0
+    A_sum_row = torch.zeros(n, 1, device=vec1.device)
+    B_sum_all = 0.0
+    B_sum_row = torch.zeros(n, 1, device=vec2.device)
+
+    for i in range(0, n, batch_size):
+        end_i = min(i + batch_size, n)
+        v1_batch = vec1[i:end_i]
+        v2_batch = vec2[i:end_i]
+        A_batch = torch.cdist(v1_batch, vec1, p=2)
+        B_batch = torch.cdist(v2_batch, vec2, p=2)
+
+        A_sum_row[i:end_i] = A_batch.sum(dim=1, keepdim=True)
+        A_sum_all += A_batch.sum().item()
+
+        B_sum_row[i:end_i] = B_batch.sum(dim=1, keepdim=True)
+        B_sum_all += B_batch.sum().item()
+
+    A_mean_row = A_sum_row / n
+    A_mean_all = A_sum_all / (n * n)
+    B_mean_row = B_sum_row / n
+    B_mean_all = B_sum_all / (n * n)
+
+    # calculate covariances via batched operations
+    dcov2_xy_sum = 0.0
+    dcov2_xx_sum = 0.0
+    dcov2_yy_sum = 0.0
+
+    for i in range(0, n, batch_size):
+        end_i = min(i + batch_size, n)
+        v1_batch = vec1[i:end_i]
+        v2_batch = vec2[i:end_i]
+
+        A_batch = torch.cdist(v1_batch, vec1, p=2)
+        B_batch = torch.cdist(v2_batch, vec2, p=2)
+
+        A_centered_batch = A_batch - A_mean_row[i:end_i] - A_mean_row.T + A_mean_all
+        B_centered_batch = B_batch - B_mean_row[i:end_i] - B_mean_row.T + B_mean_all
+
+        dcov2_xy_sum += (A_centered_batch * B_centered_batch).sum().item()
+        dcov2_xx_sum += (A_centered_batch * A_centered_batch).sum().item()
+        dcov2_yy_sum += (B_centered_batch * B_centered_batch).sum().item()
+
+    dcov2_xy = dcov2_xy_sum / (n * n)
+    dcov2_xx = dcov2_xx_sum / (n * n)
+    dcov2_yy = dcov2_yy_sum / (n * n)
+
+    dvar_prod = (dcov2_xx * dcov2_yy)**0.5
+    if dvar_prod == 0.0:
+        return 0.0
+
+    dcor = (max(dcov2_xy / dvar_prod, 0.0))**0.5
+    return float(dcor)

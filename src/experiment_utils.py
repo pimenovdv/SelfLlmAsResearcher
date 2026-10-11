@@ -8805,3 +8805,37 @@ def compute_g_statistic_between_models(model1: torch.nn.Module, model2: torch.nn
 
     g_stat = 2 * torch.sum(o * torch.log(o / e)).item()
     return g_stat
+
+
+def compute_otiai_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Otiai distance between the parameters of two models.
+    Otiai distance is a complementary distance derived from the Ochiai coefficient
+    (also known as the cosine similarity).
+    D_Otiai = 1 - (sum(x * y) / sqrt(sum(x^2) * sum(y^2)))
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Otiai distance between the models. Returns 0.0 if either model has zero norm.
+    """
+    vec1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    vec2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    if vec1.shape != vec2.shape:
+        raise ValueError("Models must have the same number of parameters.")
+
+    norm1 = torch.norm(vec1, p=2)
+    norm2 = torch.norm(vec2, p=2)
+
+    if norm1 == 0 or norm2 == 0:
+        return 0.0
+
+    dot_product = torch.dot(vec1, vec2)
+    ochiai_coefficient = dot_product / (norm1 * norm2)
+
+    ochiai_coefficient = torch.clamp(ochiai_coefficient, -1.0, 1.0)
+
+    return float((1.0 - ochiai_coefficient).item())

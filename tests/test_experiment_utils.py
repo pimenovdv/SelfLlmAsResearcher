@@ -5668,6 +5668,15 @@ class TestExperimentUtils(unittest.TestCase):
         dist = compute_geodesic_distance_between_models(model1, model2)
         self.assertIsInstance(dist, float)
 
+
+    def test_compute_bregman_divergence_between_models(self):
+        from src.experiment_utils import compute_bregman_divergence_between_models
+        import torch.nn as nn
+        model1 = nn.Linear(10, 1)
+        model2 = nn.Linear(10, 1)
+        dist = compute_bregman_divergence_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+
 if __name__ == '__main__':
 
 

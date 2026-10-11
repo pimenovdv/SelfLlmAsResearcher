@@ -8755,3 +8755,23 @@ def compute_geodesic_distance_between_models(model1: torch.nn.Module, model2: to
 
     distance = torch.acos(dot_product).item()
     return float(distance)
+
+def compute_bregman_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет дивергенцию Брегмана (основанную на евклидовом расстоянии) между весами двух моделей.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).float()
+    vec2 = torch.cat(params2).float()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    # Bregman divergence with Euclidean distance function is just squared Euclidean distance
+    diff = vec1 - vec2
+    return torch.sum(diff ** 2).item()

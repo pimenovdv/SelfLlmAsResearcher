@@ -8775,3 +8775,33 @@ def compute_bregman_divergence_between_models(model1: torch.nn.Module, model2: t
     # Bregman divergence with Euclidean distance function is just squared Euclidean distance
     diff = vec1 - vec2
     return torch.sum(diff ** 2).item()
+
+
+def compute_g_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет G-статистику (G-test statistic) между абсолютными значениями весов двух моделей.
+    Формула: 2 * sum(O_i * ln(O_i / E_i)), где O_i = |vec1|, E_i = |vec2|.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).float().abs()
+    vec2 = torch.cat(params2).float().abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.shape != vec2.shape:
+        raise ValueError("Models must have the same number of parameters.")
+
+    eps = 1e-8
+    o = vec1.clone()
+    o[o == 0] = eps
+    e = vec2.clone()
+    e[e == 0] = eps
+
+    g_stat = 2 * torch.sum(o * torch.log(o / e)).item()
+    return g_stat

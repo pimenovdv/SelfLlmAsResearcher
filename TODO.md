@@ -525,3 +525,4 @@
 - [x] Добавить функцию compute_jeffreys_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_geodesic_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_bregman_divergence_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить еще одну статистическую метрику (например, вычисление G-статистики) в src/experiment_utils.py и написать тесты.

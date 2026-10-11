@@ -1,1 +1,1 @@
-Implement a new divergence or loss metric in src/experiment_utils.py
+Добавить еще одну статистическую метрику (например, вычисление G-статистики) в src/experiment_utils.py и написать тесты.

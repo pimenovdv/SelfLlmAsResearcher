@@ -8839,3 +8839,38 @@ def compute_otiai_distance_between_models(model1: torch.nn.Module, model2: torch
     ochiai_coefficient = torch.clamp(ochiai_coefficient, -1.0, 1.0)
 
     return float((1.0 - ochiai_coefficient).item())
+
+def compute_kulczynski_2_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Kulczynski-2 distance between the parameters of two models.
+    The formula is: 1.0 - 0.5 * ( sum(min(|x_i|, |y_i|)) / sum(|x_i|) + sum(min(|x_i|, |y_i|)) / sum(|y_i|) )
+    If the sum of |x_i| or |y_i| is zero, it returns 0.0 to avoid division by zero.
+    Weights are converted to absolute values before computation.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Kulczynski-2 distance.
+    """
+    sum_min = 0.0
+    sum_x = 0.0
+    sum_y = 0.0
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        abs_p1 = torch.abs(p1)
+        abs_p2 = torch.abs(p2)
+        sum_min += torch.sum(torch.minimum(abs_p1, abs_p2)).item()
+        sum_x += torch.sum(abs_p1).item()
+        sum_y += torch.sum(abs_p2).item()
+
+    if sum_x == 0.0 and sum_y == 0.0:
+        return 0.0
+    if sum_x == 0.0 or sum_y == 0.0:
+        return 1.0
+
+    similarity = 0.5 * (sum_min / sum_x + sum_min / sum_y)
+    distance = 1.0 - similarity
+
+    return max(0.0, distance)

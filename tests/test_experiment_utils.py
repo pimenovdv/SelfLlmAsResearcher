@@ -4426,21 +4426,6 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(stat, float)
 
 
-    def test_compute_normalized_mean_absolute_error_between_models(self):
-        import torch
-        from src.experiment_utils import compute_normalized_mean_absolute_error_between_models
-
-        class DummyModel(torch.nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.fc = torch.nn.Linear(10, 10)
-            def forward(self, x):
-                return self.fc(x)
-
-        model1 = DummyModel()
-        model2 = DummyModel()
-        stat = compute_normalized_mean_absolute_error_between_models(model1, model2)
-        self.assertIsInstance(stat, float)
 
 
     def test_compute_normalized_root_mean_squared_deviation_between_models(self):
@@ -5694,6 +5679,57 @@ class TestExperimentUtils(unittest.TestCase):
         model2 = nn.Linear(10, 1)
         dist = compute_otiai_distance_between_models(model1, model2)
         self.assertIsInstance(dist, float)
+
+
+    def test_compute_kulczynski_2_distance_between_models(self):
+        from src.experiment_utils import compute_kulczynski_2_distance_between_models
+        model1 = torch.nn.Linear(10, 2, bias=False)
+        model2 = torch.nn.Linear(10, 2, bias=False)
+
+        torch.nn.init.constant_(model1.weight, 1.0)
+        torch.nn.init.constant_(model2.weight, 1.0)
+
+        # Identical models should have distance 0.0
+        distance_same = compute_kulczynski_2_distance_between_models(model1, model1)
+        self.assertAlmostEqual(distance_same, 0.0, places=4)
+
+        # Distinct weights
+        torch.nn.init.constant_(model1.weight, 1.0) # sum = 20
+        torch.nn.init.constant_(model2.weight, 2.0) # sum = 40
+        # min = 1.0 -> sum_min = 20
+        # sim = 0.5 * (20/20 + 20/40) = 0.5 * (1.0 + 0.5) = 0.75
+        # dist = 1 - 0.75 = 0.25
+        distance_diff = compute_kulczynski_2_distance_between_models(model1, model2)
+        self.assertAlmostEqual(distance_diff, 0.25, places=4)
+
+        # Test zero sum case (one model is zero)
+        torch.nn.init.constant_(model1.weight, 0.0)
+        distance_zero = compute_kulczynski_2_distance_between_models(model1, model2)
+        self.assertEqual(distance_zero, 1.0)
+
+        # Test both zero sum case
+        torch.nn.init.constant_(model2.weight, 0.0)
+        distance_both_zero = compute_kulczynski_2_distance_between_models(model1, model2)
+        self.assertEqual(distance_both_zero, 0.0)
+
+
+
+
+    def test_compute_normalized_mean_absolute_error_between_models(self):
+        import torch
+        from src.experiment_utils import compute_normalized_mean_absolute_error_between_models
+
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+            def forward(self, x):
+                return self.fc(x)
+
+        model1 = DummyModel()
+        model2 = DummyModel()
+        stat = compute_normalized_mean_absolute_error_between_models(model1, model2)
+        self.assertIsInstance(stat, float)
 
 if __name__ == '__main__':
 

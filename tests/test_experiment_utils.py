@@ -5731,6 +5731,28 @@ class TestExperimentUtils(unittest.TestCase):
         stat = compute_normalized_mean_absolute_error_between_models(model1, model2)
         self.assertIsInstance(stat, float)
 
+
+    def test_compute_kulczynski_3_distance_between_models(self):
+        from src.experiment_utils import compute_kulczynski_3_distance_between_models
+        model1 = torch.nn.Linear(10, 2, bias=False)
+        model2 = torch.nn.Linear(10, 2, bias=False)
+
+        torch.nn.init.constant_(model1.weight, 1.0)
+        torch.nn.init.constant_(model2.weight, 1.0)
+
+        # Identical models should have distance 0.0
+        distance_same = compute_kulczynski_3_distance_between_models(model1, model1)
+        self.assertAlmostEqual(distance_same, 0.0, places=4)
+
+        # Distinct weights
+        torch.nn.init.constant_(model1.weight, 1.0)
+        torch.nn.init.constant_(model2.weight, 2.0)
+
+        # sum_min = 20, sum_max = 40
+        # distance = 1 - (20 / 40) = 0.5
+        distance_diff = compute_kulczynski_3_distance_between_models(model1, model2)
+        self.assertAlmostEqual(distance_diff, 0.5, places=4)
+
 if __name__ == '__main__':
 
 

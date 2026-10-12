@@ -528,3 +528,4 @@
 - [x] Добавить еще одну статистическую метрику (например, вычисление G-статистики) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику расстояния Отиаи (Otiai distance) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику расстояния Кульчинского-2 (Kulczynski-2 distance) в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_kulczynski_3_distance_between_models в src/experiment_utils.py и написать тесты.

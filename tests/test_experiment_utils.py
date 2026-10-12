@@ -5770,6 +5770,22 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(bc_diff, float)
         self.assertTrue(0.0 <= bc_diff <= 1.0)
 
+
+    def test_compute_braun_blanquet_distance_between_models(self):
+        from src.experiment_utils import compute_braun_blanquet_distance_between_models
+        model1 = torch.nn.Linear(10, 2)
+        model2 = torch.nn.Linear(10, 2)
+
+        # Identity test (distance should be 0.0)
+        dist_identity = compute_braun_blanquet_distance_between_models(model1, model1)
+        self.assertIsInstance(dist_identity, float)
+        self.assertAlmostEqual(dist_identity, 0.0, places=4)
+
+        # Test different models
+        dist_diff = compute_braun_blanquet_distance_between_models(model1, model2)
+        self.assertIsInstance(dist_diff, float)
+        self.assertTrue(dist_diff >= 0.0)
+
 if __name__ == '__main__':
 
 

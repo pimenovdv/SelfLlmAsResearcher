@@ -5808,9 +5808,44 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(isinstance(dist_diff, float))
         self.assertTrue(dist_diff >= 0.0)
 
+    def test_compute_ansari_bradley_statistic_between_models(self):
+        from src.experiment_utils import compute_ansari_bradley_statistic_between_models
+        import scipy.stats as stats
+        import torch
+
+        torch.manual_seed(42)
+        m1 = torch.nn.Linear(10, 10)
+        m2 = torch.nn.Linear(10, 10)
+
+        stat = compute_ansari_bradley_statistic_between_models(m1, m2)
+
+        vec1 = torch.cat([p.view(-1) for p in m1.parameters()]).detach().cpu().numpy()
+        vec2 = torch.cat([p.view(-1) for p in m2.parameters()]).detach().cpu().numpy()
+
+        expected_stat, _ = stats.ansari(vec1, vec2)
+
+        self.assertTrue(isinstance(stat, float))
+        self.assertTrue(abs(stat - expected_stat) < 1e-5)
+
+    def test_compute_fligner_killeen_statistic_between_models(self):
+        from src.experiment_utils import compute_fligner_killeen_statistic_between_models
+        import scipy.stats as stats
+        import torch
+
+        torch.manual_seed(42)
+        m1 = torch.nn.Linear(10, 10)
+        m2 = torch.nn.Linear(10, 10)
+
+        stat = compute_fligner_killeen_statistic_between_models(m1, m2)
+
+        vec1 = torch.cat([p.view(-1) for p in m1.parameters()]).detach().cpu().numpy()
+        vec2 = torch.cat([p.view(-1) for p in m2.parameters()]).detach().cpu().numpy()
+
+        expected_stat, _ = stats.fligner(vec1, vec2)
+
+        self.assertTrue(isinstance(stat, float))
+        self.assertTrue(abs(stat - expected_stat) < 0.1)
+
+
 if __name__ == '__main__':
-
-
-
-
     unittest.main()

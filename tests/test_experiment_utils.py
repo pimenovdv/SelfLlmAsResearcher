@@ -5753,6 +5753,23 @@ class TestExperimentUtils(unittest.TestCase):
         distance_diff = compute_kulczynski_3_distance_between_models(model1, model2)
         self.assertAlmostEqual(distance_diff, 0.5, places=4)
 
+    def test_compute_bhattacharyya_coefficient_between_models(self):
+        import torch
+        from src.experiment_utils import compute_bhattacharyya_coefficient_between_models
+
+        model1 = torch.nn.Linear(10, 2)
+        model2 = torch.nn.Linear(10, 2)
+
+        # Test identical models (coefficient should be close to 1.0)
+        bc_identity = compute_bhattacharyya_coefficient_between_models(model1, model1)
+        self.assertIsInstance(bc_identity, float)
+        self.assertAlmostEqual(bc_identity, 1.0, places=4)
+
+        # Test different models
+        bc_diff = compute_bhattacharyya_coefficient_between_models(model1, model2)
+        self.assertIsInstance(bc_diff, float)
+        self.assertTrue(0.0 <= bc_diff <= 1.0)
+
 if __name__ == '__main__':
 
 

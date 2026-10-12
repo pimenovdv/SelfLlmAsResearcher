@@ -1,1 +1,1 @@
-Add another statistical metric to src/experiment_utils.py
+Explore and implement another advanced statistical metric in src/experiment_utils.py

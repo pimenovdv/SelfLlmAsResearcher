@@ -6101,6 +6101,128 @@ def compute_kendall_tau_correlation_between_models(model1: torch.nn.Module, mode
         return float((concordant - discordant) / (n * (n - 1) / 2))
 
 
+def compute_fligner_killeen_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет статистику критерия Флигнера-Килина (Fligner-Killeen test statistic)
+    для проверки однородности дисперсий между весами двух моделей.
+
+    Непараметрический аналог критерия Левена, более устойчивый к отклонениям от нормальности.
+
+    Args:
+        model1 (torch.nn.Module): Первая модель.
+        model2 (torch.nn.Module): Вторая модель.
+
+    Returns:
+        float: Значение статистики Флигнера-Килина. Возвращает 0.0, если параметров нет
+               или их меньше двух.
+    """
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    n1 = vec1.numel()
+    n2 = vec2.numel()
+    N = n1 + n2
+
+    if n1 < 2 or n2 < 2:
+        return 0.0
+
+    # Вычитаем медиану группы
+    med1 = vec1.median()
+    med2 = vec2.median()
+
+    z1 = torch.abs(vec1 - med1)
+    z2 = torch.abs(vec2 - med2)
+
+    z = torch.cat([z1, z2])
+
+    # Вычисляем ранги объединенной выборки
+    sorted_z, indices = torch.sort(z)
+
+    # Обработка совпадающих значений
+    unique_vals, inv, counts = torch.unique(sorted_z, return_inverse=True, return_counts=True)
+    ranks_unique = torch.cumsum(counts, dim=0) - (counts - 1) / 2.0
+    ranks = ranks_unique[inv]
+
+    # Восстанавливаем оригинальный порядок рангов
+    original_ranks = torch.empty_like(ranks)
+    original_ranks[indices] = ranks
+
+    # Преобразование Флигнера-Килина
+    a = torch.special.ndtri(original_ranks / (2.0 * (N + 1.0)) + 0.5)
+
+    a_mean = a.mean()
+    a_var = torch.sum((a - a_mean)**2) / (N - 1.0)
+
+    if a_var == 0:
+        return 0.0
+
+    a_bar1 = a[:n1].mean()
+    a_bar2 = a[n1:].mean()
+
+    stat = (n1 * (a_bar1 - a_mean)**2 + n2 * (a_bar2 - a_mean)**2) / a_var
+
+    return float(stat.item())
+
+def compute_ansari_bradley_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет статистику Ансари-Брэдли (Ansari-Bradley test statistic)
+    для проверки равенства дисперсий (scale) между весами двух моделей.
+
+    Статистика представляет собой сумму скоров Ансари-Брэдли для первой модели.
+    Чем ближе распределения по дисперсии, тем ближе статистика к ожидаемому значению.
+
+    Args:
+        model1 (torch.nn.Module): Первая модель.
+        model2 (torch.nn.Module): Вторая модель.
+
+    Returns:
+        float: Значение статистики Ансари-Брэдли. Возвращает 0.0, если параметров нет.
+    """
+    params1 = [p.view(-1) for p in model1.parameters() if p.requires_grad]
+    params2 = [p.view(-1) for p in model2.parameters() if p.requires_grad]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    n1 = vec1.numel()
+    n2 = vec2.numel()
+    N = n1 + n2
+
+    if n1 == 0 or n2 == 0:
+        return 0.0
+
+    z = torch.cat([vec1, vec2])
+
+    # Sort combined samples
+    sorted_z, indices = torch.sort(z)
+
+    # Compute tied ranks
+    unique_vals, inv, counts = torch.unique(sorted_z, return_inverse=True, return_counts=True)
+    ranks_unique = torch.cumsum(counts, dim=0) - (counts - 1) / 2.0
+    ranks = ranks_unique[inv]
+
+    # Ansari-Bradley scores: c - |rank - c|
+    c = (N + 1) / 2.0
+    scores = c - torch.abs(ranks - c)
+
+    # Reorder scores back to their original positions
+    original_scores = torch.empty_like(scores)
+    original_scores[indices] = scores
+
+    # The statistic is the sum of scores for the first sample
+    stat = original_scores[:n1].sum()
+
+    return float(stat.item())
+
 def compute_kolmogorov_smirnov_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
     """
     Вычисляет статистику Колмогорова-Смирнова между весами двух моделей.

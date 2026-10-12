@@ -8946,3 +8946,27 @@ def compute_bhattacharyya_coefficient_between_models(model1: torch.nn.Module, mo
 
     bc = torch.sum(torch.sqrt(p * q))
     return float(bc.item())
+
+def compute_braun_blanquet_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Braun-Blanquet distance between the parameters of two models.
+    Braun-Blanquet similarity is sum(min(x_i, y_i)) / max(sum(x_i), sum(y_i)).
+    Braun-Blanquet distance is 1.0 - similarity.
+    """
+    intersection_sum = 0.0
+    sum_model1 = 0.0
+    sum_model2 = 0.0
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p1_flat = torch.abs(p1.view(-1)).float()
+        p2_flat = torch.abs(p2.view(-1)).float()
+        intersection_sum += torch.sum(torch.minimum(p1_flat, p2_flat)).item()
+        sum_model1 += torch.sum(p1_flat).item()
+        sum_model2 += torch.sum(p2_flat).item()
+
+    max_sum = max(sum_model1, sum_model2)
+    if max_sum == 0.0:
+        return 0.0
+
+    bb_sim = intersection_sum / max_sum
+    return 1.0 - bb_sim

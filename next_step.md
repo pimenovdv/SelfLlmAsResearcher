@@ -1,1 +1,1 @@
-Добавить метрику расстояния Симпсона (Simpson distance) в src/experiment_utils.py и написать тесты.
+Add another statistical metric to src/experiment_utils.py

@@ -531,3 +531,4 @@
 - [x] Добавить функцию compute_kulczynski_3_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_bhattacharyya_coefficient_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику расстояния Braun-Blanquet (Braun-Blanquet distance) в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику расстояния Симпсона (Simpson distance) в src/experiment_utils.py и написать тесты.

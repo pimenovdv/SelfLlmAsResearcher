@@ -8970,3 +8970,30 @@ def compute_braun_blanquet_distance_between_models(model1: torch.nn.Module, mode
 
     bb_sim = intersection_sum / max_sum
     return 1.0 - bb_sim
+
+def compute_simpson_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Simpson distance (Overlap coefficient based distance) between the parameters of two models.
+
+    The Simpson similarity is defined as the size of the intersection divided by the
+    minimum size of the two sets. For continuous weights, using absolute values:
+    similarity = sum(min(|x_i|, |y_i|)) / min(sum(|x_i|), sum(|y_i|)).
+    The distance is 1.0 - similarity.
+    """
+    intersection_sum = 0.0
+    sum_model1 = 0.0
+    sum_model2 = 0.0
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p1_flat = torch.abs(p1.view(-1)).float()
+        p2_flat = torch.abs(p2.view(-1)).float()
+        intersection_sum += torch.sum(torch.minimum(p1_flat, p2_flat)).item()
+        sum_model1 += torch.sum(p1_flat).item()
+        sum_model2 += torch.sum(p2_flat).item()
+
+    min_sum = min(sum_model1, sum_model2)
+    if min_sum == 0.0:
+        return 0.0 if sum_model1 == 0.0 and sum_model2 == 0.0 else 1.0
+
+    simpson_sim = intersection_sum / min_sum
+    return 1.0 - simpson_sim

@@ -5786,6 +5786,28 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(dist_diff, float)
         self.assertTrue(dist_diff >= 0.0)
 
+
+    def test_compute_simpson_distance_between_models(self):
+        from src.experiment_utils import compute_simpson_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+
+        # Test 1: Identical models
+        model2.load_state_dict(model1.state_dict())
+        dist_same = compute_simpson_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist_same, 0.0, places=5)
+
+        # Test 2: Different models
+        model3 = torch.nn.Linear(10, 1)
+        # Ensure non-zero weights
+        with torch.no_grad():
+            for p in model3.parameters():
+                p.fill_(0.1)
+        dist_diff = compute_simpson_distance_between_models(model1, model3)
+        self.assertTrue(isinstance(dist_diff, float))
+        self.assertTrue(dist_diff >= 0.0)
+
 if __name__ == '__main__':
 
 

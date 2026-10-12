@@ -8874,3 +8874,36 @@ def compute_kulczynski_2_distance_between_models(model1: torch.nn.Module, model2
     distance = 1.0 - similarity
 
     return max(0.0, distance)
+
+def compute_kulczynski_3_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Kulczynski-3 distance between the parameters of two models.
+
+    Kulczynski-3 distance uses formula:
+    D = 1 - ( sum( min(|x_i|, |y_i|) ) / sum( max(|x_i|, |y_i|) ) )
+
+    Args:
+        model1 (torch.nn.Module): The first PyTorch model.
+        model2 (torch.nn.Module): The second PyTorch model.
+
+    Returns:
+        float: The Kulczynski-3 distance.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    abs_params1 = torch.abs(params1)
+    abs_params2 = torch.abs(params2)
+
+    min_vals = torch.min(abs_params1, abs_params2)
+    max_vals = torch.max(abs_params1, abs_params2)
+
+    sum_min = torch.sum(min_vals)
+    sum_max = torch.sum(max_vals)
+
+    if sum_max == 0:
+        if sum_min == 0:
+            return 0.0
+        return 1.0
+
+    return float((1.0 - (sum_min / sum_max)).item())

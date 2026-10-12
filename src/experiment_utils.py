@@ -8907,3 +8907,42 @@ def compute_kulczynski_3_distance_between_models(model1: torch.nn.Module, model2
         return 1.0
 
     return float((1.0 - (sum_min / sum_max)).item())
+
+def compute_bhattacharyya_coefficient_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Bhattacharyya coefficient between the parameters of two models.
+    Weights are converted to absolute values and normalized to probability distributions.
+
+    Args:
+        model1 (torch.nn.Module): The first PyTorch model.
+        model2 (torch.nn.Module): The second PyTorch model.
+        epsilon (float): A small value to avoid division by zero.
+
+    Returns:
+        float: The Bhattacharyya coefficient (between 0 and 1).
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    sum1 = torch.sum(vec1)
+    sum2 = torch.sum(vec2)
+
+    if sum1 == 0.0 and sum2 == 0.0:
+        return 1.0
+    if sum1 == 0.0 or sum2 == 0.0:
+        return 0.0
+
+    p = vec1 / sum1
+    q = vec2 / sum2
+
+    bc = torch.sum(torch.sqrt(p * q))
+    return float(bc.item())

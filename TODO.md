@@ -534,3 +534,4 @@
 - [x] Добавить метрику расстояния Симпсона (Simpson distance) в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_fligner_killeen_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_ansari_bradley_statistic_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_moods_median_statistic_between_models в src/experiment_utils.py и написать тесты.

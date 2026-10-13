@@ -1,1 +1,1 @@
-Explore and implement another robust statistical metric in src/experiment_utils.py
+Add another statistical metric to src/experiment_utils.py

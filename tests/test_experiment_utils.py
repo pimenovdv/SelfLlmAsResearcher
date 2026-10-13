@@ -5888,5 +5888,31 @@ class TestExperimentUtils(unittest.TestCase):
         stat_identical = compute_durbin_watson_statistic_between_models(m1, m3)
         self.assertEqual(stat_identical, 0.0)
 
+
+
+    def test_compute_ljung_box_statistic_between_models(self):
+        from src.experiment_utils import compute_ljung_box_statistic_between_models
+        model1 = torch.nn.Linear(10, 2)
+        model2 = torch.nn.Linear(10, 2)
+
+        # Make models exactly the same, residual = 0, variance = 0
+        model2.load_state_dict(model1.state_dict())
+        val_same = compute_ljung_box_statistic_between_models(model1, model2, lags=5)
+        self.assertEqual(val_same, 0.0)
+
+        # Test models with few parameters
+        model_small1 = torch.nn.Linear(1, 1) # 2 params
+        model_small2 = torch.nn.Linear(1, 1)
+        val_small = compute_ljung_box_statistic_between_models(model_small1, model_small2, lags=5)
+        self.assertEqual(val_small, 0.0)
+
+        # Test with random initialization models
+        torch.manual_seed(42)
+        model3 = torch.nn.Linear(20, 5) # 105 params
+        model4 = torch.nn.Linear(20, 5)
+        val_diff = compute_ljung_box_statistic_between_models(model3, model4, lags=10)
+        self.assertIsInstance(val_diff, float)
+        self.assertGreaterEqual(val_diff, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,1 +1,1 @@
-Add another statistical metric to src/experiment_utils.py
+Добавить еще одну статистическую метрику (например, Ljung-Box test) в src/experiment_utils.py

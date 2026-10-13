@@ -5871,5 +5871,22 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(stat >= 0.0)
 
 
+
+    def test_compute_durbin_watson_statistic_between_models(self):
+        from src.experiment_utils import compute_durbin_watson_statistic_between_models
+        m1 = torch.nn.Linear(10, 10)
+        m2 = torch.nn.Linear(10, 10)
+
+        # Test type and valid range [0, 4]
+        stat = compute_durbin_watson_statistic_between_models(m1, m2)
+        self.assertTrue(isinstance(stat, float))
+        self.assertTrue(0.0 <= stat <= 4.0)
+
+        # Test identical models
+        m3 = torch.nn.Linear(10, 10)
+        m3.load_state_dict(m1.state_dict())
+        stat_identical = compute_durbin_watson_statistic_between_models(m1, m3)
+        self.assertEqual(stat_identical, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

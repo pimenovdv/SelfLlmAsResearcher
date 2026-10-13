@@ -9119,3 +9119,42 @@ def compute_simpson_distance_between_models(model1: torch.nn.Module, model2: tor
 
     simpson_sim = intersection_sum / min_sum
     return 1.0 - simpson_sim
+
+
+def compute_moods_median_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет медианную статистику Муда (Mood's median test statistic)
+    для проверки равенства медиан между весами двух моделей.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()]) if list(model1.parameters()) else torch.tensor([])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()]) if list(model2.parameters()) else torch.tensor([])
+
+    if len(params1) == 0 or len(params2) == 0:
+        return 0.0
+
+    combined = torch.cat([params1, params2])
+    grand_median = torch.median(combined)
+
+    a = torch.sum(params1 > grand_median).float()
+    b = torch.sum(params1 <= grand_median).float()
+    c = torch.sum(params2 > grand_median).float()
+    d = torch.sum(params2 <= grand_median).float()
+
+    n1 = len(params1)
+    n2 = len(params2)
+    N = n1 + n2
+
+    if N == 0:
+        return 0.0
+
+    expected_a = (a + c) * n1 / N
+    expected_b = (b + d) * n1 / N
+    expected_c = (a + c) * n2 / N
+    expected_d = (b + d) * n2 / N
+
+    chi_square = 0.0
+    for obs, exp in [(a, expected_a), (b, expected_b), (c, expected_c), (d, expected_d)]:
+        if exp > 0:
+            chi_square += ((obs - exp) ** 2) / exp
+
+    return float(chi_square.item())

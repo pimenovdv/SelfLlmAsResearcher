@@ -5914,5 +5914,23 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(val_diff, float)
         self.assertGreaterEqual(val_diff, 0.0)
 
+
+    def test_compute_box_pierce_statistic_between_models(self):
+        from src.experiment_utils import compute_box_pierce_statistic_between_models
+        model1 = torch.nn.Linear(10, 10)
+        model2 = torch.nn.Linear(10, 10)
+
+        # Test 1: identical models
+        val_same = compute_box_pierce_statistic_between_models(model1, model1, lags=5)
+        self.assertIsInstance(val_same, float)
+        self.assertEqual(val_same, 0.0)
+
+        # Test 2: different models
+        model3 = torch.nn.Linear(20, 20)
+        model4 = torch.nn.Linear(20, 20)
+        val_diff = compute_box_pierce_statistic_between_models(model3, model4, lags=10)
+        self.assertIsInstance(val_diff, float)
+        self.assertGreaterEqual(val_diff, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

@@ -9202,3 +9202,34 @@ def compute_brown_forsythe_statistic_between_models(model1: torch.nn.Module, mod
 
     w = numerator / denominator
     return float(w.item())
+
+def compute_durbin_watson_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    r"""
+    Computes the Durbin-Watson statistic between the flattened parameters of two PyTorch models.
+    The statistic is typically used to detect the presence of autocorrelation at lag 1 in the residuals (prediction errors) from a regression analysis.
+    Here, it is adapted to measure the serial correlation of the difference (residuals) between two model's parameter vectors.
+    Formula:
+        DW = \sum_{i=2}^{n} ((e_i - e_{i-1})^2) / \sum_{i=1}^{n} (e_i^2)
+    where e is the residual vector e = model1_params - model2_params.
+
+    Args:
+        model1 (torch.nn.Module): The first PyTorch model.
+        model2 (torch.nn.Module): The second PyTorch model.
+
+    Returns:
+        float: The computed Durbin-Watson statistic. Returns 0.0 if the sum of squared residuals is 0.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    e = params1 - params2
+    sum_squared_e = torch.sum(e**2)
+
+    if sum_squared_e == 0:
+        return 0.0
+
+    diff_e = e[1:] - e[:-1]
+    sum_squared_diff_e = torch.sum(diff_e**2)
+
+    dw_stat = sum_squared_diff_e / sum_squared_e
+    return float(dw_stat.item())

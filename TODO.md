@@ -536,3 +536,4 @@
 - [x] Добавить функцию compute_ansari_bradley_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_moods_median_statistic_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_brown_forsythe_statistic_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_durbin_watson_statistic_between_models в src/experiment_utils.py и написать тесты.

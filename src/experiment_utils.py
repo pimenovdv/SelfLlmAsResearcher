@@ -9158,3 +9158,47 @@ def compute_moods_median_statistic_between_models(model1: torch.nn.Module, model
             chi_square += ((obs - exp) ** 2) / exp
 
     return float(chi_square.item())
+
+def compute_brown_forsythe_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Brown-Forsythe test statistic between the parameters of two models.
+    This is equivalent to Levene's test using the median instead of the mean.
+
+    Args:
+        model1: First PyTorch model
+        model2: Second PyTorch model
+
+    Returns:
+        float: Brown-Forsythe test statistic
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()]) if list(model1.parameters()) else torch.tensor([])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()]) if list(model2.parameters()) else torch.tensor([])
+
+    if len(params1) == 0 or len(params2) == 0:
+        return 0.0
+
+    med1 = torch.median(params1)
+    med2 = torch.median(params2)
+
+    z1 = torch.abs(params1 - med1)
+    z2 = torch.abs(params2 - med2)
+
+    n1 = len(z1)
+    n2 = len(z2)
+    N = n1 + n2
+
+    if N <= 2:
+        return 0.0
+
+    z_mean1 = torch.mean(z1)
+    z_mean2 = torch.mean(z2)
+    z_grand_mean = (torch.sum(z1) + torch.sum(z2)) / N
+
+    numerator = n1 * (z_mean1 - z_grand_mean)**2 + n2 * (z_mean2 - z_grand_mean)**2
+    denominator = (torch.sum((z1 - z_mean1)**2) + torch.sum((z2 - z_mean2)**2)) / (N - 2)
+
+    if denominator == 0:
+        return 0.0
+
+    w = numerator / denominator
+    return float(w.item())

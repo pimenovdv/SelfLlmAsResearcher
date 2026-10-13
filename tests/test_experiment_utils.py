@@ -5859,5 +5859,17 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertTrue(stat >= 0.0)
 
 
+
+    def test_compute_brown_forsythe_statistic_between_models(self):
+        from src.experiment_utils import compute_brown_forsythe_statistic_between_models
+        m1 = torch.nn.Linear(10, 10)
+        m2 = torch.nn.Linear(10, 10)
+
+        stat = compute_brown_forsythe_statistic_between_models(m1, m2)
+
+        self.assertTrue(isinstance(stat, float))
+        self.assertTrue(stat >= 0.0)
+
+
 if __name__ == '__main__':
     unittest.main()

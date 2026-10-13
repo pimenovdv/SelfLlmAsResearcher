@@ -9276,3 +9276,48 @@ def compute_ljung_box_statistic_between_models(model1: torch.nn.Module, model2: 
 
     q_stat = n * (n + 2) * q_stat
     return float(q_stat.item())
+
+
+
+
+def compute_box_pierce_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module, lags: int = 10) -> float:
+    r"""
+    Computes the Box-Pierce test statistic between the flattened parameters of two PyTorch models.
+    The Box-Pierce test is used to check for the absence of serial autocorrelation in the residuals (difference)
+    between the two models' parameter vectors up to a specified number of lags.
+
+    Formula:
+        Q = n * \sum_{k=1}^{lags} r_k^2
+    where r_k is the sample autocorrelation of the residuals at lag k, and n is the sample size.
+
+    Args:
+        model1 (torch.nn.Module): The first PyTorch model.
+        model2 (torch.nn.Module): The second PyTorch model.
+        lags (int): The number of lags to test for autocorrelation. Defaults to 10.
+
+    Returns:
+        float: The computed Box-Pierce test statistic. Returns 0.0 if variance is 0 or num params <= lags.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    e = params1 - params2
+    n = e.numel()
+
+    if n <= lags:
+        return 0.0
+
+    e_mean = torch.mean(e)
+    e_shifted = e - e_mean
+
+    variance = torch.sum(e_shifted**2)
+    if variance == 0:
+        return 0.0
+
+    q_stat = 0.0
+    for k in range(1, lags + 1):
+        autocovariance_k = torch.sum(e_shifted[k:] * e_shifted[:-k])
+        r_k = autocovariance_k / variance
+        q_stat += (r_k**2)
+
+    return float((n * q_stat).item())

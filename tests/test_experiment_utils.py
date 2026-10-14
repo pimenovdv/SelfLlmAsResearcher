@@ -5995,5 +5995,26 @@ class TestExperimentUtils(unittest.TestCase):
         dist_same = compute_tversky_index_between_models(model1, model1)
         self.assertAlmostEqual(dist_same, 1.0, places=4)
 
+
+    def test_compute_spearmans_footrule_distance_between_models(self):
+        from src.experiment_utils import compute_spearmans_footrule_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(2, 1, bias=False)
+        model2 = torch.nn.Linear(2, 1, bias=False)
+        # model1 weights: [0.1, 0.4] -> ranks: [0, 1]
+        model1.weight.data = torch.tensor([[0.1, 0.4]])
+        # model2 weights: [0.3, 0.2] -> ranks: [1, 0]
+        model2.weight.data = torch.tensor([[0.3, 0.2]])
+
+        # Expected footrule: |0 - 1| + |1 - 0| = 1 + 1 = 2.0
+        dist = compute_spearmans_footrule_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 2.0, places=4)
+
+        # Test identical models -> distance 0
+        model3 = torch.nn.Linear(2, 1, bias=False)
+        model3.weight.data = torch.tensor([[0.1, 0.4]])
+        dist_identical = compute_spearmans_footrule_distance_between_models(model1, model3)
+        self.assertEqual(dist_identical, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

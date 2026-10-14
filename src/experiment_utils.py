@@ -9450,3 +9450,32 @@ def compute_tversky_index_between_models(model1: torch.nn.Module, model2: torch.
         return 0.0
 
     return float((intersection / denominator).item())
+
+
+def compute_spearmans_footrule_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes Spearman's footrule distance between the parameters of two models.
+    Spearman's footrule distance is defined as the sum of absolute differences
+    between the ranks of the parameters.
+    """
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.shape != vec2.shape:
+        raise ValueError("Models must have the same number of parameters.")
+
+    ranks1 = torch.argsort(torch.argsort(vec1)).float()
+    ranks2 = torch.argsort(torch.argsort(vec2)).float()
+
+    footrule_dist = torch.sum(torch.abs(ranks1 - ranks2))
+    return float(footrule_dist.item())

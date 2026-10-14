@@ -9420,3 +9420,33 @@ def compute_divergence_distance_between_models(model1: torch.nn.Module, model2: 
         divergence_dist += torch.sum(num[valid_mask] / den[valid_mask]).item()
 
     return divergence_dist
+
+def compute_tversky_index_between_models(model1: torch.nn.Module, model2: torch.nn.Module, alpha: float = 0.5, beta: float = 0.5) -> float:
+    """
+    Computes the Tversky index between the absolute weights of two models.
+    It is an asymmetric similarity measure that generalizes Jaccard and Dice indices.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    intersection = torch.min(p, q).sum()
+    diff1 = (p - torch.min(p, q)).sum()
+    diff2 = (q - torch.min(p, q)).sum()
+
+    denominator = intersection + alpha * diff1 + beta * diff2
+    if denominator == 0:
+        return 0.0
+
+    return float((intersection / denominator).item())

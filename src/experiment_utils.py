@@ -9354,3 +9354,44 @@ def compute_von_neumann_ratio_between_models(model1: torch.nn.Module, model2: to
 
     von_neumann_ratio = sum_sq_diffs / denominator
     return float(von_neumann_ratio.item())
+
+
+def compute_mcleod_li_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module, lags: int = 10) -> float:
+    """
+    Computes the McLeod-Li test statistic on the squared residuals (difference) between
+    the flattened parameters of two models. This tests for autoregressive conditional
+    heteroskedasticity (ARCH) in the differences.
+
+    Args:
+        model1: First PyTorch model.
+        model2: Second PyTorch model.
+        lags: Number of lags to use for the test.
+
+    Returns:
+        float: The computed McLeod-Li test statistic. Returns 0.0 if variance is 0 or num params <= lags.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    e = params1 - params2
+    n = e.numel()
+
+    if n <= lags:
+        return 0.0
+
+    e_sq = e**2
+    e_sq_mean = torch.mean(e_sq)
+    e_sq_shifted = e_sq - e_sq_mean
+
+    variance = torch.sum(e_sq_shifted**2)
+    if variance == 0:
+        return 0.0
+
+    q_stat = 0.0
+    for k in range(1, lags + 1):
+        autocovariance_k = torch.sum(e_sq_shifted[k:] * e_sq_shifted[:-k])
+        r_k = autocovariance_k / variance
+        q_stat += (r_k**2) / (n - k)
+
+    mcleod_li_stat = n * (n + 2) * q_stat
+    return float(mcleod_li_stat.item())

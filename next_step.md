@@ -1,1 +1,1 @@
-Implement an additional statistical distance metric in src/experiment_utils.py
+Добавить метрику расстояния Мориситы (Morisita distance) в src/experiment_utils.py и написать тесты.

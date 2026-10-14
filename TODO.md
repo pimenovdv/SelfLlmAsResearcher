@@ -543,3 +543,4 @@
 - [x] Добавить еще одну статистическую метрику (McLeod-Li test) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику расстояния Дивергенции (Divergence distance) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику индекса Тверски (Tversky index) в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику расстояния Спирмена (Spearman's footrule distance) в src/experiment_utils.py и написать тесты.

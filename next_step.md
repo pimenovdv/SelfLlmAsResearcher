@@ -1,1 +1,1 @@
-Добавить новую статистическую метрику в src/experiment_utils.py
+Добавить еще одну статистическую метрику в src/experiment_utils.py

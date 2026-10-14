@@ -1,1 +1,1 @@
-Добавить метрику расстояния (например, Sorensen-Dice или другое) в src/experiment_utils.py
+Add another statistical metric to src/experiment_utils.py

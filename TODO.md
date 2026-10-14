@@ -541,3 +541,4 @@
 - [x] Добавить еще одну статистическую метрику (Box-Pierce test) в src/experiment_utils.py
 - [x] Добавить еще одну статистическую метрику (Von Neumann ratio test) в src/experiment_utils.py
 - [x] Добавить еще одну статистическую метрику (McLeod-Li test) в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику расстояния Дивергенции (Divergence distance) в src/experiment_utils.py и написать тесты.

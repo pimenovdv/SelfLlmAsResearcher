@@ -9321,3 +9321,36 @@ def compute_box_pierce_statistic_between_models(model1: torch.nn.Module, model2:
         q_stat += (r_k**2)
 
     return float((n * q_stat).item())
+
+def compute_von_neumann_ratio_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Von Neumann ratio for the residuals (difference) between the flattened parameters of two models.
+    The statistic tests for serial correlation in the differences.
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    if len(params1) == 0 or len(params2) == 0:
+        return 0.0
+
+    residuals = params1 - params2
+    n = len(residuals)
+
+    if n <= 1:
+        return 0.0
+
+    mean_res = torch.mean(residuals)
+    var_res = torch.var(residuals, unbiased=False)
+
+    if var_res == 0.0:
+        return 0.0
+
+    diffs = residuals[1:] - residuals[:-1]
+    sum_sq_diffs = torch.sum(diffs**2)
+
+    denominator = torch.sum((residuals - mean_res)**2)
+    if denominator == 0:
+        return 0.0
+
+    von_neumann_ratio = sum_sq_diffs / denominator
+    return float(von_neumann_ratio.item())

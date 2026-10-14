@@ -5965,5 +5965,19 @@ class TestExperimentUtils(unittest.TestCase):
         stat_small = compute_mcleod_li_statistic_between_models(model3, model3, lags=5)
         self.assertEqual(stat_small, 0.0)
 
+
+    def test_compute_divergence_distance_between_models(self):
+        from src.experiment_utils import compute_divergence_distance_between_models
+        model1 = torch.nn.Linear(10, 2)
+        model2 = torch.nn.Linear(10, 2)
+
+        dist = compute_divergence_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+
+        # Test zero distance for same model
+        dist_zero = compute_divergence_distance_between_models(model1, model1)
+        self.assertEqual(dist_zero, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

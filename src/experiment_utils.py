@@ -9395,3 +9395,28 @@ def compute_mcleod_li_statistic_between_models(model1: torch.nn.Module, model2: 
 
     mcleod_li_stat = n * (n + 2) * q_stat
     return float(mcleod_li_stat.item())
+
+def compute_divergence_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Divergence distance between the parameters of two models.
+    Formula: sum (2 * (x - y)^2 / (x + y)^2)
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Divergence distance.
+    """
+    divergence_dist = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        v1 = p1.view(-1).float()
+        v2 = p2.view(-1).float()
+        num = 2 * (v1 - v2)**2
+        den = (v1 + v2)**2
+
+        valid_mask = den != 0
+
+        divergence_dist += torch.sum(num[valid_mask] / den[valid_mask]).item()
+
+    return divergence_dist

@@ -5947,5 +5947,23 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(val_diff, float)
         self.assertGreaterEqual(val_diff, 0.0)
 
+
+    def test_compute_mcleod_li_statistic(self):
+        from src.experiment_utils import compute_mcleod_li_statistic_between_models
+
+        model1 = torch.nn.Linear(10, 2)
+        model2 = torch.nn.Linear(10, 2)
+
+        stat = compute_mcleod_li_statistic_between_models(model1, model2)
+        self.assertIsInstance(stat, float)
+        self.assertGreaterEqual(stat, 0.0)
+
+        stat_zero = compute_mcleod_li_statistic_between_models(model1, model1)
+        self.assertEqual(stat_zero, 0.0)
+
+        model3 = torch.nn.Linear(1, 1)
+        stat_small = compute_mcleod_li_statistic_between_models(model3, model3, lags=5)
+        self.assertEqual(stat_small, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

@@ -5979,5 +5979,21 @@ class TestExperimentUtils(unittest.TestCase):
         dist_zero = compute_divergence_distance_between_models(model1, model1)
         self.assertEqual(dist_zero, 0.0)
 
+
+    def test_compute_tversky_index_between_models(self):
+        from src.experiment_utils import compute_tversky_index_between_models
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+
+        # Test basic return type and bounds
+        dist = compute_tversky_index_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+        self.assertLessEqual(dist, 1.0)
+
+        # Test for same model (similarity should be 1.0)
+        dist_same = compute_tversky_index_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 1.0, places=4)
+
 if __name__ == '__main__':
     unittest.main()

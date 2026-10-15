@@ -548,3 +548,4 @@
 - [x] Добавить метрику расстояния Хорна-Мориситы (Horn-Morisita distance) в src/experiment_utils.py и написать тесты.
 - [x] Добавить еще одну метрику (например, Sokal-Sneath или аналогичную) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику расстояния Уиттекера (Whittaker distance) в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику корреляции Бломквиста (Blomqvist's beta) в src/experiment_utils.py и написать тесты.

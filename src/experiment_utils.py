@@ -9600,3 +9600,44 @@ def compute_whittaker_distance_between_models(model1: torch.nn.Module, model2: t
 
     distance = 0.5 * torch.sum(torch.abs(p - q))
     return float(distance.item())
+def compute_blomqvists_beta_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes Blomqvist's beta (medial correlation) between the parameters of two models.
+    Blomqvist's beta measures the correlation based on the medians of the two distributions.
+
+    Args:
+        model1 (torch.nn.Module): The first PyTorch model.
+        model2 (torch.nn.Module): The second PyTorch model.
+
+    Returns:
+        float: The Blomqvist's beta coefficient.
+    """
+    params1 = [p.view(-1).float() for p in model1.parameters()]
+    params2 = [p.view(-1).float() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    # Compute actual median for even length vectors
+    sorted_vec1, _ = torch.sort(vec1)
+    sorted_vec2, _ = torch.sort(vec2)
+    n = vec1.numel()
+
+    if n % 2 == 1:
+        median1 = sorted_vec1[n // 2]
+        median2 = sorted_vec2[n // 2]
+    else:
+        median1 = (sorted_vec1[n // 2 - 1] + sorted_vec1[n // 2]) / 2.0
+        median2 = (sorted_vec2[n // 2 - 1] + sorted_vec2[n // 2]) / 2.0
+
+    sign_product = torch.sign(vec1 - median1) * torch.sign(vec2 - median2)
+
+    n = vec1.numel()
+    beta = torch.sum(sign_product) / n
+    return float(beta.item())

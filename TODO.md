@@ -546,3 +546,4 @@
 - [x] Добавить метрику расстояния Спирмена (Spearman's footrule distance) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику расстояния Мориситы (Morisita distance) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику расстояния Хорна-Мориситы (Horn-Morisita distance) в src/experiment_utils.py и написать тесты.
+- [x] Добавить еще одну метрику (например, Sokal-Sneath или аналогичную) в src/experiment_utils.py и написать тесты.

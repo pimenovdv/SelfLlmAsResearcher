@@ -9553,3 +9553,26 @@ def compute_horn_morisita_distance_between_models(model1: torch.nn.Module, model
     cmh = (2.0 * torch.sum(vec1 * vec2)) / ((da + db) * sum1 * sum2)
 
     return float((1.0 - cmh).item())
+def compute_sokal_sneath_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the continuous Sokal-Sneath distance between two models.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    diff_abs = torch.abs(vec1 - vec2)
+    sum_abs = torch.abs(vec1) + torch.abs(vec2)
+
+    numerator = 2.0 * torch.sum(diff_abs)
+    denominator = torch.sum(sum_abs) + torch.sum(diff_abs)
+
+    if denominator == 0:
+        return 0.0
+
+    return float((numerator / denominator).item())

@@ -9576,3 +9576,27 @@ def compute_sokal_sneath_distance_between_models(model1: torch.nn.Module, model2
         return 0.0
 
     return float((numerator / denominator).item())
+
+def compute_whittaker_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes Whittaker index of association (distance) between two models.
+    It is computed as 0.5 * sum(|p_i - q_i|), where p_i and q_i are L1-normalized absolute parameter vectors.
+    """
+    params1 = [p.view(-1).float() for p in model1.parameters()]
+    params2 = [p.view(-1).float() for p in model2.parameters()]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.abs(torch.cat(params1))
+    vec2 = torch.abs(torch.cat(params2))
+
+    sum1 = torch.sum(vec1)
+    sum2 = torch.sum(vec2)
+
+    if sum1 == 0 and sum2 == 0:
+        return 0.0
+
+    p = vec1 / sum1 if sum1 > 0 else vec1
+    q = vec2 / sum2 if sum2 > 0 else vec2
+
+    distance = 0.5 * torch.sum(torch.abs(p - q))
+    return float(distance.item())

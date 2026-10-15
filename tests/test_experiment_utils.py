@@ -6074,5 +6074,22 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_sokal_sneath_distance_between_models(model3, model4)
         self.assertAlmostEqual(dist2, 1.0, places=4)
 
+
+    def test_compute_whittaker_distance_between_models(self):
+        from src.experiment_utils import compute_whittaker_distance_between_models
+        model1 = torch.nn.Linear(10, 1, bias=False)
+        model2 = torch.nn.Linear(10, 1, bias=False)
+        model1.weight.data.fill_(1.0)
+        model2.weight.data.fill_(1.0)
+        dist = compute_whittaker_distance_between_models(model1, model2)
+        self.assertEqual(dist, 0.0)
+
+        model3 = torch.nn.Linear(2, 1, bias=False)
+        model4 = torch.nn.Linear(2, 1, bias=False)
+        model3.weight.data = torch.tensor([[1.0, 0.0]])
+        model4.weight.data = torch.tensor([[0.0, 1.0]])
+        dist2 = compute_whittaker_distance_between_models(model3, model4)
+        self.assertAlmostEqual(dist2, 1.0, places=4)
+
 if __name__ == '__main__':
     unittest.main()

@@ -6036,5 +6036,25 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_morisita_distance_between_models(model3, model4)
         self.assertAlmostEqual(dist2, 1.0, places=4)
 
+
+    def test_compute_horn_morisita_distance(self):
+        from src.experiment_utils import compute_horn_morisita_distance_between_models
+        model1 = torch.nn.Linear(2, 1, bias=False)
+        model2 = torch.nn.Linear(2, 1, bias=False)
+
+        # Identical models
+        model1.weight.data = torch.tensor([[1.0, 2.0]])
+        model2.weight.data = torch.tensor([[1.0, 2.0]])
+        dist = compute_horn_morisita_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 0.0, places=4)
+
+        # Completely disjoint supports -> distance 1.0
+        model3 = torch.nn.Linear(2, 1, bias=False)
+        model3.weight.data = torch.tensor([[0.0, 1.0]])
+        model4 = torch.nn.Linear(2, 1, bias=False)
+        model4.weight.data = torch.tensor([[1.0, 0.0]])
+        dist2 = compute_horn_morisita_distance_between_models(model3, model4)
+        self.assertAlmostEqual(dist2, 1.0, places=4)
+
 if __name__ == '__main__':
     unittest.main()

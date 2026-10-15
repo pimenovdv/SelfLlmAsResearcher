@@ -9523,3 +9523,33 @@ def compute_morisita_distance_between_models(model1: torch.nn.Module, model2: to
 
     morisita_index = numerator / denominator
     return float(1.0 - morisita_index.item())
+
+def compute_horn_morisita_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет расстояние Хорна-Мориситы (Horn-Morisita Distance) между весами двух моделей.
+    Расстояние ограничено диапазоном [0, 1].
+    Значение 0 означает идентичные модели, 1 - полностью различные.
+    """
+    vec1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    vec2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    vec1 = torch.abs(vec1)
+    vec2 = torch.abs(vec2)
+
+    sum1 = torch.sum(vec1)
+    sum2 = torch.sum(vec2)
+
+    if sum1 == 0 and sum2 == 0:
+        return 0.0
+    if sum1 == 0 or sum2 == 0:
+        return 1.0
+
+    da = torch.sum(vec1 ** 2) / (sum1 ** 2)
+    db = torch.sum(vec2 ** 2) / (sum2 ** 2)
+
+    if da + db == 0:
+        return 1.0
+
+    cmh = (2.0 * torch.sum(vec1 * vec2)) / ((da + db) * sum1 * sum2)
+
+    return float((1.0 - cmh).item())

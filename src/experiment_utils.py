@@ -9479,3 +9479,47 @@ def compute_spearmans_footrule_distance_between_models(model1: torch.nn.Module, 
 
     footrule_dist = torch.sum(torch.abs(ranks1 - ranks2))
     return float(footrule_dist.item())
+
+
+def compute_morisita_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Morisita distance between the parameters of two models.
+    Uses absolute values to ensure non-negativity.
+    """
+    params1 = [p.view(-1) for p in model1.parameters()]
+    params2 = [p.view(-1) for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.abs(torch.cat(params1).float())
+    vec2 = torch.abs(torch.cat(params2).float())
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    if vec1.shape != vec2.shape:
+        raise ValueError("Models must have the same number of parameters.")
+
+    sum1 = torch.sum(vec1)
+    sum2 = torch.sum(vec2)
+
+    if sum1 == 0 and sum2 == 0:
+        return 0.0
+    if sum1 == 0 or sum2 == 0:
+        return 1.0
+
+    sum_sq1 = torch.sum(vec1 ** 2)
+    sum_sq2 = torch.sum(vec2 ** 2)
+
+    d1 = sum_sq1 / (sum1 ** 2)
+    d2 = sum_sq2 / (sum2 ** 2)
+
+    numerator = 2.0 * torch.sum(vec1 * vec2)
+    denominator = (d1 + d2) * sum1 * sum2
+
+    if denominator == 0:
+        return 0.0 if numerator == 0 else 1.0
+
+    morisita_index = numerator / denominator
+    return float(1.0 - morisita_index.item())

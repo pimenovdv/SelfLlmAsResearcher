@@ -6173,5 +6173,41 @@ class TestExperimentUtils(unittest.TestCase):
         dist_diff = compute_vicis_symmetric_chi_square_distance_between_models(model1, model2)
         self.assertAlmostEqual(dist_diff, 44.0, places=4)
 
+
+    def test_compute_ochiai_distance_between_models(self):
+        from src.experiment_utils import compute_ochiai_distance_between_models
+        import torch.nn as nn
+
+        model1 = nn.Linear(2, 1, bias=False)
+        model2 = nn.Linear(2, 1, bias=False)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model2.weight.fill_(1.0)
+
+        # Identical models
+        dist_same = compute_ochiai_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist_same, 0.0, places=4)
+
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model2.weight.fill_(0.0)
+
+        # One model has zero weights
+        dist_diff = compute_ochiai_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist_diff, 1.0, places=4)
+
+        with torch.no_grad():
+            model1.weight.copy_(torch.tensor([[1.0, 2.0]]))
+            model2.weight.copy_(torch.tensor([[2.0, 3.0]]))
+
+        # intersection = min(1,2) + min(2,3) = 1 + 2 = 3
+        # sum1 = 3, sum2 = 5
+        # den = sqrt(15) = 3.87298
+        # sim = 3 / 3.87298 = 0.774596
+        # dist = 1 - 0.774596 = 0.2254
+        dist_diff2 = compute_ochiai_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist_diff2, 0.2254, places=3)
+
 if __name__ == '__main__':
     unittest.main()

@@ -9700,3 +9700,28 @@ def compute_vicis_symmetric_chi_square_distance_between_models(model1: torch.nn.
     distance = torch.sum(num[valid_mask] / den[valid_mask])
 
     return float(distance.item())
+
+def compute_ochiai_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Ochiai distance between the parameters of two models."""
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    intersection = torch.sum(torch.minimum(vec1, vec2))
+    sum1 = torch.sum(vec1)
+    sum2 = torch.sum(vec2)
+    denominator = torch.sqrt(sum1 * sum2)
+
+    if denominator == 0.0:
+        return 1.0 if sum1 != sum2 else 0.0
+
+    similarity = intersection / denominator
+    return float((1.0 - similarity).item())

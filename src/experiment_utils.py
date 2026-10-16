@@ -9641,3 +9641,17 @@ def compute_blomqvists_beta_between_models(model1: torch.nn.Module, model2: torc
     n = vec1.numel()
     beta = torch.sum(sign_product) / n
     return float(beta.item())
+
+def compute_sorensen_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Sorensen distance between the parameters of two models.
+    """
+    distance = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        v1 = p1.view(-1)
+        v2 = p2.view(-1)
+        numerator = torch.sum(torch.abs(v1 - v2))
+        denominator = torch.sum(torch.abs(v1) + torch.abs(v2))
+        if denominator.item() != 0.0:
+            distance += float((numerator / denominator).item())
+    return distance

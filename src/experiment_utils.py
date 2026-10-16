@@ -9655,3 +9655,25 @@ def compute_sorensen_distance_between_models(model1: torch.nn.Module, model2: to
         if denominator.item() != 0.0:
             distance += float((numerator / denominator).item())
     return distance
+
+
+def compute_standardized_euclidean_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Standardized Euclidean distance between the parameters of two PyTorch models.
+    The variance is computed over all parameters of both models combined.
+    Formula: sqrt(sum( ((x_i - y_i)^2) / (sigma^2 + epsilon) ))
+    """
+    if not list(model1.parameters()) or not list(model2.parameters()):
+        return 0.0
+
+    vec1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    vec2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    combined = torch.cat([vec1, vec2])
+    variance = torch.var(combined, unbiased=False)
+
+    if variance == 0.0:
+        return 0.0
+
+    distance = torch.sqrt(torch.sum(((vec1 - vec2) ** 2) / (variance + epsilon)))
+    return float(distance.item())

@@ -6129,5 +6129,28 @@ class TestExperimentUtils(unittest.TestCase):
         # numerator = sum(|0 - 1|) = 11, denom = sum(|0| + |1|) = 11, dist = 11/11 = 1 per param tensor. Two tensors -> 2.0
         self.assertAlmostEqual(dist2, 2.0, places=4)
 
+
+    def test_compute_standardized_euclidean_distance_between_models(self):
+        from src.experiment_utils import compute_standardized_euclidean_distance_between_models
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+
+        # Exact same models -> distance 0.0
+        model2.load_state_dict(model1.state_dict())
+        dist1 = compute_standardized_euclidean_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist1, 0.0, places=4)
+
+        # Different models
+        model3 = torch.nn.Linear(2, 1, bias=False)
+        model4 = torch.nn.Linear(2, 1, bias=False)
+        model3.weight.data = torch.tensor([[1.0, 2.0]])
+        model4.weight.data = torch.tensor([[3.0, 4.0]])
+
+        # Combined: [1, 2, 3, 4] -> mean = 2.5
+        # Var = ((1.5)^2 + (0.5)^2 + (0.5)^2 + (1.5)^2)/4 = (2.25 + 0.25 + 0.25 + 2.25)/4 = 5 / 4 = 1.25
+        # dist = sqrt( ((1-3)^2 + (2-4)^2) / 1.25 ) = sqrt( (4 + 4) / 1.25 ) = sqrt(8 / 1.25) = sqrt(6.4) = 2.529822...
+        dist2 = compute_standardized_euclidean_distance_between_models(model3, model4)
+        self.assertAlmostEqual(dist2, 2.529822, places=4)
+
 if __name__ == '__main__':
     unittest.main()

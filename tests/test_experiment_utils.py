@@ -6209,5 +6209,21 @@ class TestExperimentUtils(unittest.TestCase):
         dist_diff2 = compute_ochiai_distance_between_models(model1, model2)
         self.assertAlmostEqual(dist_diff2, 0.2254, places=3)
 
+
+    def test_compute_forbes_distance_between_models(self):
+        from src.experiment_utils import compute_forbes_distance_between_models
+        model1 = torch.nn.Linear(2, 1, bias=False)
+        model2 = torch.nn.Linear(2, 1, bias=False)
+        model1.weight.data = torch.tensor([[1.0, 2.0]])
+        model2.weight.data = torch.tensor([[1.0, 0.0]])
+        # vec1 = [1, 2], vec2 = [1, 0]
+        # n = 2
+        # c_TT = min(1,1) + min(2,0) = 1 + 0 = 1
+        # sum_u = 3, sum_v = 1
+        # sim = (2 * 1) / (3 * 1) = 2/3
+        # dist = 1 - 2/3 = 1/3 ~ 0.3333
+        dist = compute_forbes_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 1.0 / 3.0, places=4)
+
 if __name__ == '__main__':
     unittest.main()

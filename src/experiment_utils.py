@@ -9725,3 +9725,32 @@ def compute_ochiai_distance_between_models(model1: torch.nn.Module, model2: torc
 
     similarity = intersection / denominator
     return float((1.0 - similarity).item())
+
+def compute_forbes_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Forbes distance between the parameters of two models.
+    Forbes similarity is defined as (N * c_TT) / (sum_u * sum_v).
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    n = vec1.numel()
+    c_TT = torch.sum(torch.minimum(vec1, vec2))
+    sum_u = torch.sum(vec1)
+    sum_v = torch.sum(vec2)
+
+    denom = sum_u * sum_v
+    if denom == 0.0:
+        return 0.0 if sum_u == sum_v else 1.0
+
+    similarity = (n * c_TT) / denom
+    return float((1.0 - similarity).item())

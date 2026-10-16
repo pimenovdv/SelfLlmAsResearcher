@@ -6152,5 +6152,26 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_standardized_euclidean_distance_between_models(model3, model4)
         self.assertAlmostEqual(dist2, 2.529822, places=4)
 
+
+    def test_compute_vicis_symmetric_chi_square_distance_between_models(self):
+        from src.experiment_utils import compute_vicis_symmetric_chi_square_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+
+        # Identical models
+        dist_same = compute_vicis_symmetric_chi_square_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=4)
+
+        # Different models
+        with torch.no_grad():
+            model1.weight.fill_(1.0)
+            model1.bias.fill_(1.0)
+            model2.weight.fill_(3.0)
+            model2.bias.fill_(3.0)
+
+        dist_diff = compute_vicis_symmetric_chi_square_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist_diff, 44.0, places=4)
+
 if __name__ == '__main__':
     unittest.main()

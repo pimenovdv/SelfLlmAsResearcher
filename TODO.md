@@ -551,3 +551,4 @@
 - [x] Добавить метрику корреляции Бломквиста (Blomqvist's beta) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику расстояния Соренсена (Sorensen distance) в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_standardized_euclidean_distance_between_models в src/experiment_utils.py и написать тесты.
+- [x] Add compute_vicis_symmetric_chi_square_distance_between_models to src/experiment_utils.py

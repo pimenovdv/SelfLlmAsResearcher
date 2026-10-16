@@ -6108,5 +6108,26 @@ class TestExperimentUtils(unittest.TestCase):
         beta2 = compute_blomqvists_beta_between_models(model3, model4)
         self.assertAlmostEqual(beta2, -1.0, places=4)
 
+
+    def test_compute_sorensen_distance(self):
+        from src.experiment_utils import compute_sorensen_distance_between_models
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+        # Identical models
+        model2.load_state_dict(model1.state_dict())
+        dist1 = compute_sorensen_distance_between_models(model1, model2)
+        self.assertEqual(dist1, 0.0)
+
+        # Different models
+        model3 = torch.nn.Linear(10, 1)
+        model3.weight.data = torch.zeros_like(model3.weight.data)
+        model3.bias.data = torch.zeros_like(model3.bias.data)
+        model4 = torch.nn.Linear(10, 1)
+        model4.weight.data = torch.ones_like(model4.weight.data)
+        model4.bias.data = torch.ones_like(model4.bias.data)
+        dist2 = compute_sorensen_distance_between_models(model3, model4)
+        # numerator = sum(|0 - 1|) = 11, denom = sum(|0| + |1|) = 11, dist = 11/11 = 1 per param tensor. Two tensors -> 2.0
+        self.assertAlmostEqual(dist2, 2.0, places=4)
+
 if __name__ == '__main__':
     unittest.main()

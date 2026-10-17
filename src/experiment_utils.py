@@ -9830,3 +9830,45 @@ def compute_inner_product_distance_between_models(model1: torch.nn.Module, model
         distance += (1.0 - ip).item()
 
     return distance
+
+def compute_roberts_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Roberts distance between the parameters of two models.
+
+    Roberts distance is based on the sum of absolute values and the ratio of min to max.
+    It is computed as:
+    1 - (sum((x_i + y_i) * (min(x_i, y_i) / max(x_i, y_i))) / sum(x_i + y_i))
+
+    where x_i and y_i are the absolute values of the parameters.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Roberts distance.
+    """
+    numerator = 0.0
+    denominator = 0.0
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        x = torch.abs(p1.flatten())
+        y = torch.abs(p2.flatten())
+
+        sum_xy = x + y
+        min_xy = torch.min(x, y)
+        max_xy = torch.max(x, y)
+
+        # Prevent division by zero
+        max_xy_cloned = max_xy.clone()
+        max_xy_cloned[max_xy_cloned == 0] = 1e-12
+
+        ratio = min_xy / max_xy_cloned
+
+        numerator += torch.sum(sum_xy * ratio).item()
+        denominator += torch.sum(sum_xy).item()
+
+    if denominator == 0:
+        return 0.0
+
+    return 1.0 - (numerator / denominator)

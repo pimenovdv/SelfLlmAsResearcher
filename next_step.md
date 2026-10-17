@@ -1,1 +1,1 @@
-Add another statistical metric to src/experiment_utils.py
+Implement compute_frechet_inception_distance_between_models in src/experiment_utils.py

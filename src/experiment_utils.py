@@ -9797,3 +9797,36 @@ def compute_beta_divergence_between_models(model1: torch.nn.Module, model2: torc
     )
 
     return float(divergence.item())
+
+
+def compute_inner_product_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Inner Product distance between the parameters of two models.
+    The Inner Product distance is defined as 1.0 - sum(p_i * q_i) where p_i and q_i
+    are L1-normalized absolute parameter vectors.
+
+    Args:
+        model1 (torch.nn.Module): The first PyTorch model.
+        model2 (torch.nn.Module): The second PyTorch model.
+
+    Returns:
+        float: The Inner Product distance.
+    """
+    distance = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        vec1 = torch.abs(p1.flatten())
+        vec2 = torch.abs(p2.flatten())
+
+        sum1 = vec1.sum()
+        sum2 = vec2.sum()
+
+        if sum1 == 0 or sum2 == 0:
+            continue
+
+        prob1 = vec1 / sum1
+        prob2 = vec2 / sum2
+
+        ip = torch.sum(prob1 * prob2)
+        distance += (1.0 - ip).item()
+
+    return distance

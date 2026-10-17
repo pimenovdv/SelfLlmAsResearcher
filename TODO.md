@@ -555,3 +555,4 @@
 - [x] Добавить функцию compute_ochiai_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Реализовать метрику Forbes distance
 - [x] Добавить функцию compute_beta_divergence_between_models в src/experiment_utils.py и написать тесты.
+- [x] Implement compute_inner_product_distance_between_models metric in src/experiment_utils.py and write tests

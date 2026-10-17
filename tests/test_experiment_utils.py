@@ -6242,5 +6242,15 @@ class TestExperimentUtils(unittest.TestCase):
         with self.assertRaises(ValueError):
             compute_beta_divergence_between_models(model1, model2, beta=1.0)
 
+
+    def test_inner_product_distance_between_models(self):
+        from src.experiment_utils import compute_inner_product_distance_between_models
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+        dist1 = compute_inner_product_distance_between_models(model1, model1)
+        self.assertIsInstance(dist1, float)
+        dist2 = compute_inner_product_distance_between_models(model1, model2)
+        self.assertIsInstance(dist2, float)
+
 if __name__ == '__main__':
     unittest.main()

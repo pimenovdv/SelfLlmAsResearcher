@@ -9872,3 +9872,24 @@ def compute_roberts_distance_between_models(model1: torch.nn.Module, model2: tor
         return 0.0
 
     return 1.0 - (numerator / denominator)
+
+def compute_kumar_hassebrook_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Kumar-Hassebrook distance between the parameters of two models."""
+    import torch
+
+    vec1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    vec2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    dot_product = torch.dot(vec1, vec2).item()
+    norm1_sq = torch.dot(vec1, vec1).item()
+    norm2_sq = torch.dot(vec2, vec2).item()
+
+    denominator = norm1_sq + norm2_sq - dot_product
+    if denominator == 0:
+        return 0.0
+
+    similarity = dot_product / denominator
+    return 1.0 - similarity

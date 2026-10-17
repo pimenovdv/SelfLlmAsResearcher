@@ -554,3 +554,4 @@
 - [x] Add compute_vicis_symmetric_chi_square_distance_between_models to src/experiment_utils.py
 - [x] Добавить функцию compute_ochiai_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Реализовать метрику Forbes distance
+- [x] Добавить функцию compute_beta_divergence_between_models в src/experiment_utils.py и написать тесты.

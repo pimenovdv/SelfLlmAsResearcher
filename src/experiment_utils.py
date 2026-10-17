@@ -9754,3 +9754,46 @@ def compute_forbes_distance_between_models(model1: torch.nn.Module, model2: torc
 
     similarity = (n * c_TT) / denom
     return float((1.0 - similarity).item())
+def compute_beta_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, beta: float = 2.0) -> float:
+    """
+    Computes the Beta divergence between the parameters of two PyTorch models.
+    The parameters are flattened, converted to absolute values, and normalized to sum to 1.
+
+    Formula (for beta != 0, 1):
+    D_beta(p || q) = (1 / (beta * (beta - 1))) * sum( p^beta + (beta - 1)*q^beta - beta*p*q^(beta - 1) )
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        beta (float): The beta parameter. Cannot be 0 or 1.
+
+    Returns:
+        float: The Beta divergence.
+    """
+    if beta == 0.0 or beta == 1.0:
+        raise ValueError("beta cannot be 0.0 or 1.0 for this implementation of Beta divergence.")
+
+    import torch
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).abs()
+    vec2 = torch.cat(params2).abs()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    p = vec1 / (vec1.sum() + 1e-12)
+    q = vec2 / (vec2.sum() + 1e-12)
+
+    p = p + 1e-12
+    q = q + 1e-12
+
+    divergence = (1.0 / (beta * (beta - 1.0))) * torch.sum(
+        p ** beta + (beta - 1.0) * (q ** beta) - beta * p * (q ** (beta - 1.0))
+    )
+
+    return float(divergence.item())

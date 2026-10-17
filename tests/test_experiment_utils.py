@@ -6225,5 +6225,22 @@ class TestExperimentUtils(unittest.TestCase):
         dist = compute_forbes_distance_between_models(model1, model2)
         self.assertAlmostEqual(dist, 1.0 / 3.0, places=4)
 
+
+    def test_compute_beta_divergence_between_models(self):
+        from src.experiment_utils import compute_beta_divergence_between_models
+        model1 = torch.nn.Linear(2, 1, bias=False)
+        model2 = torch.nn.Linear(2, 1, bias=False)
+        model1.weight.data = torch.tensor([[1.0, 2.0]])
+        model2.weight.data = torch.tensor([[1.0, 0.0]])
+        # vec1 = [1, 2] -> p = [1/3, 2/3]
+        # vec2 = [1, 0] -> q = [1, 0] (ignoring epsilon for hand calculation)
+
+        dist = compute_beta_divergence_between_models(model1, model2, beta=2.0)
+        self.assertIsInstance(dist, float)
+        self.assertGreaterEqual(dist, 0.0)
+
+        with self.assertRaises(ValueError):
+            compute_beta_divergence_between_models(model1, model2, beta=1.0)
+
 if __name__ == '__main__':
     unittest.main()

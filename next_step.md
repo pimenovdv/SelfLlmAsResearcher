@@ -1,1 +1,1 @@
-Add another distance metric to src/experiment_utils.py
+Add another metric to src/experiment_utils.py

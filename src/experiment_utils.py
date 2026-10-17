@@ -9893,3 +9893,48 @@ def compute_kumar_hassebrook_distance_between_models(model1: torch.nn.Module, mo
 
     similarity = dot_product / denominator
     return 1.0 - similarity
+
+def compute_kullback_leibler_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Kullback-Leibler (KL) Divergence between the parameters of two models.
+    Weights are converted to absolute values and normalized to probability distributions.
+
+    Args:
+        model1: First PyTorch model.
+        model2: Second PyTorch model.
+        epsilon: Small value to prevent division by zero and log of zero.
+
+    Returns:
+        float: The KL divergence KL(P || Q). Returns 0.0 if models have no parameters.
+    """
+    p1_params = list(model1.parameters())
+    p2_params = list(model2.parameters())
+    if not p1_params or not p2_params:
+        return 0.0
+
+    vec1 = torch.cat([p.view(-1).float() for p in p1_params])
+    vec2 = torch.cat([p.view(-1).float() for p in p2_params])
+
+    # Convert to absolute values and normalize
+    p = torch.abs(vec1)
+    q = torch.abs(vec2)
+
+    sum_p = torch.sum(p)
+    sum_q = torch.sum(q)
+
+    if sum_p == 0 or sum_q == 0:
+        return 0.0
+
+    p_norm = p / sum_p
+    q_norm = q / sum_q
+
+    # Add epsilon to prevent log(0) and div by 0
+    p_safe = p_norm + epsilon
+    q_safe = q_norm + epsilon
+
+    # Re-normalize after adding epsilon
+    p_safe = p_safe / torch.sum(p_safe)
+    q_safe = q_safe / torch.sum(q_safe)
+
+    kl_div = torch.sum(p_safe * torch.log(p_safe / q_safe))
+    return float(kl_div.item())

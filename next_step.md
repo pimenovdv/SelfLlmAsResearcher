@@ -1,1 +1,1 @@
-Implement another statistical distance metric in src/experiment_utils.py
+Add another distance metric to src/experiment_utils.py

@@ -6286,5 +6286,17 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_kullback_leibler_divergence_between_models(model1, model2)
         self.assertIsInstance(dist2, float)
 
+
+    def test_compute_frechet_inception_distance_between_models(self):
+        from src.experiment_utils import compute_frechet_inception_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+        dist1 = compute_frechet_inception_distance_between_models(model1, model1)
+        self.assertIsInstance(dist1, float)
+        self.assertAlmostEqual(dist1, 0.0, places=5)
+        dist2 = compute_frechet_inception_distance_between_models(model1, model2)
+        self.assertIsInstance(dist2, float)
+
 if __name__ == '__main__':
     unittest.main()

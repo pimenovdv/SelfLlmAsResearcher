@@ -6337,5 +6337,25 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(k2, float)
         self.assertGreaterEqual(k2, 0.0)
 
+
+    def test_compute_shapiro_wilk_statistic_between_models(self):
+        from src.experiment_utils import compute_shapiro_wilk_statistic_between_models
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+        torch.manual_seed(42)
+        model1.weight.data.normal_(0, 1)
+        model2.weight.data.normal_(0, 1)
+
+        try:
+            import scipy
+            has_scipy = True
+        except ImportError:
+            has_scipy = False
+
+        w_stat = compute_shapiro_wilk_statistic_between_models(model1, model2)
+        self.assertIsInstance(w_stat, float)
+        self.assertGreaterEqual(w_stat, 0.0)
+        self.assertLessEqual(w_stat, 1.0)
+
 if __name__ == '__main__':
     unittest.main()

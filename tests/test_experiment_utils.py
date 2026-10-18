@@ -6310,5 +6310,32 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_chernoff_distance_between_models(model1, model2)
         self.assertIsInstance(dist2, float)
 
+
+    def test_compute_dagostinos_k_squared_statistic_between_models(self):
+        from src.experiment_utils import compute_dagostinos_k_squared_statistic_between_models
+        model1 = torch.nn.Linear(10, 2)
+        model2 = torch.nn.Linear(10, 2)
+
+        # Identity models
+        model1.weight.data.fill_(1.0)
+        model1.bias.data.fill_(1.0)
+        model2.weight.data.fill_(1.0)
+        model2.bias.data.fill_(1.0)
+        k2 = compute_dagostinos_k_squared_statistic_between_models(model1, model2)
+        self.assertEqual(k2, 0.0)
+
+        # Few elements (n < 8)
+        m1_small = torch.nn.Linear(1, 1)
+        m2_small = torch.nn.Linear(1, 1)
+        self.assertEqual(compute_dagostinos_k_squared_statistic_between_models(m1_small, m2_small), 0.0)
+
+        # Valid n >= 8
+        torch.manual_seed(42)
+        model1.weight.data.normal_(0, 1)
+        model2.weight.data.normal_(0, 1)
+        k2 = compute_dagostinos_k_squared_statistic_between_models(model1, model2)
+        self.assertIsInstance(k2, float)
+        self.assertGreaterEqual(k2, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

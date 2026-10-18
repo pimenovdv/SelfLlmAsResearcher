@@ -560,3 +560,4 @@
 - [x] Добавить метрику compute_kumar_hassebrook_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Implement compute_kullback_leibler_divergence_between_models in src/experiment_utils.py and write tests
 - [x] Реализовать compute_frechet_inception_distance_between_models в src/experiment_utils.py
+- [x] Реализовать функцию compute_chernoff_distance_between_models в src/experiment_utils.py и написать тесты.

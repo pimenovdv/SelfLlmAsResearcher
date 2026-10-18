@@ -9958,3 +9958,30 @@ def compute_frechet_inception_distance_between_models(model1: torch.nn.Module, m
     var2 = torch.var(vec2, unbiased=False) if vec2.numel() > 1 else torch.tensor(0.0, device=vec2.device)
     fid = (mu1 - mu2)**2 + (torch.sqrt(var1) - torch.sqrt(var2))**2
     return float(fid.item())
+
+
+def compute_chernoff_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, alpha: float = 0.5, epsilon: float = 1e-8) -> float:
+    """Computes the Chernoff distance (or alpha-divergence) between the parameters of two models."""
+    import torch
+    params1 = [p.view(-1).float() for p in model1.parameters()]
+    params2 = [p.view(-1).float() for p in model2.parameters()]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+    vec1 = torch.abs(vec1)
+    vec2 = torch.abs(vec2)
+    sum1 = torch.sum(vec1)
+    sum2 = torch.sum(vec2)
+    if sum1 == 0 or sum2 == 0:
+        return 1.0
+    p = vec1 / sum1
+    q = vec2 / sum2
+    p = p + epsilon
+    q = q + epsilon
+    p = p / torch.sum(p)
+    q = q / torch.sum(q)
+    dot_product = torch.sum((p ** alpha) * (q ** (1.0 - alpha)))
+    return float(-torch.log(dot_product).item())

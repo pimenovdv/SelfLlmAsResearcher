@@ -10051,3 +10051,35 @@ def compute_dagostinos_k_squared_statistic_between_models(model1: torch.nn.Modul
 
     k_squared = Z1**2 + Z2**2
     return float(k_squared)
+
+def compute_shapiro_wilk_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Вычисляет статистику критерия Шапиро-Уилка (Shapiro-Wilk test statistic)
+    для распределения разностей параметров двух моделей.
+    Возвращает W-статистику (или 0.0 при малом числе параметров).
+    """
+    params1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    params2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    if params1.numel() == 0 or params2.numel() == 0:
+        return 0.0
+
+    diff = (params1 - params2).detach().cpu().numpy()
+
+    try:
+        import scipy.stats as stats
+        import math
+        if len(diff) < 3:
+            return 0.0
+
+        if len(diff) > 5000:
+            diff = diff[:5000]
+
+        statistic, _ = stats.shapiro(diff)
+        if math.isnan(statistic):
+            return 0.0
+        return float(statistic)
+    except ImportError:
+        import warnings
+        warnings.warn("Scipy is not installed. Shapiro-Wilk statistic requires scipy. Returning 0.0")
+        return 0.0

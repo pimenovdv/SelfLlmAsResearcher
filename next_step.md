@@ -1,1 +1,1 @@
-Implement new statistical metric (e.g. Shapiro-Wilk test or related) in src/experiment_utils.py
+Реализовать следующую недостающую метрику или фичу из TODO.md

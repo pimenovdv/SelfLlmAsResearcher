@@ -563,3 +563,4 @@
 - [x] Реализовать функцию compute_chernoff_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Реализовать новую статистическую метрику (например, D'Agostino's K-squared test) в src/experiment_utils.py и написать тесты.
 - [x] Добавить статистику Шапиро-Уилка (Shapiro-Wilk test) в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_min_symmetric_chi_square_distance_between_models в src/experiment_utils.py и написать тесты.

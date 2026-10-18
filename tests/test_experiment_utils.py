@@ -6357,5 +6357,15 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertGreaterEqual(w_stat, 0.0)
         self.assertLessEqual(w_stat, 1.0)
 
+
+    def test_compute_min_symmetric_chi_square_distance_between_models(self):
+        from src.experiment_utils import compute_min_symmetric_chi_square_distance_between_models
+        model1 = torch.nn.Linear(10, 2)
+        model2 = torch.nn.Linear(10, 2)
+
+        distance = compute_min_symmetric_chi_square_distance_between_models(model1, model2)
+        self.assertIsInstance(distance, float)
+        self.assertGreaterEqual(distance, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,1 +1,1 @@
-Review implemented Chernoff distance metric or proceed to verifying circuit logic
+Implement new statistical metric (e.g. Shapiro-Wilk test or related) in src/experiment_utils.py

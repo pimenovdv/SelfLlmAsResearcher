@@ -9985,3 +9985,69 @@ def compute_chernoff_distance_between_models(model1: torch.nn.Module, model2: to
     q = q / torch.sum(q)
     dot_product = torch.sum((p ** alpha) * (q ** (1.0 - alpha)))
     return float(-torch.log(dot_product).item())
+
+def compute_dagostinos_k_squared_statistic_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes D'Agostino's K-squared test statistic on the differences between the parameters of two models."""
+    import math
+    import torch
+    params1 = [p.view(-1).float() for p in model1.parameters()]
+    params2 = [p.view(-1).float() for p in model2.parameters()]
+    if not params1 or not params2:
+        return 0.0
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    diff = (vec1 - vec2).detach()
+    n = diff.numel()
+    if n < 8:
+        return 0.0
+
+    mean = torch.mean(diff)
+    diff_c = diff - mean
+    s2 = torch.mean(diff_c ** 2)
+    if s2 == 0:
+        return 0.0
+
+    m3 = torch.mean(diff_c ** 3)
+    m4 = torch.mean(diff_c ** 4)
+
+    # Skewness
+    g1 = (m3 / (s2 ** 1.5)).item()
+    # Kurtosis
+    g2 = (m4 / (s2 ** 2) - 3.0).item()
+
+    # D'Agostino skewness transformation (Z1)
+    Y = g1 * math.sqrt(((n + 1) * (n + 3)) / (6.0 * (n - 2)))
+    beta2_skew = (3.0 * (n**2 + 27*n - 70) * (n + 1) * (n + 3)) / ((n - 2) * (n + 5) * (n + 7) * (n + 9))
+    W2 = math.sqrt(2.0 * (beta2_skew - 1.0)) - 1.0
+    delta = 1.0 / math.sqrt(math.log(math.sqrt(W2)))
+    alpha = math.sqrt(2.0 / (W2 - 1.0))
+
+    Y_alpha = Y / alpha
+    Z1 = delta * math.asinh(Y_alpha)
+
+    # Anscombe-Glynn kurtosis transformation (Z2)
+    # Expected kurtosis
+    E_g2 = -6.0 / (n + 1)
+    # Variance of kurtosis
+    var_g2 = (24.0 * n * (n - 2) * (n - 3)) / (((n + 1)**2) * (n + 3) * (n + 5))
+
+    x = (g2 - E_g2) / math.sqrt(var_g2)
+
+    beta1_kurtosis = (6.0 * (n**2 - 5*n + 2)) / ((n + 7) * (n + 9)) * math.sqrt((6.0 * (n + 3) * (n + 5)) / (n * (n - 2) * (n - 3)))
+    A = 6.0 + (8.0 / beta1_kurtosis) * (2.0 / beta1_kurtosis + math.sqrt(1.0 + 4.0 / (beta1_kurtosis**2)))
+
+    term = 1.0 - 2.0 / A
+    if term <= 0:
+        return 0.0
+
+    denom = 1.0 + x * math.sqrt(2.0 / (A - 4.0))
+    if denom <= 0:
+        return 0.0
+
+    Z2 = (1.0 - 2.0 / (9.0 * A) - ((1.0 - 2.0 / A) / denom)**(1.0/3.0)) / math.sqrt(2.0 / (9.0 * A))
+
+    k_squared = Z1**2 + Z2**2
+    return float(k_squared)

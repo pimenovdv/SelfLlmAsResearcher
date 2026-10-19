@@ -10123,3 +10123,25 @@ def compute_max_symmetric_chi_square_distance_between_models(model1: torch.nn.Mo
 
     distance = torch.sum(num / den)
     return float(distance.item())
+
+def compute_kulczynski_1_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Kulczynski-1 distance between the parameters of two models.
+    """
+    vec1 = torch.cat([p.view(-1) for p in model1.parameters()])
+    vec2 = torch.cat([p.view(-1) for p in model2.parameters()])
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    abs_vec1 = torch.abs(vec1)
+    abs_vec2 = torch.abs(vec2)
+
+    diff_sum = torch.sum(torch.abs(abs_vec1 - abs_vec2))
+    min_sum = torch.sum(torch.minimum(abs_vec1, abs_vec2))
+
+    if min_sum.item() == 0.0 and diff_sum.item() == 0.0:
+        return 0.0
+
+    distance = diff_sum / (min_sum + epsilon)
+    return float(distance.item())

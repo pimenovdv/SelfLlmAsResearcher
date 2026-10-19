@@ -10145,3 +10145,42 @@ def compute_kulczynski_1_distance_between_models(model1: torch.nn.Module, model2
 
     distance = diff_sum / (min_sum + epsilon)
     return float(distance.item())
+
+
+def compute_anderberg_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Anderberg distance between the parameters of two models.
+
+    Anderberg distance is an ecological distance measure.
+    For continuous variables, it is adapted using absolute differences.
+    Here we define it as: sum((x - y)^2) / sum((x + y)^2).
+
+    Args:
+        model1 (torch.nn.Module): The first neural network model.
+        model2 (torch.nn.Module): The second neural network model.
+
+    Returns:
+        float: The Anderberg distance. Returns 0.0 if models are identical or empty.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    diff_sq = torch.sum((vec1 - vec2) ** 2)
+    sum_sq = torch.sum((torch.abs(vec1) + torch.abs(vec2)) ** 2)
+
+    if sum_sq.item() == 0.0:
+        if diff_sq.item() == 0.0:
+            return 0.0
+        return 1.0
+
+    distance = diff_sq / sum_sq
+    return float(distance.item())

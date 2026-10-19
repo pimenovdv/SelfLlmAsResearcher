@@ -567,3 +567,4 @@
 - [x] Добавить функцию compute_max_symmetric_chi_square_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику Kulczynski-1 (compute_kulczynski_1_distance_between_models) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику Anderberg (compute_anderberg_distance_between_models) в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику Gower distance в src/experiment_utils.py и написать тесты.

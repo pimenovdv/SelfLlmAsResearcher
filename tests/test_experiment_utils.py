@@ -6367,5 +6367,15 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(distance, float)
         self.assertGreaterEqual(distance, 0.0)
 
+
+    def test_compute_max_symmetric_chi_square_distance_between_models(self):
+        from src.experiment_utils import compute_max_symmetric_chi_square_distance_between_models
+        model1 = torch.nn.Linear(10, 2)
+        model2 = torch.nn.Linear(10, 2)
+
+        distance = compute_max_symmetric_chi_square_distance_between_models(model1, model2)
+        self.assertIsInstance(distance, float)
+        self.assertGreaterEqual(distance, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

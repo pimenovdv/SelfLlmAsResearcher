@@ -9694,7 +9694,7 @@ def compute_vicis_symmetric_chi_square_distance_between_models(model1: torch.nn.
         return 0.0
 
     num = (vec1 - vec2) ** 2
-    den = torch.minimum(torch.abs(vec1), torch.abs(vec2)) ** 2
+    den = torch.maximum(torch.abs(vec1), torch.abs(vec2)) ** 2
 
     valid_mask = den > 0
     distance = torch.sum(num[valid_mask] / den[valid_mask])
@@ -10088,6 +10088,26 @@ def compute_min_symmetric_chi_square_distance_between_models(model1: torch.nn.Mo
     """
     Computes the Min-Symmetric Chi-Square distance between the parameters of two models.
     Distance = sum( (p - q)^2 / max(max(|p|, |q|), epsilon) )
+    """
+    import torch
+
+    vec1 = torch.cat([p.view(-1).float() for p in model1.parameters()])
+    vec2 = torch.cat([p.view(-1).float() for p in model2.parameters()])
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    num = (vec1 - vec2) ** 2
+    den = torch.maximum(torch.abs(vec1), torch.abs(vec2))
+    den = torch.clamp(den, min=epsilon)
+
+    distance = torch.sum(num / den)
+    return float(distance.item())
+
+def compute_max_symmetric_chi_square_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Max-Symmetric Chi-Square distance between the parameters of two models.
+    Distance = sum( (p - q)^2 / max(min(|p|, |q|), epsilon) )
     """
     import torch
 

@@ -6424,5 +6424,29 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertGreaterEqual(distance_diff, 0.0)
 
 
+
+    def test_compute_szymkiewicz_simpson_distance_between_models(self):
+        from src.experiment_utils import compute_szymkiewicz_simpson_distance_between_models
+        class DummyModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.linear = torch.nn.Linear(10, 2)
+        model1 = DummyModel()
+        model2 = DummyModel()
+
+        # Same models
+        model2.load_state_dict(model1.state_dict())
+        distance_same = compute_szymkiewicz_simpson_distance_between_models(model1, model2)
+        self.assertIsInstance(distance_same, float)
+        self.assertAlmostEqual(distance_same, 0.0, places=5)
+
+        # Different models
+        model3 = DummyModel()
+        for p in model3.parameters():
+            p.data += torch.randn_like(p) * 0.1
+        distance_diff = compute_szymkiewicz_simpson_distance_between_models(model1, model3)
+        self.assertIsInstance(distance_diff, float)
+        self.assertGreaterEqual(distance_diff, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

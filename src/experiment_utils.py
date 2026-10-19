@@ -10209,3 +10209,32 @@ def compute_gower_distance_between_models(model1: torch.nn.Module, model2: torch
 
     gower = torch.mean(diffs / range_val)
     return float(gower.item())
+
+
+def compute_szymkiewicz_simpson_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Szymkiewicz-Simpson distance (Overlap coefficient based distance) between the parameters of two models.
+    Distance = 1 - (sum(min(|x_i|, |y_i|)) / min(sum(|x_i|), sum(|y_i|)))
+    """
+    intersection_sum = 0.0
+    sum_model1 = 0.0
+    sum_model2 = 0.0
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p1_flat = p1.flatten()
+        p2_flat = p2.flatten()
+        if p1_flat.numel() == 0 or p2_flat.numel() == 0:
+            continue
+
+        abs_p1 = torch.abs(p1_flat)
+        abs_p2 = torch.abs(p2_flat)
+        intersection_sum += torch.sum(torch.minimum(abs_p1, abs_p2)).item()
+        sum_model1 += torch.sum(abs_p1).item()
+        sum_model2 += torch.sum(abs_p2).item()
+
+    min_sum = min(sum_model1, sum_model2)
+    if min_sum == 0.0:
+        return 0.0
+
+    overlap_coefficient = intersection_sum / min_sum
+    return 1.0 - overlap_coefficient

@@ -6392,5 +6392,21 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(distance_diff, float)
         self.assertGreaterEqual(distance_diff, 0.0)
 
+
+    def test_compute_anderberg_distance_between_models(self):
+        from src.experiment_utils import compute_anderberg_distance_between_models
+        model1 = torch.nn.Linear(10, 1)
+        model2 = torch.nn.Linear(10, 1)
+
+        # Identical models should have distance 0.0
+        distance_same = compute_anderberg_distance_between_models(model1, model1)
+        self.assertIsInstance(distance_same, float)
+        self.assertAlmostEqual(distance_same, 0.0, places=5)
+
+        # Different models should have distance >= 0.0
+        distance_diff = compute_anderberg_distance_between_models(model1, model2)
+        self.assertIsInstance(distance_diff, float)
+        self.assertGreaterEqual(distance_diff, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

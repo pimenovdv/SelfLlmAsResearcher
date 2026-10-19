@@ -10184,3 +10184,28 @@ def compute_anderberg_distance_between_models(model1: torch.nn.Module, model2: t
 
     distance = diff_sq / sum_sq
     return float(distance.item())
+def compute_gower_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Gower distance between the parameters of two models.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    diffs = torch.abs(vec1 - vec2)
+    combined = torch.cat([vec1, vec2])
+    range_val = torch.max(combined) - torch.min(combined)
+
+    if range_val == 0.0:
+        return 0.0
+
+    gower = torch.mean(diffs / range_val)
+    return float(gower.item())

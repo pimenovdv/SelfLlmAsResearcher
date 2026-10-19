@@ -6408,5 +6408,21 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertIsInstance(distance_diff, float)
         self.assertGreaterEqual(distance_diff, 0.0)
 
+
+    def test_compute_gower_distance_between_models(self):
+        from src.experiment_utils import compute_gower_distance_between_models
+        import torch
+        model1 = torch.nn.Linear(10, 2)
+        model2 = torch.nn.Linear(10, 2)
+
+        distance_same = compute_gower_distance_between_models(model1, model1)
+        self.assertIsInstance(distance_same, float)
+        self.assertAlmostEqual(distance_same, 0.0, places=5)
+
+        distance_diff = compute_gower_distance_between_models(model1, model2)
+        self.assertIsInstance(distance_diff, float)
+        self.assertGreaterEqual(distance_diff, 0.0)
+
+
 if __name__ == '__main__':
     unittest.main()

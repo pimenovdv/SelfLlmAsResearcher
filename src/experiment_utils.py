@@ -10326,3 +10326,51 @@ def compute_yule_distance_between_models(model1: torch.nn.Module, model2: torch.
     if denominator == 0.0:
         return 0.0
     return R / denominator
+
+
+def compute_sokal_michener_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the continuous adaptation of the Sokal-Michener distance between two models.
+    For binary variables, Sokal-Michener distance is 2*(b+c) / (a+d+2*(b+c)).
+    Adapted for continuous variables (absolute values):
+    a = sum(min(|x|, |y|))
+    b = sum(max(0, |x| - |y|))
+    c = sum(max(0, |y| - |x|))
+    d = sum(max(|x|, |y|)) # using d = sum(max(|x|, |y|)) as in similar adapted continuous boolean distances
+    Actually, usually distance = 2*(b+c) / (a + d + 2*(b+c)). Note that b+c is sum(|x-y|) and a+d is 2*sum(max(|x|, |y|)) or similar.
+    We will use the exact continuous definitions:
+    a = sum(min(|x|, |y|))
+    d = sum(max(|x|, |y|)) # though technically for continuous variables, sometimes max is used for d. Let's use d = sum(max(|x|, |y|)).
+    b = sum(max(0, |x| - |y|))
+    c = sum(max(0, |y| - |x|))
+
+    distance = 2 * (b + c) / (a + d + 2 * (b + c))
+    """
+    c_TT = 0.0 # a
+    c_TF = 0.0 # b
+    c_FT = 0.0 # c
+    c_FF = 0.0 # d
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p1_flat = p1.detach().flatten()
+        p2_flat = p2.detach().flatten()
+        if p1_flat.numel() == 0 or p2_flat.numel() == 0:
+            continue
+
+        abs_p1 = torch.abs(p1_flat)
+        abs_p2 = torch.abs(p2_flat)
+
+        c_TT += torch.sum(torch.minimum(abs_p1, abs_p2)).item()
+        c_TF += torch.sum(torch.maximum(torch.tensor(0.0, device=abs_p1.device), abs_p1 - abs_p2)).item()
+        c_FT += torch.sum(torch.maximum(torch.tensor(0.0, device=abs_p2.device), abs_p2 - abs_p1)).item()
+        c_FF += torch.sum(torch.maximum(abs_p1, abs_p2)).item()
+
+    disagreement = c_TF + c_FT # b + c
+    agreement = c_TT + c_FF # a + d
+
+    denominator = agreement + 2.0 * disagreement
+
+    if denominator == 0.0:
+        return 0.0
+
+    return (2.0 * disagreement) / denominator

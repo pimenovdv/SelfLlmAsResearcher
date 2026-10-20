@@ -10238,3 +10238,30 @@ def compute_szymkiewicz_simpson_distance_between_models(model1: torch.nn.Module,
 
     overlap_coefficient = intersection_sum / min_sum
     return 1.0 - overlap_coefficient
+
+def compute_rogers_tanimoto_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Rogers-Tanimoto distance between two models.
+    Adapted for continuous non-negative features (absolute weights).
+    S = a / (a + 2 * disagreement)
+    D = 1.0 - S
+    where a = sum(min(|x|, |y|)), disagreement = sum(||x| - |y||)
+    """
+    intersection_sum = 0.0
+    disagreement_sum = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p1_flat = p1.detach().flatten()
+        p2_flat = p2.detach().flatten()
+        if p1_flat.numel() == 0 or p2_flat.numel() == 0:
+            continue
+        abs_p1 = torch.abs(p1_flat)
+        abs_p2 = torch.abs(p2_flat)
+        intersection_sum += torch.sum(torch.minimum(abs_p1, abs_p2)).item()
+        disagreement_sum += torch.sum(torch.abs(abs_p1 - abs_p2)).item()
+
+    denominator = intersection_sum + 2.0 * disagreement_sum
+    if denominator == 0.0:
+        return 0.0
+
+    similarity = intersection_sum / denominator
+    return 1.0 - similarity

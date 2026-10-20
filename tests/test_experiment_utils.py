@@ -3680,6 +3680,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return x @ self.weight.t() + self.bias
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         with torch.no_grad():
             model1.weight.fill_(1.0)
@@ -3710,6 +3712,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return x @ self.weight.t() + self.bias
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         with torch.no_grad():
             model1.weight.fill_(1.0)
@@ -3739,6 +3743,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return x @ self.weight.t()
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         val = compute_normalized_root_mean_squared_error_between_models(model1, model2)
         self.assertIsInstance(val, float)
@@ -3754,6 +3760,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return x @ self.weight.t()
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         val = compute_relative_error_between_models(model1, model2)
         self.assertIsInstance(val, float)
@@ -3770,6 +3778,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return x @ self.weight.t()
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         val = compute_mean_squared_logarithmic_error_between_models(model1, model2)
         self.assertIsInstance(val, float)
@@ -4218,6 +4228,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_bartletts_statistic_between_models(model1, model2)
@@ -4254,6 +4266,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_median_absolute_error_between_models(model1, model2)
@@ -4273,6 +4287,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_explained_variance_score_between_models(model1, model2)
@@ -4292,6 +4308,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_max_error_between_models(model1, model2)
@@ -4311,6 +4329,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_mean_bias_error_between_models(model1, model2)
@@ -4329,6 +4349,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_mean_percentage_error_between_models(model1, model2)
@@ -4347,6 +4369,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_median_percentage_error_between_models(model1, model2)
@@ -4366,6 +4390,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_root_mean_squared_percentage_error_between_models(model1, model2)
@@ -4384,6 +4410,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_symmetric_median_absolute_percentage_error_between_models(model1, model2)
@@ -4402,6 +4430,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_relative_absolute_error_between_models(model1, model2)
@@ -4420,6 +4450,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         stat = compute_root_relative_squared_error_between_models(model1, model2)
@@ -4440,6 +4472,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         stat = compute_normalized_root_mean_squared_deviation_between_models(model1, model2)
         self.assertIsInstance(stat, float)
@@ -4456,6 +4490,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         stat = compute_median_absolute_percentage_error_between_models(model1, model2)
         self.assertIsInstance(stat, float)
@@ -4471,6 +4507,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         stat = compute_weighted_mean_absolute_percentage_error_between_models(model1, model2)
         self.assertIsInstance(stat, float)
@@ -4486,6 +4524,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         stat = compute_root_mean_squared_logarithmic_error_between_models(model1, model2)
         self.assertIsInstance(stat, float)
@@ -4502,6 +4542,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         stat = compute_mean_arctangent_absolute_percentage_error_between_models(model1, model2)
         self.assertIsInstance(stat, float)
@@ -4755,6 +4797,8 @@ class TestExperimentUtils(unittest.TestCase):
                 super().__init__()
                 self.fc = torch.nn.Linear(2, 1, bias=False)
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         model1.fc.weight.data = torch.tensor([[1.0, 2.0]])
         model2.fc.weight.data = torch.tensor([[3.0, 1.0]])
@@ -5197,6 +5241,8 @@ class TestExperimentUtils(unittest.TestCase):
                 super().__init__()
                 self.fc = torch.nn.Linear(10, 2)
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         loss = compute_smooth_l1_loss_between_models(model1, model2, beta=1.0)
         self.assertIsInstance(loss, float)
@@ -5215,6 +5261,8 @@ class TestExperimentUtils(unittest.TestCase):
                 super().__init__()
                 self.fc = torch.nn.Linear(10, 2)
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         loss = compute_berhu_loss_between_models(model1, model2, c=1.0)
         self.assertIsInstance(loss, float)
@@ -5228,6 +5276,8 @@ class TestExperimentUtils(unittest.TestCase):
                 super().__init__()
                 self.fc = torch.nn.Linear(10, 2)
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         loss = compute_wing_loss_between_models(model1, model2, w=10.0, epsilon=2.0)
         self.assertIsInstance(loss, float)
@@ -5247,6 +5297,8 @@ class TestExperimentUtils(unittest.TestCase):
                 self.fc = nn.Linear(10, 2)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         loss = compute_adaptive_wing_loss_between_models(model1, model2, omega=14.0, theta=0.5, epsilon=1.0, alpha=2.1)
@@ -5265,6 +5317,8 @@ class TestExperimentUtils(unittest.TestCase):
                 super().__init__()
                 self.fc = nn.Linear(10, 2)
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         loss = compute_andrews_sine_loss_between_models(model1, model2)
         self.assertIsInstance(loss, float)
@@ -5279,6 +5333,8 @@ class TestExperimentUtils(unittest.TestCase):
                 super().__init__()
                 self.fc = nn.Linear(10, 2)
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         loss = compute_barron_loss_between_models(model1, model2)
         self.assertIsInstance(loss, float)
@@ -5294,6 +5350,8 @@ class TestExperimentUtils(unittest.TestCase):
                 super().__init__()
                 self.fc = nn.Linear(10, 2)
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         loss = compute_correntropy_loss_between_models(model1, model2)
         self.assertIsInstance(loss, float)
@@ -5314,6 +5372,8 @@ class TestExperimentUtils(unittest.TestCase):
                 self.p = torch.nn.Parameter(torch.tensor([0.0, 0.0]))
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel2()
 
         loss = compute_talwar_loss_between_models(model1, model2, c=1.0)
@@ -5337,6 +5397,8 @@ class TestExperimentUtils(unittest.TestCase):
                 self.p = torch.nn.Parameter(torch.tensor([1.0, 2.0]))
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel2()
 
         dist = compute_generalized_bray_curtis_distance_between_models(model1, model2, p=2.0)
@@ -5434,6 +5496,8 @@ class TestExperimentUtils(unittest.TestCase):
                 self.weight = nn.Parameter(torch.tensor([2.0, -1.0]))
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         with torch.no_grad():
             model2.weight.copy_(torch.tensor([1.0, 1.0]))
@@ -5727,6 +5791,8 @@ class TestExperimentUtils(unittest.TestCase):
                 return self.fc(x)
 
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
         stat = compute_normalized_mean_absolute_error_between_models(model1, model2)
         self.assertIsInstance(stat, float)
@@ -6432,6 +6498,8 @@ class TestExperimentUtils(unittest.TestCase):
                 super().__init__()
                 self.linear = torch.nn.Linear(10, 2)
         model1 = DummyModel()
+        import torch
+        import torch
         model2 = DummyModel()
 
         # Same models
@@ -6445,6 +6513,34 @@ class TestExperimentUtils(unittest.TestCase):
         for p in model3.parameters():
             p.data += torch.randn_like(p) * 0.1
         distance_diff = compute_szymkiewicz_simpson_distance_between_models(model1, model3)
+        self.assertIsInstance(distance_diff, float)
+        self.assertGreaterEqual(distance_diff, 0.0)
+
+
+
+    def test_compute_rogers_tanimoto_distance_between_models(self):
+        from src.experiment_utils import compute_rogers_tanimoto_distance_between_models
+        import torch
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(10, 10)
+
+        model1 = DummyModelLocal()
+        model2 = DummyModelLocal()
+
+        # Identical models
+        for p1, p2 in zip(model1.parameters(), model2.parameters()):
+            p2.data.copy_(p1.data)
+        distance_same = compute_rogers_tanimoto_distance_between_models(model1, model2)
+        self.assertIsInstance(distance_same, float)
+        self.assertAlmostEqual(distance_same, 0.0, places=5)
+
+        # Different models
+        model3 = DummyModelLocal()
+        for p in model3.parameters():
+            p.data += torch.randn_like(p) * 0.1
+        distance_diff = compute_rogers_tanimoto_distance_between_models(model1, model3)
         self.assertIsInstance(distance_diff, float)
         self.assertGreaterEqual(distance_diff, 0.0)
 

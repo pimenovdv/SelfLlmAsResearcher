@@ -1,1 +1,1 @@
-Реализована метрика Rogers-Tanimoto distance
+Реализована метрика Yule distance

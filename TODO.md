@@ -573,3 +573,4 @@
 - [x] Добавить метрику Yule distance в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику Sokal-Michener distance в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику Russell-Rao distance (compute_russell_rao_distance_between_models) в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику Hamann distance (compute_hamann_distance_between_models) в src/experiment_utils.py и написать тесты.

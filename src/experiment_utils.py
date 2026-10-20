@@ -9694,7 +9694,7 @@ def compute_vicis_symmetric_chi_square_distance_between_models(model1: torch.nn.
         return 0.0
 
     num = (vec1 - vec2) ** 2
-    den = torch.maximum(torch.abs(vec1), torch.abs(vec2)) ** 2
+    den = torch.minimum(torch.abs(vec1), torch.abs(vec2)) ** 2
 
     valid_mask = den > 0
     distance = torch.sum(num[valid_mask] / den[valid_mask])
@@ -10265,3 +10265,64 @@ def compute_rogers_tanimoto_distance_between_models(model1: torch.nn.Module, mod
 
     similarity = intersection_sum / denominator
     return 1.0 - similarity
+
+
+def compute_yule_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Yule distance between the parameters of two models.
+    Yule distance is calculated based on the Yule dissimilarity for continuous variables,
+    adapted here for weights.
+    It considers the agreement and disagreement between elements.
+    Let a = sum(min(|x|, |y|)), b = sum(max(0, |x| - |y|)), c = sum(max(0, |y| - |x|)), d = sum(max(|x|, |y|)) (but practically d is not needed directly)
+    Adapted yule distance = (2 * b * c) / (a * d + b * c) if we view a,b,c,d from boolean to continuous.
+    However, standard Yule Q is (a*d - b*c) / (a*d + b*c).
+    To handle continuous neural network parameters (absolute values), we use a similar formulation as Sokal-Sneath but with different weighting, or standard Yule dissimilarity:
+    R = 2 * sum(max(0, |x| - |y|)) * sum(max(0, |y| - |x|))
+    distance = R / (sum(min(|x|, |y|)) * (sum(max(|x|, |y|)) or a similar construct) + R/2)
+    For simplicity, let's use a standard adaptation of Yule for continuous variables:
+    agreement a = sum(min(|x|, |y|))
+    disagreement_1 = sum(max(0, |x| - |y|))
+    disagreement_2 = sum(max(0, |y| - |x|))
+    R = 2.0 * disagreement_1 * disagreement_2
+
+    In a standard 1D array setting where features are binary (0 or 1),
+    c_TT = a
+    c_TF = disagreement_1
+    c_FT = disagreement_2
+    c_FF is the count of (0,0), which doesn't make sense for continuous vectors unless bounded.
+    So we'll use a continuous adaptation:
+    Let's compute Yule distance using a continuous formulation.
+    Since c_FF is undefined for unbounded continuous variables (or requires a max value bound),
+    we often adapt it by using:
+    c_TT = sum(min(|x|, |y|))
+    c_TF = sum(max(0, |x| - |y|))
+    c_FT = sum(max(0, |y| - |x|))
+    c_FF = sum(max(|x|, |y|))  (as a proxy for the total mass / complement)
+    R = 2.0 * c_TF * c_FT
+    distance = R / (c_TT * c_FF + R / 2.0)
+    """
+    c_TT = 0.0
+    c_TF = 0.0
+    c_FT = 0.0
+    c_FF = 0.0
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p1_flat = p1.detach().flatten()
+        p2_flat = p2.detach().flatten()
+        if p1_flat.numel() == 0 or p2_flat.numel() == 0:
+            continue
+
+        abs_p1 = torch.abs(p1_flat)
+        abs_p2 = torch.abs(p2_flat)
+
+        c_TT += torch.sum(torch.minimum(abs_p1, abs_p2)).item()
+        c_TF += torch.sum(torch.maximum(torch.tensor(0.0, device=abs_p1.device), abs_p1 - abs_p2)).item()
+        c_FT += torch.sum(torch.maximum(torch.tensor(0.0, device=abs_p2.device), abs_p2 - abs_p1)).item()
+        c_FF += torch.sum(torch.maximum(abs_p1, abs_p2)).item()
+
+    R = 2.0 * c_TF * c_FT
+    denominator = c_TT * c_FF + R / 2.0
+
+    if denominator == 0.0:
+        return 0.0
+    return R / denominator

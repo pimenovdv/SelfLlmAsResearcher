@@ -4499,6 +4499,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_weighted_mean_absolute_percentage_error_between_models(self):
         from src.experiment_utils import compute_weighted_mean_absolute_percentage_error_between_models
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -4516,6 +4517,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_root_mean_squared_logarithmic_error_between_models(self):
         from src.experiment_utils import compute_root_mean_squared_logarithmic_error_between_models
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -6493,6 +6495,7 @@ class TestExperimentUtils(unittest.TestCase):
 
     def test_compute_szymkiewicz_simpson_distance_between_models(self):
         from src.experiment_utils import compute_szymkiewicz_simpson_distance_between_models
+        import torch
         class DummyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
@@ -6543,6 +6546,47 @@ class TestExperimentUtils(unittest.TestCase):
         distance_diff = compute_rogers_tanimoto_distance_between_models(model1, model3)
         self.assertIsInstance(distance_diff, float)
         self.assertGreaterEqual(distance_diff, 0.0)
+
+
+    def test_compute_yule_distance_between_models(self):
+        from src.experiment_utils import compute_yule_distance_between_models
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2, bias=False)
+                # Weights: [[1.0, 2.0], [3.0, 4.0]]
+                self.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+
+        model1 = DummyModelLocal()
+        model2 = DummyModelLocal()
+
+        # Identical models should have distance 0.0
+        dist_identical = compute_yule_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist_identical, 0.0, places=5)
+
+        # Modify model2 slightly
+        model2.fc.weight.data = torch.tensor([[1.0, 0.0], [0.0, 4.0]])
+        # |x|: [1, 2, 3, 4], |y|: [1, 0, 0, 4]
+        # c_TT = sum(min(|x|, |y|)) = min(1,1)+min(2,0)+min(3,0)+min(4,4) = 1 + 0 + 0 + 4 = 5
+        # c_TF = sum(max(0, |x| - |y|)) = max(0, 0) + max(0, 2) + max(0, 3) + max(0, 0) = 5
+        # c_FT = sum(max(0, |y| - |x|)) = 0 + 0 + 0 + 0 = 0
+        # c_FF = sum(max(|x|, |y|)) = 1 + 2 + 3 + 4 = 10
+        # R = 2.0 * 5 * 0 = 0
+        # distance = 0 / (5 * 10 + 0) = 0.0
+        dist_modified1 = compute_yule_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist_modified1, 0.0, places=5)
+
+        # Modify model2 more to have non-zero c_FT
+        model2.fc.weight.data = torch.tensor([[0.0, 3.0], [4.0, 0.0]])
+        # |x|: [1, 2, 3, 4], |y|: [0, 3, 4, 0]
+        # c_TT = 0 + 2 + 3 + 0 = 5
+        # c_TF = 1 + 0 + 0 + 4 = 5
+        # c_FT = 0 + 1 + 1 + 0 = 2
+        # c_FF = 1 + 3 + 4 + 4 = 12
+        # R = 2.0 * 5 * 2 = 20.0
+        # distance = 20.0 / (5 * 12 + 20.0 / 2.0) = 20.0 / (60 + 10) = 20.0 / 70.0 = 2/7
+        dist_modified2 = compute_yule_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist_modified2, 2.0 / 7.0, places=5)
 
 if __name__ == '__main__':
     unittest.main()

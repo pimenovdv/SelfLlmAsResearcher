@@ -1,1 +1,1 @@
-Реализована метрика Sokal-Michener distance
+Реализована метрика Russell-Rao distance

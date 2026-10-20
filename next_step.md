@@ -1,1 +1,1 @@
-Реализована метрика Yule distance
+Реализована метрика Sokal-Michener distance

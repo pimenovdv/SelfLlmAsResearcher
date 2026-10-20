@@ -6588,5 +6588,44 @@ class TestExperimentUtils(unittest.TestCase):
         dist_modified2 = compute_yule_distance_between_models(model1, model2)
         self.assertAlmostEqual(dist_modified2, 2.0 / 7.0, places=5)
 
+
+    def test_compute_sokal_michener_distance_between_models(self):
+        from src.experiment_utils import compute_sokal_michener_distance_between_models
+
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc = torch.nn.Linear(2, 2, bias=False)
+
+        model1 = DummyModelLocal()
+        model2 = DummyModelLocal()
+
+        # model1: [1.0, 2.0, 3.0, 4.0]
+        model1.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+
+        # model2: [1.0, 2.0, 3.0, 4.0]
+        model2.fc.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+
+        # Identical models
+        # |x|: [1, 2, 3, 4], |y|: [1, 2, 3, 4]
+        # a = 1+2+3+4 = 10
+        # b = 0
+        # c = 0
+        # d = 1+2+3+4 = 10
+        # dist = 0 / 20 = 0.0
+        dist_identical = compute_sokal_michener_distance_between_models(model1, model2)
+        self.assertEqual(dist_identical, 0.0)
+
+        # Disjoint supports
+        model2.fc.weight.data = torch.tensor([[0.0, 0.0], [0.0, 0.0]])
+        # |x|: [1, 2, 3, 4], |y|: [0, 0, 0, 0]
+        # a = 0
+        # b = 1+2+3+4 = 10
+        # c = 0
+        # d = 10
+        # dist = 2*(10+0) / (0 + 10 + 2*10) = 20 / 30 = 2/3
+        dist_disjoint = compute_sokal_michener_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist_disjoint, 2.0 / 3.0, places=5)
+
 if __name__ == '__main__':
     unittest.main()

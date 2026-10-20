@@ -10375,6 +10375,37 @@ def compute_sokal_michener_distance_between_models(model1: torch.nn.Module, mode
 
     return (2.0 * disagreement) / denominator
 
+
+def compute_hamann_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the continuous adaptation of the Hamann distance between two models.
+    Hamann distance for binary features is typically defined as ((a + d) - (b + c)) / (a + b + c + d),
+    so distance is 1.0 - Hamann = 2(b+c) / (a+b+c+d).
+    Adapted for continuous variables (absolute values):
+    a = sum(min(|x|, |y|))
+    b = sum(max(0, |x| - |y|))
+    c = sum(max(0, |y| - |x|))
+    d = sum(max(|x|, |y|))
+    """
+    a = 0.0
+    b = 0.0
+    c = 0.0
+    d = 0.0
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        p1_flat = torch.abs(p1.detach().flatten())
+        p2_flat = torch.abs(p2.detach().flatten())
+
+        a += torch.sum(torch.minimum(p1_flat, p2_flat)).item()
+        b += torch.sum(torch.maximum(torch.zeros_like(p1_flat), p1_flat - p2_flat)).item()
+        c += torch.sum(torch.maximum(torch.zeros_like(p1_flat), p2_flat - p1_flat)).item()
+        d += torch.sum(torch.maximum(p1_flat, p2_flat)).item()
+
+    denominator = a + b + c + d
+    if denominator == 0.0:
+        return 0.0
+    return 2.0 * (b + c) / denominator
+
 def compute_russell_rao_distance_between_models(model1, model2):
     """
     Computes the Russell-Rao distance between two models.

@@ -1,1 +1,1 @@
-Реализована метрика Russell-Rao distance
+Реализована метрика Hamann distance

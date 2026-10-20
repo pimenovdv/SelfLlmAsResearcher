@@ -6673,5 +6673,42 @@ class TestExperimentUtils(unittest.TestCase):
         with self.assertRaises(ValueError):
             compute_russell_rao_distance_between_models(model1, model3)
 
+
+    def test_compute_hamann_distance_between_models(self):
+        from src.experiment_utils import compute_hamann_distance_between_models
+        class DummyModelLocal1(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.p1 = torch.nn.Parameter(torch.tensor([1.0, 0.0, 1.0]))
+
+        class DummyModelLocal2(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.p1 = torch.nn.Parameter(torch.tensor([0.0, 1.0, 1.0]))
+
+        model1 = DummyModelLocal1()
+        model2 = DummyModelLocal2()
+
+        # p1: [1.0, 0.0, 1.0]
+        # p2: [0.0, 1.0, 1.0]
+        # a: min(|p1|, |p2|) = [0, 0, 1] sum = 1
+        # b: max(0, |p1| - |p2|) = [1, 0, 0] sum = 1
+        # c: max(0, |p2| - |p1|) = [0, 1, 0] sum = 1
+        # d: max(|p1|, |p2|) = [1, 1, 1] sum = 3
+        # denominator = 1 + 1 + 1 + 3 = 6
+        # distance = 2*(1+1)/6 = 4/6 = 0.666...
+        dist = compute_hamann_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 4.0/6.0, places=5)
+
+        # Test empty model
+        class DummyModelLocalEmpty(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.p1 = torch.nn.Parameter(torch.tensor([]))
+
+        model_empty = DummyModelLocalEmpty()
+        dist_empty = compute_hamann_distance_between_models(model_empty, model_empty)
+        self.assertEqual(dist_empty, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

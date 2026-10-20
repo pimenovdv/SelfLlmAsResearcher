@@ -6627,5 +6627,51 @@ class TestExperimentUtils(unittest.TestCase):
         dist_disjoint = compute_sokal_michener_distance_between_models(model1, model2)
         self.assertAlmostEqual(dist_disjoint, 2.0 / 3.0, places=5)
 
+
+    def test_compute_russell_rao_distance_between_models(self):
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.l1 = torch.nn.Linear(2, 2)
+
+        model1 = DummyModelLocal()
+        model2 = DummyModelLocal()
+
+        # Exact identical models
+        model1.l1.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+        model1.l1.bias.data = torch.tensor([5.0, 6.0])
+        model2.l1.weight.data = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+        model2.l1.bias.data = torch.tensor([5.0, 6.0])
+
+        a = 1.0+2.0+3.0+4.0+5.0+6.0 # 21.0
+        n = 6
+        expected_distance_identical = 1.0 - (a / n)
+
+        from src.experiment_utils import compute_russell_rao_distance_between_models
+        distance_identical = compute_russell_rao_distance_between_models(model1, model2)
+        self.assertAlmostEqual(distance_identical, expected_distance_identical, places=5)
+
+        # Different models
+        model2.l1.weight.data = torch.tensor([[-1.0, 0.0], [5.0, 2.0]])
+        model2.l1.bias.data = torch.tensor([2.0, 8.0])
+
+        # model1 abs: [[1, 2], [3, 4]], [5, 6]
+        # model2 abs: [[1, 0], [5, 2]], [2, 8]
+        # min abs: [[1, 0], [3, 2]], [2, 6]
+        # sum min abs = 1+0+3+2+2+6 = 14
+
+        expected_distance_diff = 1.0 - (14.0 / 6.0)
+        distance_diff = compute_russell_rao_distance_between_models(model1, model2)
+        self.assertAlmostEqual(distance_diff, expected_distance_diff, places=5)
+
+        # Test shape mismatch
+        class DummyModelLocal2(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.l1 = torch.nn.Linear(3, 2)
+        model3 = DummyModelLocal2()
+        with self.assertRaises(ValueError):
+            compute_russell_rao_distance_between_models(model1, model3)
+
 if __name__ == '__main__':
     unittest.main()

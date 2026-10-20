@@ -10374,3 +10374,28 @@ def compute_sokal_michener_distance_between_models(model1: torch.nn.Module, mode
         return 0.0
 
     return (2.0 * disagreement) / denominator
+
+def compute_russell_rao_distance_between_models(model1, model2):
+    """
+    Computes the Russell-Rao distance between two models.
+    Adapted for continuous variables:
+    a = sum(min(|x|, |y|))
+    n = total number of elements
+    Distance = 1.0 - (a / n)
+    """
+    a = 0.0
+    n = 0
+
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        if p1.shape != p2.shape:
+            raise ValueError("Models must have the same architecture")
+        abs_p1 = torch.abs(p1.detach())
+        abs_p2 = torch.abs(p2.detach())
+
+        a += torch.sum(torch.minimum(abs_p1, abs_p2)).item()
+        n += p1.numel()
+
+    if n == 0:
+        return 0.0
+
+    return 1.0 - (a / float(n))

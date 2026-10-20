@@ -572,3 +572,4 @@
 - [x] Добавить метрику Rogers-Tanimoto distance (compute_rogers_tanimoto_distance_between_models) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику Yule distance в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику Sokal-Michener distance в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику Russell-Rao distance (compute_russell_rao_distance_between_models) в src/experiment_utils.py и написать тесты.

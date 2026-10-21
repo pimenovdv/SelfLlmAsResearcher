@@ -1,1 +1,1 @@
-Реализована метрика Hamann distance
+Реализована метрика Lance-Williams distance

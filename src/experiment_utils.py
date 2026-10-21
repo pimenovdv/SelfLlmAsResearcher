@@ -10430,3 +10430,34 @@ def compute_russell_rao_distance_between_models(model1, model2):
         return 0.0
 
     return 1.0 - (a / float(n))
+
+
+def compute_lance_williams_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Lance-Williams distance between the parameters of two models.
+
+    The Lance-Williams distance between two vectors x and y is defined as:
+    sum(|x_i - y_i|) / sum(|x_i| + |y_i|)
+    It is equivalent to the Bray-Curtis distance.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Lance-Williams distance. Returns 0.0 if the models have no parameters
+        or if the denominator is 0.
+    """
+    params1 = torch.cat([p.flatten() for p in model1.parameters()])
+    params2 = torch.cat([p.flatten() for p in model2.parameters()])
+
+    if params1.numel() == 0 or params2.numel() == 0:
+        return 0.0
+
+    diff_sum = torch.sum(torch.abs(params1 - params2))
+    sum_sum = torch.sum(torch.abs(params1) + torch.abs(params2))
+
+    if sum_sum == 0.0:
+        return 0.0
+
+    return float((diff_sum / sum_sum).item())

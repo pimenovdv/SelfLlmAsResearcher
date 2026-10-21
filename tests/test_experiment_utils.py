@@ -6710,5 +6710,37 @@ class TestExperimentUtils(unittest.TestCase):
         dist_empty = compute_hamann_distance_between_models(model_empty, model_empty)
         self.assertEqual(dist_empty, 0.0)
 
+
+    def test_compute_lance_williams_distance(self):
+        from src.experiment_utils import compute_lance_williams_distance_between_models
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, weights):
+                super().__init__()
+                self.fc = torch.nn.Linear(1, len(weights), bias=False)
+                with torch.no_grad():
+                    self.fc.weight.copy_(torch.tensor(weights).view(-1, 1))
+
+        # Test case 1: Identical models
+        m1 = DummyModelLocal([1.0, 2.0, 3.0])
+        m2 = DummyModelLocal([1.0, 2.0, 3.0])
+        dist1 = compute_lance_williams_distance_between_models(m1, m2)
+        self.assertAlmostEqual(dist1, 0.0)
+
+        # Test case 2: Different models
+        m3 = DummyModelLocal([1.0, 0.0, 3.0])
+        m4 = DummyModelLocal([0.0, 2.0, 3.0])
+        # x = [1, 0, 3], y = [0, 2, 3]
+        # |x-y| = [1, 2, 0] -> sum = 3
+        # |x|+|y| = [1, 2, 6] -> sum = 9
+        # distance = 3 / 9 = 1/3
+        dist2 = compute_lance_williams_distance_between_models(m3, m4)
+        self.assertAlmostEqual(dist2, 1.0 / 3.0)
+
+        # Test case 3: Zero denominator
+        m5 = DummyModelLocal([0.0, 0.0])
+        m6 = DummyModelLocal([0.0, 0.0])
+        dist3 = compute_lance_williams_distance_between_models(m5, m6)
+        self.assertAlmostEqual(dist3, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

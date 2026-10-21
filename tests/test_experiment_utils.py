@@ -6833,5 +6833,52 @@ class TestExperimentUtils(unittest.TestCase):
         dist_empty = compute_sokal_sneath_2_distance_between_models(model_empty1, model_empty2)
         self.assertEqual(dist_empty, 0.0)
 
+
+    def test_compute_dice_2_distance_between_models(self):
+        from src.experiment_utils import compute_dice_2_distance_between_models
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, weights):
+                super().__init__()
+                self.w = torch.nn.Parameter(torch.tensor(weights, dtype=torch.float32))
+
+        # Different models
+        model1 = DummyModelLocal([1.0, -2.0, 3.0])
+        model2 = DummyModelLocal([1.0, 0.0, -3.0])
+        dist = compute_dice_2_distance_between_models(model1, model2)
+        # x = [1, 2, 3], y = [1, 0, 3]
+        # min = [1, 0, 3] -> a = 4
+        # diff = [0, 2, 0] -> d = 2
+        # denominator = 2a + d = 8 + 2 = 10
+        # distance = 2 / 10 = 0.2
+        self.assertAlmostEqual(dist, 0.2, places=4)
+
+        # Same models
+        dist_same = compute_dice_2_distance_between_models(model1, model1)
+        self.assertEqual(dist_same, 0.0)
+
+
+        # Non-intersecting models
+        model_non1 = DummyModelLocal([1.0, 0.0, 0.0])
+        model_non2 = DummyModelLocal([0.0, 1.0, -1.0])
+        dist_non = compute_dice_2_distance_between_models(model_non1, model_non2)
+        # x = [1, 0, 0], y = [0, 1, 1]
+        # min = [0, 0, 0] -> a = 0
+        # diff = [1, 1, 1] -> d = 3
+        # denominator = 2*0 + 3 = 3
+        # distance = 3 / 3 = 1.0
+        self.assertEqual(dist_non, 1.0)
+
+        # Zero models
+        model_zero1 = DummyModelLocal([0.0, 0.0])
+        model_zero2 = DummyModelLocal([0.0, 0.0])
+        dist_zero = compute_dice_2_distance_between_models(model_zero1, model_zero2)
+        self.assertEqual(dist_zero, 0.0)
+
+        # Empty models
+        model_empty1 = DummyModelLocal([])
+        model_empty2 = DummyModelLocal([])
+        dist_empty = compute_dice_2_distance_between_models(model_empty1, model_empty2)
+        self.assertEqual(dist_empty, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,1 +1,1 @@
-Реализована метрика Forbes-2 (compute_forbes_2_distance_between_models) и написаны тесты.
+Реализована метрика Sokal-Sneath-2. Следующий шаг: добавить метрику Dice-2 distance.

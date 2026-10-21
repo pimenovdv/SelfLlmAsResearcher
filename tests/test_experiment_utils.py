@@ -6798,5 +6798,40 @@ class TestExperimentUtils(unittest.TestCase):
         dist_empty = compute_forbes_2_distance_between_models(model_empty1, model_empty2)
         self.assertEqual(dist_empty, 0.0)
 
+
+    def test_compute_sokal_sneath_2_distance_between_models(self):
+        from src.experiment_utils import compute_sokal_sneath_2_distance_between_models
+        import torch
+
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, weights):
+                super().__init__()
+                self.param = torch.nn.Parameter(torch.tensor(weights, dtype=torch.float32))
+
+        # Binary equivalent
+        model1 = DummyModelLocal([1.0, 1.0, 0.0, 0.0])
+        model2 = DummyModelLocal([1.0, 0.0, 1.0, 0.0])
+        # a = sum([1, 0, 0, 0]) = 1
+        # d = sum(|[0, 1, -1, 0]|) = 2
+        # distance = 2*2 / (1 + 2*2) = 4/5 = 0.8
+        dist = compute_sokal_sneath_2_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist, 0.8, places=5)
+
+        # Same weights
+        dist_same = compute_sokal_sneath_2_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=5)
+
+        # Zero weights
+        model_zero1 = DummyModelLocal([0.0, 0.0])
+        model_zero2 = DummyModelLocal([0.0, 0.0])
+        dist_zero = compute_sokal_sneath_2_distance_between_models(model_zero1, model_zero2)
+        self.assertEqual(dist_zero, 0.0)
+
+        # Empty models
+        model_empty1 = DummyModelLocal([])
+        model_empty2 = DummyModelLocal([])
+        dist_empty = compute_sokal_sneath_2_distance_between_models(model_empty1, model_empty2)
+        self.assertEqual(dist_empty, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

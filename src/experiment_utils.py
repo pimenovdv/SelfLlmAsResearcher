@@ -10496,3 +10496,47 @@ def compute_coefficient_of_divergence_between_models(model1: torch.nn.Module, mo
     divergence = (1.0 / n) * torch.sum(torch.pow(diff / sum_xy, 2))
 
     return float(divergence.item())
+
+def compute_forbes_2_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Forbes-2 distance between the parameters of two models.
+
+    Adapted for continuous variables:
+    Let a = sum(min(|x_i|, |y_i|))
+    Let n = total number of elements
+    Let sum_x = sum(|x_i|)
+    Let sum_y = sum(|y_i|)
+
+    The Forbes-2 similarity is defined as:
+    sim = (n * a - sum_x * sum_y) / (n * min(sum_x, sum_y) - sum_x * sum_y)
+    distance = 1.0 - sim
+
+    Args:
+        model1 (torch.nn.Module): The first PyTorch model.
+        model2 (torch.nn.Module): The second PyTorch model.
+
+    Returns:
+        float: The Forbes-2 distance. Returns 0.0 if there are no parameters or if the denominator is 0.
+    """
+    params1 = torch.cat([p.flatten() for p in model1.parameters()])
+    params2 = torch.cat([p.flatten() for p in model2.parameters()])
+
+    if params1.numel() == 0 or params2.numel() == 0:
+        return 0.0
+
+    abs_p1 = torch.abs(params1)
+    abs_p2 = torch.abs(params2)
+
+    n = float(params1.numel())
+    a = torch.sum(torch.minimum(abs_p1, abs_p2)).item()
+    sum_x = torch.sum(abs_p1).item()
+    sum_y = torch.sum(abs_p2).item()
+
+    numerator = n * a - sum_x * sum_y
+    denominator = n * min(sum_x, sum_y) - sum_x * sum_y
+
+    if denominator == 0.0:
+        return 0.0
+
+    sim = numerator / denominator
+    return 1.0 - sim

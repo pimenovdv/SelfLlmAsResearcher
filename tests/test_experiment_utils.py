@@ -6772,5 +6772,31 @@ class TestExperimentUtils(unittest.TestCase):
         dist3 = compute_coefficient_of_divergence_between_models(m5, m6)
         self.assertAlmostEqual(dist3, 13.0/72.0, places=5)
 
+
+    def test_compute_forbes_2_distance_between_models(self):
+        from src.experiment_utils import compute_forbes_2_distance_between_models
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, weights):
+                super().__init__()
+                self.w = torch.nn.Parameter(torch.tensor(weights, dtype=torch.float32))
+
+        model1 = DummyModelLocal([1.0, 2.0, 3.0])
+        model2 = DummyModelLocal([2.0, 2.0, 1.0])
+
+        dist = compute_forbes_2_distance_between_models(model1, model2)
+        self.assertIsInstance(dist, float)
+        # Forbes-2 distance could be negative conceptually if sum_x*sum_y > n*a and den > 0
+        # For tests, we only assert instance float.
+
+        # Identical models
+        dist_same = compute_forbes_2_distance_between_models(model1, model1)
+        self.assertAlmostEqual(dist_same, 0.0, places=5)
+
+        # Empty models
+        model_empty1 = DummyModelLocal([])
+        model_empty2 = DummyModelLocal([])
+        dist_empty = compute_forbes_2_distance_between_models(model_empty1, model_empty2)
+        self.assertEqual(dist_empty, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

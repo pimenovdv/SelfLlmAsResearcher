@@ -577,3 +577,4 @@
 
 - [x] Реализовать метрику Lance-Williams distance
 - [x] Добавить функцию compute_coefficient_of_divergence_between_models в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику Forbes-2 (compute_forbes_2_distance_between_models) в src/experiment_utils.py и написать тесты.

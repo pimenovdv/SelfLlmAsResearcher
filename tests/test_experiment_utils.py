@@ -6742,5 +6742,35 @@ class TestExperimentUtils(unittest.TestCase):
         dist3 = compute_lance_williams_distance_between_models(m5, m6)
         self.assertAlmostEqual(dist3, 0.0)
 
+
+    def test_compute_coefficient_of_divergence_between_models(self):
+        from src.experiment_utils import compute_coefficient_of_divergence_between_models
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, params):
+                super().__init__()
+                self.p = torch.nn.Parameter(torch.tensor(params))
+
+        # Test case 1: Identical models
+        m1 = DummyModelLocal([1.0, 2.0, 3.0])
+        m2 = DummyModelLocal([1.0, 2.0, 3.0])
+        dist1 = compute_coefficient_of_divergence_between_models(m1, m2)
+        self.assertAlmostEqual(dist1, 0.0)
+
+        # Test case 2: Empty models
+        m3 = DummyModelLocal([])
+        m4 = DummyModelLocal([])
+        dist2 = compute_coefficient_of_divergence_between_models(m3, m4)
+        self.assertAlmostEqual(dist2, 0.0)
+
+        # Test case 3: Different models
+        # x = [1.0, 2.0], y = [3.0, 4.0]
+        # x+y = [4.0, 6.0]
+        # diff = [-2.0, -2.0]
+        # div = (1/2) * ((-2/4)^2 + (-2/6)^2) = 0.5 * (0.25 + 1/9) = 0.5 * (9/36 + 4/36) = 0.5 * (13/36) = 13/72 ≈ 0.180555
+        m5 = DummyModelLocal([1.0, 2.0])
+        m6 = DummyModelLocal([3.0, 4.0])
+        dist3 = compute_coefficient_of_divergence_between_models(m5, m6)
+        self.assertAlmostEqual(dist3, 13.0/72.0, places=5)
+
 if __name__ == '__main__':
     unittest.main()

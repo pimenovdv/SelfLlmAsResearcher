@@ -576,3 +576,4 @@
 - [x] Добавить метрику Hamann distance (compute_hamann_distance_between_models) в src/experiment_utils.py и написать тесты.
 
 - [x] Реализовать метрику Lance-Williams distance
+- [x] Добавить функцию compute_coefficient_of_divergence_between_models в src/experiment_utils.py и написать тесты.

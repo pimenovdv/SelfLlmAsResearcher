@@ -1,1 +1,1 @@
-Реализована метрика Lance-Williams distance
+Реализована метрика Coefficient of Divergence и написаны тесты.

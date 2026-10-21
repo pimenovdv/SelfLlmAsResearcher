@@ -10461,3 +10461,38 @@ def compute_lance_williams_distance_between_models(model1: torch.nn.Module, mode
         return 0.0
 
     return float((diff_sum / sum_sum).item())
+
+def compute_coefficient_of_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Coefficient of Divergence between the parameters of two models.
+
+    The Coefficient of Divergence for two continuous vectors x and y is defined as:
+    (1 / n) * sum(((x_i - y_i) / (x_i + y_i))^2)
+    where n is the number of elements. Absolute values are used for parameter comparisons.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        epsilon (float): A small value to prevent division by zero.
+
+    Returns:
+        float: The coefficient of divergence. Returns 0.0 if the models have no parameters.
+    """
+    import torch
+
+    params1 = torch.cat([p.flatten() for p in model1.parameters()])
+    params2 = torch.cat([p.flatten() for p in model2.parameters()])
+
+    if params1.numel() == 0 or params2.numel() == 0:
+        return 0.0
+
+    n = params1.numel()
+    x = torch.abs(params1)
+    y = torch.abs(params2)
+
+    diff = x - y
+    sum_xy = x + y + epsilon
+
+    divergence = (1.0 / n) * torch.sum(torch.pow(diff / sum_xy, 2))
+
+    return float(divergence.item())

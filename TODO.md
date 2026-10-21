@@ -579,4 +579,4 @@
 - [x] Добавить функцию compute_coefficient_of_divergence_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику Forbes-2 (compute_forbes_2_distance_between_models) в src/experiment_utils.py и написать тесты.
 - [x] Реализовать метрику Sokal-Sneath-2 distance (compute_sokal_sneath_2_distance_between_models) в src/experiment_utils.py и написать тесты.
-- [ ] Добавить метрику Dice-2 distance в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику Dice-2 distance в src/experiment_utils.py и написать тесты.

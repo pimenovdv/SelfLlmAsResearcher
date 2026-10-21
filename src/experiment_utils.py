@@ -10566,3 +10566,32 @@ def compute_sokal_sneath_2_distance_between_models(model1: torch.nn.Module, mode
         return 0.0
 
     return float((2.0 * d / denominator).item())
+
+
+def compute_dice_2_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Dice-2 distance between the parameters of two models.
+    """
+    params1 = [param.flatten() for param in model1.parameters()]
+    params2 = [param.flatten() for param in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.shape != vec2.shape:
+        raise ValueError("Models must have the same number of parameters to compute Dice-2 distance.")
+
+    x = torch.abs(vec1)
+    y = torch.abs(vec2)
+
+    a = torch.sum(torch.minimum(x, y))
+    d = torch.sum(torch.abs(x - y))
+
+    denominator = 2.0 * a + d
+    if denominator == 0.0:
+        return 0.0
+
+    return float((d / denominator).item())

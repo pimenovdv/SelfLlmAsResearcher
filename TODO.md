@@ -581,3 +581,4 @@
 - [x] Реализовать метрику Sokal-Sneath-2 distance (compute_sokal_sneath_2_distance_between_models) в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику Dice-2 distance в src/experiment_utils.py и написать тесты.
 - [x] Реализовать метрику Spearman's distance (compute_spearman_distance_between_models) в src/experiment_utils.py и написать тесты.
+- [x] Реализовать метрику Kendall Tau distance (compute_kendall_tau_distance_between_models) в src/experiment_utils.py и написать тесты.

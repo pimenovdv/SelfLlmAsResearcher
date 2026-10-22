@@ -6900,5 +6900,27 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_spearman_distance_between_models(model3, model4)
         self.assertGreaterEqual(dist2, 0.0)
 
+
+    def test_compute_kendall_tau_distance_between_models(self):
+        from src.experiment_utils import compute_kendall_tau_distance_between_models
+        import torch
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, w1, w2):
+                super().__init__()
+                self.fc1 = torch.nn.Linear(2, 2)
+                self.fc1.weight.data = torch.tensor([[w1, w2], [w2, w1]])
+                self.fc1.bias.data = torch.tensor([w1, w2])
+
+        model1 = DummyModelLocal(1.0, 2.0)
+        model2 = DummyModelLocal(1.0, 2.0)
+        # Identical models should have distance 0.0 (correlation 1.0)
+        dist1 = compute_kendall_tau_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist1, 0.0, places=5)
+
+        model3 = DummyModelLocal(3.0, 2.0)
+        model4 = DummyModelLocal(1.0, 2.0)
+        dist2 = compute_kendall_tau_distance_between_models(model3, model4)
+        self.assertGreaterEqual(dist2, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

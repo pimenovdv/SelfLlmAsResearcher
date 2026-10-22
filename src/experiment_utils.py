@@ -10610,3 +10610,18 @@ def compute_spearman_distance_between_models(model1: torch.nn.Module, model2: to
     """
     correlation = compute_spearman_correlation_between_models(model1, model2)
     return 1.0 - correlation
+
+def compute_kendall_tau_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Kendall Tau distance between the parameters of two models.
+    Kendall Tau distance is defined as 1 - Kendall Tau correlation coefficient.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Kendall Tau distance.
+    """
+    correlation = compute_kendall_tau_correlation_between_models(model1, model2)
+    return 1.0 - correlation

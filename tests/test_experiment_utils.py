@@ -6880,5 +6880,25 @@ class TestExperimentUtils(unittest.TestCase):
         dist_empty = compute_dice_2_distance_between_models(model_empty1, model_empty2)
         self.assertEqual(dist_empty, 0.0)
 
+    def test_compute_spearman_distance_between_models(self):
+        from src.experiment_utils import compute_spearman_distance_between_models
+        import torch
+
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, val1, val2):
+                super().__init__()
+                self.param1 = torch.nn.Parameter(torch.tensor([val1, val2, 3.0]))
+
+        model1 = DummyModelLocal(1.0, 2.0)
+        model2 = DummyModelLocal(1.0, 2.0)
+        # Identical models should have distance 0.0 (correlation 1.0)
+        dist1 = compute_spearman_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist1, 0.0, places=5)
+
+        model3 = DummyModelLocal(3.0, 2.0)
+        model4 = DummyModelLocal(1.0, 2.0)
+        dist2 = compute_spearman_distance_between_models(model3, model4)
+        self.assertGreaterEqual(dist2, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

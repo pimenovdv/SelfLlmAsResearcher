@@ -1,1 +1,1 @@
-Pearson distance metric has been successfully added, tested, and marked in TODO.md. No further missing metrics.
+Epsilon-Insensitive loss has been successfully added, tested, and marked in TODO.md. No further missing metrics.

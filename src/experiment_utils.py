@@ -10649,3 +10649,15 @@ def compute_pearson_distance_between_models(model1: torch.nn.Module, model2: tor
     """
     corr = compute_pearson_correlation_between_models(model1, model2)
     return 1.0 - corr
+
+
+def compute_epsilon_insensitive_loss_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-3) -> float:
+    """
+    Computes the Epsilon-Insensitive Loss between the parameters of two models.
+    Loss = sum(max(0, |x_i - y_i| - epsilon))
+    """
+    loss = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        diff = torch.abs(p1 - p2)
+        loss += torch.sum(torch.clamp(diff - epsilon, min=0.0)).item()
+    return loss

@@ -6970,6 +6970,20 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_pearson_distance_between_models(model3, model4)
         self.assertGreaterEqual(dist2, 0.0)
 
+
+    def test_compute_epsilon_insensitive_loss_between_models(self):
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.w = torch.nn.Parameter(torch.tensor(w, dtype=torch.float32))
+
+        m1 = DummyModelLocal([1.0, 2.0, 3.0])
+        m2 = DummyModelLocal([1.05, 2.2, 2.9])
+
+        from src.experiment_utils import compute_epsilon_insensitive_loss_between_models
+        loss = compute_epsilon_insensitive_loss_between_models(m1, m2, epsilon=0.1)
+        self.assertAlmostEqual(loss, 0.1, places=5)
+
 if __name__ == '__main__':
 
     unittest.main()

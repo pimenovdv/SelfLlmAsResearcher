@@ -10640,3 +10640,12 @@ def compute_concordance_distance_between_models(model1: torch.nn.Module, model2:
     """
     ccc = compute_concordance_correlation_coefficient_between_models(model1, model2)
     return 1.0 - ccc
+
+
+def compute_pearson_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Pearson distance between the parameters of two PyTorch models.
+    Pearson distance is defined as 1.0 - Pearson correlation coefficient.
+    """
+    corr = compute_pearson_correlation_between_models(model1, model2)
+    return 1.0 - corr

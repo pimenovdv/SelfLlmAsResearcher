@@ -584,3 +584,4 @@
 - [x] Реализовать метрику Kendall Tau distance (compute_kendall_tau_distance_between_models) в src/experiment_utils.py и написать тесты.
 
 - [x] Реализовать метрику Concordance distance (compute_concordance_distance_between_models) в src/experiment_utils.py и написать тесты.
+- [x] Реализовать метрику Pearson distance (compute_pearson_distance_between_models) в src/experiment_utils.py и написать тесты.

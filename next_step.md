@@ -1,1 +1,1 @@
-Реализована метрика Concordance distance. Следующий шаг: выполнить все оставшиеся тесты и задачи.
+Pearson distance metric has been successfully added, tested, and marked in TODO.md. No further missing metrics.

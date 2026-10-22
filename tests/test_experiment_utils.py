@@ -6946,5 +6946,30 @@ class TestExperimentUtils(unittest.TestCase):
         dist2 = compute_concordance_distance_between_models(model3, model4)
         self.assertGreaterEqual(dist2, 0.0)
 
+
+    def test_compute_pearson_distance_between_models(self):
+        import torch
+        import torch.nn as nn
+        from src.experiment_utils import compute_pearson_distance_between_models
+
+        class DummyModelLocal(nn.Module):
+            def __init__(self, val1, val2):
+                super().__init__()
+                self.fc1 = nn.Linear(2, 2, bias=False)
+                self.fc1.weight.data.fill_(val1)
+                self.fc2 = nn.Linear(2, 2, bias=False)
+                self.fc2.weight.data.fill_(val2)
+
+        model1 = DummyModelLocal(1.0, 2.0)
+        model2 = DummyModelLocal(1.0, 2.0)
+        dist1 = compute_pearson_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist1, 0.0, places=5)
+
+        model3 = DummyModelLocal(3.0, 2.0)
+        model4 = DummyModelLocal(1.0, 2.0)
+        dist2 = compute_pearson_distance_between_models(model3, model4)
+        self.assertGreaterEqual(dist2, 0.0)
+
 if __name__ == '__main__':
+
     unittest.main()

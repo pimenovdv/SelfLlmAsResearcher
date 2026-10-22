@@ -10625,3 +10625,18 @@ def compute_kendall_tau_distance_between_models(model1: torch.nn.Module, model2:
     """
     correlation = compute_kendall_tau_correlation_between_models(model1, model2)
     return 1.0 - correlation
+
+def compute_concordance_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Concordance distance between the parameters of two models.
+    It is defined as 1.0 - Concordance Correlation Coefficient (CCC).
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Concordance distance.
+    """
+    ccc = compute_concordance_correlation_coefficient_between_models(model1, model2)
+    return 1.0 - ccc

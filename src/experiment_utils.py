@@ -10595,3 +10595,18 @@ def compute_dice_2_distance_between_models(model1: torch.nn.Module, model2: torc
         return 0.0
 
     return float((d / denominator).item())
+
+def compute_spearman_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """
+    Computes the Spearman distance between the parameters of two models.
+    Spearman distance is defined as 1 - Spearman correlation coefficient.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Spearman distance.
+    """
+    correlation = compute_spearman_correlation_between_models(model1, model2)
+    return 1.0 - correlation

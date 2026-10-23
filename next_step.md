@@ -1,1 +1,1 @@
-Implement Structural Similarity Index metric
+Implement Peak Signal-to-Noise Ratio (PSNR) metric

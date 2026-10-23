@@ -7026,6 +7026,42 @@ class TestExperimentUtils(unittest.TestCase):
         m_empty2 = DummyModelLocal([])
         self.assertEqual(compute_universal_quality_index_between_models(m_empty1, m_empty2), 0.0)
 
+
+    def test_compute_structural_similarity_index_between_models(self):
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.w = torch.nn.Parameter(torch.tensor(w, dtype=torch.float32))
+
+        m1 = DummyModelLocal([1.0, 2.0, 3.0])
+        m2 = DummyModelLocal([2.0, 3.0, 4.0])
+        # x = [1, 2, 3] -> mu_x = 2, var_x = 2/3
+        # y = [2, 3, 4] -> mu_y = 3, var_y = 2/3
+        # cov(x, y) = mean((x - 2) * (y - 3)) = mean([-1*(-1), 0*0, 1*1]) = 2/3
+
+        c1 = 1e-4
+        c2 = 9e-4
+
+        mu_x = 2.0
+        mu_y = 3.0
+        var_x = 2.0/3.0
+        var_y = 2.0/3.0
+        cov = 2.0/3.0
+
+        numerator = (2 * mu_x * mu_y + c1) * (2 * cov + c2)
+        denominator = (mu_x**2 + mu_y**2 + c1) * (var_x + var_y + c2)
+        expected = numerator / denominator
+
+        from src.experiment_utils import compute_structural_similarity_index_between_models
+        ssim = compute_structural_similarity_index_between_models(m1, m2, c1=c1, c2=c2)
+        self.assertAlmostEqual(ssim, expected, places=5)
+
+        # Test empty models
+        m_empty1 = DummyModelLocal([])
+        m_empty2 = DummyModelLocal([])
+        self.assertEqual(compute_structural_similarity_index_between_models(m_empty1, m_empty2), 0.0)
+
+
 if __name__ == '__main__':
 
     unittest.main()

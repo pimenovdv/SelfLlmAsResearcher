@@ -10717,3 +10717,42 @@ def compute_universal_quality_index_between_models(model1: torch.nn.Module, mode
 
     uqi = numerator / denominator
     return uqi.item()
+
+def compute_structural_similarity_index_between_models(model1: torch.nn.Module, model2: torch.nn.Module, c1: float = 1e-4, c2: float = 9e-4) -> float:
+    """
+    Computes the Structural Similarity Index (SSIM) between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        c1 (float, optional): Constant for stabilization. Defaults to 1e-4.
+        c2 (float, optional): Constant for stabilization. Defaults to 9e-4.
+
+    Returns:
+        float: The Structural Similarity Index between the two models.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).float()
+    vec2 = torch.cat(params2).float()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    mu1 = torch.mean(vec1)
+    mu2 = torch.mean(vec2)
+
+    var1 = torch.var(vec1, unbiased=False)
+    var2 = torch.var(vec2, unbiased=False)
+
+    cov = torch.mean((vec1 - mu1) * (vec2 - mu2))
+
+    numerator = (2 * mu1 * mu2 + c1) * (2 * cov + c2)
+    denominator = (mu1**2 + mu2**2 + c1) * (var1 + var2 + c2)
+
+    ssim = numerator / denominator
+    return ssim.item()

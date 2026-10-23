@@ -7062,6 +7062,36 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertEqual(compute_structural_similarity_index_between_models(m_empty1, m_empty2), 0.0)
 
 
+
+    def test_compute_laplacian_kernel_between_models(self):
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, weights):
+                super().__init__()
+                self.p = torch.nn.Parameter(torch.tensor(weights, dtype=torch.float32))
+
+        # Test case 1: identical models -> l1_norm = 0 -> exp(0) = 1.0
+        m1 = DummyModelLocal([1.0, 2.0, 3.0])
+        m2 = DummyModelLocal([1.0, 2.0, 3.0])
+
+        from src.experiment_utils import compute_laplacian_kernel_between_models
+        kernel = compute_laplacian_kernel_between_models(m1, m2, gamma=1.0)
+        self.assertAlmostEqual(kernel, 1.0, places=5)
+
+        # Test case 2: diff = [1, 1, 1], l1_norm = 3, gamma = 1.0 -> exp(-3) = 0.049787
+        m3 = DummyModelLocal([2.0, 3.0, 4.0])
+        kernel2 = compute_laplacian_kernel_between_models(m1, m3, gamma=1.0)
+        import math
+        self.assertAlmostEqual(kernel2, math.exp(-3.0), places=5)
+
+        # Test case 3: diff = [1, 1, 1], l1_norm = 3, gamma = 0.5 -> exp(-1.5) = 0.22313
+        kernel3 = compute_laplacian_kernel_between_models(m1, m3, gamma=0.5)
+        self.assertAlmostEqual(kernel3, math.exp(-1.5), places=5)
+
+        # Test empty models
+        m_empty1 = DummyModelLocal([])
+        m_empty2 = DummyModelLocal([])
+        self.assertEqual(compute_laplacian_kernel_between_models(m_empty1, m_empty2), 0.0)
+
 if __name__ == '__main__':
 
     unittest.main()

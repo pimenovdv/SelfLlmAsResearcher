@@ -10756,3 +10756,32 @@ def compute_structural_similarity_index_between_models(model1: torch.nn.Module, 
 
     ssim = numerator / denominator
     return ssim.item()
+
+def compute_laplacian_kernel_between_models(model1: torch.nn.Module, model2: torch.nn.Module, gamma: float = 1.0) -> float:
+    """
+    Computes the Laplacian kernel between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first neural network model.
+        model2 (torch.nn.Module): The second neural network model.
+        gamma (float, optional): The scale parameter of the Laplacian kernel. Defaults to 1.0.
+
+    Returns:
+        float: The Laplacian kernel value between the two models.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1)
+    vec2 = torch.cat(params2)
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    diff = vec1 - vec2
+    l1_norm = torch.sum(torch.abs(diff))
+
+    return float(torch.exp(-gamma * l1_norm).item())

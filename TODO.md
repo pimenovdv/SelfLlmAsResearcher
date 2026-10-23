@@ -591,3 +591,4 @@
 - [x] Добавить метрику Universal Quality Index (compute_universal_quality_index_between_models) в src/experiment_utils.py и написать тесты.
 
 - [x] Implement Structural Similarity Index metric
+- [x] Добавить функцию compute_laplacian_kernel_between_models в src/experiment_utils.py и написать тесты.

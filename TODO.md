@@ -589,3 +589,5 @@
 - [x] Добавить метрику Epsilon-Insensitive Loss (compute_epsilon_insensitive_loss_between_models) в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию compute_fractional_distance_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить метрику Universal Quality Index (compute_universal_quality_index_between_models) в src/experiment_utils.py и написать тесты.
+
+- [x] Implement Structural Similarity Index metric

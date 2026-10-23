@@ -10661,3 +10661,17 @@ def compute_epsilon_insensitive_loss_between_models(model1: torch.nn.Module, mod
         diff = torch.abs(p1 - p2)
         loss += torch.sum(torch.clamp(diff - epsilon, min=0.0)).item()
     return loss
+
+def compute_fractional_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, f: float = 0.5) -> float:
+    """
+    Computes the Fractional Distance between the parameters of two models.
+    Fractional distance is defined as sum(abs(x - y)**f)**(1/f).
+    """
+    if f <= 0:
+        raise ValueError("f must be strictly positive")
+
+    dist_sum = 0.0
+    for p1, p2 in zip(model1.parameters(), model2.parameters()):
+        diff = torch.abs(p1 - p2)
+        dist_sum += torch.sum(diff ** f).item()
+    return dist_sum ** (1.0 / f)

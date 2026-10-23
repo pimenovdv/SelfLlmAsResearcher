@@ -1,1 +1,1 @@
-Реализована метрика Fractional distance.
+Implement Structural Similarity Index metric

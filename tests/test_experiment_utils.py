@@ -7001,6 +7001,31 @@ class TestExperimentUtils(unittest.TestCase):
         dist = compute_fractional_distance_between_models(m1, m2, f=0.5)
         self.assertAlmostEqual(dist, 2.91421356, places=5)
 
+
+    def test_compute_universal_quality_index_between_models(self):
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.w = torch.nn.Parameter(torch.tensor(w, dtype=torch.float32))
+
+        m1 = DummyModelLocal([1.0, 2.0, 3.0])
+        m2 = DummyModelLocal([2.0, 3.0, 4.0])
+        # x = [1, 2, 3] -> mu_x = 2, var_x = 2/3
+        # y = [2, 3, 4] -> mu_y = 3, var_y = 2/3
+        # cov(x, y) = mean((x - 2) * (y - 3)) = mean([-1*(-1), 0*0, 1*1]) = mean([1, 0, 1]) = 2/3
+        # numerator = 4 * 2 * 3 * (2/3) = 16
+        # denominator = (2^2 + 3^2) * (2/3 + 2/3) = (4 + 9) * (4/3) = 13 * 4/3 = 52/3
+        # uqi = 16 / (52/3) = 48 / 52 = 12 / 13 ≈ 0.9230769
+
+        from src.experiment_utils import compute_universal_quality_index_between_models
+        uqi = compute_universal_quality_index_between_models(m1, m2)
+        self.assertAlmostEqual(uqi, 12 / 13, places=5)
+
+        # Test empty models
+        m_empty1 = DummyModelLocal([])
+        m_empty2 = DummyModelLocal([])
+        self.assertEqual(compute_universal_quality_index_between_models(m_empty1, m_empty2), 0.0)
+
 if __name__ == '__main__':
 
     unittest.main()

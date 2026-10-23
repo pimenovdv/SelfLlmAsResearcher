@@ -10675,3 +10675,45 @@ def compute_fractional_distance_between_models(model1: torch.nn.Module, model2: 
         diff = torch.abs(p1 - p2)
         dist_sum += torch.sum(diff ** f).item()
     return dist_sum ** (1.0 / f)
+
+def compute_universal_quality_index_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float:
+    """
+    Computes the Universal Quality Index (UQI) between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+        epsilon (float, optional): Small value to avoid division by zero. Defaults to 1e-8.
+
+    Returns:
+        float: The Universal Quality Index between the two models.
+    """
+    params1 = [p.flatten() for p in model1.parameters()]
+    params2 = [p.flatten() for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    vec1 = torch.cat(params1).float()
+    vec2 = torch.cat(params2).float()
+
+    if vec1.numel() == 0 or vec2.numel() == 0:
+        return 0.0
+
+    mu1 = torch.mean(vec1)
+    mu2 = torch.mean(vec2)
+
+    var1 = torch.var(vec1, unbiased=False)
+    var2 = torch.var(vec2, unbiased=False)
+
+    # Covariance
+    cov = torch.mean((vec1 - mu1) * (vec2 - mu2))
+
+    numerator = 4 * mu1 * mu2 * cov
+    denominator = (mu1**2 + mu2**2) * (var1 + var2)
+
+    if denominator.abs() < epsilon:
+        return 0.0
+
+    uqi = numerator / denominator
+    return uqi.item()

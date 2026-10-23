@@ -1,1 +1,1 @@
-Epsilon-Insensitive loss has been successfully added, tested, and marked in TODO.md. No further missing metrics.
+Реализована метрика Fractional distance.

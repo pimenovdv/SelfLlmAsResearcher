@@ -6984,6 +6984,23 @@ class TestExperimentUtils(unittest.TestCase):
         loss = compute_epsilon_insensitive_loss_between_models(m1, m2, epsilon=0.1)
         self.assertAlmostEqual(loss, 0.1, places=5)
 
+
+    def test_compute_fractional_distance_between_models(self):
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, w):
+                super().__init__()
+                self.w = torch.nn.Parameter(torch.tensor(w, dtype=torch.float32))
+
+        m1 = DummyModelLocal([1.0, 2.0, 3.0])
+        m2 = DummyModelLocal([1.5, 2.0, 4.0])
+        # |x-y| = [0.5, 0.0, 1.0]
+        # f = 0.5: sum(x^0.5) = sqrt(0.5) + 0 + sqrt(1.0) = 0.707106 + 1.0 = 1.707106
+        # result = 1.707106 ** 2 = 2.914213
+
+        from src.experiment_utils import compute_fractional_distance_between_models
+        dist = compute_fractional_distance_between_models(m1, m2, f=0.5)
+        self.assertAlmostEqual(dist, 2.91421356, places=5)
+
 if __name__ == '__main__':
 
     unittest.main()

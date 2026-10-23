@@ -587,3 +587,4 @@
 - [x] Реализовать метрику Pearson distance (compute_pearson_distance_between_models) в src/experiment_utils.py и написать тесты.
 
 - [x] Добавить метрику Epsilon-Insensitive Loss (compute_epsilon_insensitive_loss_between_models) в src/experiment_utils.py и написать тесты.
+- [x] Добавить функцию compute_fractional_distance_between_models в src/experiment_utils.py и написать тесты.

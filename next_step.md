@@ -1,1 +1,1 @@
-Implement Peak Signal-to-Noise Ratio (PSNR) metric
+Все задачи выполнены

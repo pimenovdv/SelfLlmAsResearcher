@@ -7092,6 +7092,22 @@ class TestExperimentUtils(unittest.TestCase):
         m_empty2 = DummyModelLocal([])
         self.assertEqual(compute_laplacian_kernel_between_models(m_empty1, m_empty2), 0.0)
 
+
+    def test_normalize(self):
+        import torch
+        from src.experiment_utils import normalize
+
+        # Test with a regular tensor
+        tensor = torch.tensor([3.0, 4.0])
+        # L2 norm is 5.0. Normalized tensor should be [3.0/5.0, 4.0/5.0]
+        normalized_tensor = normalize(tensor, epsilon=0.0)
+        self.assertTrue(torch.allclose(normalized_tensor, torch.tensor([0.6, 0.8])))
+
+        # Test with a zero tensor (handles division by zero with epsilon)
+        zero_tensor = torch.zeros(3)
+        normalized_zero = normalize(zero_tensor, epsilon=1e-8)
+        self.assertTrue(torch.allclose(normalized_zero, torch.zeros(3)))
+
 if __name__ == '__main__':
 
     unittest.main()

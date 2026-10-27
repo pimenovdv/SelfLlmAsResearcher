@@ -10785,3 +10785,17 @@ def compute_laplacian_kernel_between_models(model1: torch.nn.Module, model2: tor
     l1_norm = torch.sum(torch.abs(diff))
 
     return float(torch.exp(-gamma * l1_norm).item())
+
+def normalize(tensor: torch.Tensor, epsilon: float = 1e-8) -> torch.Tensor:
+    """
+    Normalizes a tensor by its L2 norm.
+
+    Args:
+        tensor (torch.Tensor): The input tensor.
+        epsilon (float): A small value added to the norm to prevent division by zero.
+
+    Returns:
+        torch.Tensor: The normalized tensor.
+    """
+    norm = torch.norm(tensor, p=2)
+    return tensor / (norm + epsilon)

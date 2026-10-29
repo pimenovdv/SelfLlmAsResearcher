@@ -1,1 +1,1 @@
-Все текущие задачи из TODO.md завершены, тесты пройдены. Ожидание новых задач.
+Waiting for the next priority task or metric.

@@ -7108,6 +7108,33 @@ class TestExperimentUtils(unittest.TestCase):
         normalized_zero = normalize(zero_tensor, epsilon=1e-8)
         self.assertTrue(torch.allclose(normalized_zero, torch.zeros(3)))
 
-if __name__ == '__main__':
 
+    def test_compute_non_intersection_distance(self):
+        from src.experiment_utils import compute_non_intersection_distance_between_models
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, values):
+                super().__init__()
+                self.param = torch.nn.Parameter(torch.tensor(values, dtype=torch.float32))
+
+        # Test case 1: Identical models
+        model1 = DummyModelLocal([1.0, 2.0, 3.0])
+        model2 = DummyModelLocal([1.0, 2.0, 3.0])
+        dist1 = compute_non_intersection_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist1, 0.0, places=5)
+
+        # Test case 2: Different models
+        model3 = DummyModelLocal([1.0, 0.0, 3.0])
+        model4 = DummyModelLocal([0.0, 2.0, 3.0])
+        # |1-0| + |0-2| + |3-3| = 1 + 2 + 0 = 3
+        # 0.5 * 3 = 1.5
+        dist2 = compute_non_intersection_distance_between_models(model3, model4)
+        self.assertAlmostEqual(dist2, 1.5, places=5)
+
+        # Test case 3: Empty models
+        class EmptyModel(torch.nn.Module):
+            pass
+        dist3 = compute_non_intersection_distance_between_models(EmptyModel(), EmptyModel())
+        self.assertEqual(dist3, 0.0)
+
+if __name__ == '__main__':
     unittest.main()

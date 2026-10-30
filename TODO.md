@@ -593,3 +593,4 @@
 - [x] Implement Structural Similarity Index metric
 - [x] Добавить функцию compute_laplacian_kernel_between_models в src/experiment_utils.py и написать тесты.
 - [x] Добавить функцию normalize в src/experiment_utils.py и написать тесты.
+- [x] Добавить метрику Non-Intersection distance (compute_non_intersection_distance_between_models) в src/experiment_utils.py и написать тесты.

@@ -10799,3 +10799,30 @@ def normalize(tensor: torch.Tensor, epsilon: float = 1e-8) -> torch.Tensor:
     """
     norm = torch.norm(tensor, p=2)
     return tensor / (norm + epsilon)
+
+def compute_non_intersection_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Non-Intersection distance between the parameters of two models.
+
+    The Non-Intersection distance is defined as 0.5 * sum(|p_i - q_i|).
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Non-Intersection distance.
+    """
+    import torch
+    params1 = [p for p in model1.parameters()]
+    params2 = [p for p in model2.parameters()]
+
+    if not params1 or not params2:
+        return 0.0
+
+    distance_sum = 0.0
+    for p1, p2 in zip(params1, params2):
+        p1_flat = p1.view(-1).float()
+        p2_flat = p2.view(-1).float()
+        distance_sum += torch.sum(torch.abs(p1_flat - p2_flat)).item()
+
+    return float(0.5 * distance_sum)

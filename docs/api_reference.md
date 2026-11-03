@@ -1591,3 +1591,27 @@ Computes the Jensen-Shannon (JS) Divergence between the parameters of two models
 ### `compute_jensen_shannon_distance_between_models`
 **Description:** Computes the Jensen-Shannon (JS) Distance between the parameters of two models (square root of JS divergence).
 **Signature:** `compute_jensen_shannon_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module, epsilon: float = 1e-8) -> float`
+
+---
+
+### `compute_anderberg_distance_between_models(model1: torch.nn.modules.module.Module, model2: torch.nn.modules.module.Module) -> float`
+Вычисляет расстояние Андерберга между параметрами двух моделей.
+
+Args:
+    model1: Первая модель PyTorch.
+    model2: Вторая модель PyTorch.
+
+Returns:
+    Значение расстояния (float).
+
+---
+
+### `compute_anderson_darling_distance_between_models(model1: torch.nn.modules.module.Module, model2: torch.nn.modules.module.Module) -> float`
+Вычисляет статистику Андерсона-Дарлинга между параметрами двух моделей.
+
+Args:
+    model1: Первая модель PyTorch.
+    model2: Вторая модель PyTorch.
+
+Returns:
+    Значение статистики (float).

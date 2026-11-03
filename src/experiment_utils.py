@@ -3548,7 +3548,7 @@ def compute_activation_outlier_ratio(model: torch.nn.Module, input_data: torch.T
 
 def _gini_coefficient(vec: torch.Tensor) -> float:
     """
-    Вспомогательная функция для вычисления коэффициента Джини 1D тензора.
+    Computes the Gini coefficient for a 1D tensor.
     """
     if vec.numel() == 0:
         return 0.0

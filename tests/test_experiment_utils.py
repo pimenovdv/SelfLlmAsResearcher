@@ -3572,21 +3572,32 @@ class TestExperimentUtils(unittest.TestCase):
         self.assertLessEqual(dist, 1.0)
 
     def test_compute_total_variation_distance_between_models(self):
-        import torch
         from src.experiment_utils import compute_total_variation_distance_between_models
-        model1 = torch.nn.Linear(10, 5)
-        model2 = torch.nn.Linear(10, 5)
+        import torch
+        class DummyModelLocal(torch.nn.Module):
+            def __init__(self, weights):
+                super().__init__()
+                self.w = torch.nn.Parameter(torch.tensor(weights))
 
-        with torch.no_grad():
-            model1.weight.fill_(1.0)
-            model1.bias.fill_(1.0)
-            model2.weight.fill_(2.0)
-            model2.bias.fill_(2.0)
+        # Test case 1: Identical models
+        model1 = DummyModelLocal([1.0, 2.0, 3.0])
+        model2 = DummyModelLocal([1.0, 2.0, 3.0])
+        dist1 = compute_total_variation_distance_between_models(model1, model2)
+        self.assertAlmostEqual(dist1, 0.0, places=5)
 
-        dist = compute_total_variation_distance_between_models(model1, model2)
-        self.assertIsInstance(dist, float)
-        self.assertGreaterEqual(dist, 0.0)
-        self.assertLessEqual(dist, 1.0)
+        # Test case 2: Different models
+        model3 = DummyModelLocal([1.0, 0.0, 3.0])
+        model4 = DummyModelLocal([0.0, 2.0, 3.0])
+        # |1-0| + |0-2| + |3-3| = 1 + 2 + 0 = 3
+        # 0.5 * 3 = 1.5
+        dist2 = compute_total_variation_distance_between_models(model3, model4)
+        self.assertAlmostEqual(dist2, 1.5, places=5)
+
+        # Test case 3: Empty models
+        class EmptyModel(torch.nn.Module):
+            pass
+        dist3 = compute_total_variation_distance_between_models(EmptyModel(), EmptyModel())
+        self.assertEqual(dist3, 0.0)
 
     def test_compute_renyi_divergence_between_models(self):
         import torch

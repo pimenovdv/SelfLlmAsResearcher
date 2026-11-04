@@ -5603,25 +5603,30 @@ def compute_jaccard_similarity_between_models(model1: torch.nn.Module, model2: t
     return float((intersection / union).item())
 
 def compute_total_variation_distance_between_models(model1: torch.nn.Module, model2: torch.nn.Module) -> float:
+    """Computes the Total Variation distance between the parameters of two models.
+
+    Args:
+        model1 (torch.nn.Module): The first model.
+        model2 (torch.nn.Module): The second model.
+
+    Returns:
+        float: The Total Variation distance.
     """
-    Вычисляет Total Variation Distance (TVD) между распределениями абсолютных значений весов двух моделей.
-    """
-    params1 = [param.flatten() for param in model1.parameters()]
-    params2 = [param.flatten() for param in model2.parameters()]
+    import torch
+    params1 = [p.view(-1).float() for p in model1.parameters()]
+    params2 = [p.view(-1).float() for p in model2.parameters()]
 
     if not params1 or not params2:
         return 0.0
 
-    vec1 = torch.cat(params1).abs()
-    vec2 = torch.cat(params2).abs()
+    p_flat = torch.cat(params1)
+    q_flat = torch.cat(params2)
 
-    if vec1.numel() == 0 or vec2.numel() == 0:
-        return 0.0
+    if p_flat.shape != q_flat.shape:
+        raise ValueError("Models must have the same parameter shapes.")
 
-    p = vec1 / (vec1.sum() + 1e-12)
-    q = vec2 / (vec2.sum() + 1e-12)
-
-    return float((0.5 * torch.sum(torch.abs(p - q))).item())
+    distance = 0.5 * torch.sum(torch.abs(p_flat - q_flat)).item()
+    return float(distance)
 
 def compute_renyi_divergence_between_models(model1: torch.nn.Module, model2: torch.nn.Module, alpha: float = 2.0) -> float:
     """
